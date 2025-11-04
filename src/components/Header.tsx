@@ -54,7 +54,7 @@ export default function Header() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
-          className="text-base text-2xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-white text-center max-w-4xl mb-8 sm:mb-10 md:mb-12 leading-relaxed px-2"
+          className="text-base text-2xl sm:text-4xl md:text-2xl lg:text-5xl xl:text-4xl text-white text-center max-w-4xl mb-8 sm:mb-10 md:mb-12 leading-relaxed px-2"
         >
           The Quantum Device Community aims to be an open association for pioneers of the quantum device design and simulation community.
         </motion.p>
