@@ -33,7 +33,7 @@ export default function Header() {
           alt="QDC Logo"
           width={120}
           height={120}
-          className="w-12 h-12 sm:w-16 sm:h-16 md:w-24 md:h-24 lg:w-28 lg:h-28"
+          className="w-12 h-12 sm:w-16 sm:h-16 md:w-24 md:h-24 lg:w-28 lg:h-28 transition-transform duration-200 hover:scale-110"
         />
       </motion.div>
 
@@ -62,12 +62,12 @@ export default function Header() {
         {/* Join Us Link (styled like a button) with gradient and expand-on-hover/focus */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
+          animate={{ opacity: 1, scale: 0.87 }}
           transition={{ duration: 0.6, delay: 0.6, ease: 'easeOut' }}
         >
           <Link
             href="/join"
-            className="inline-block bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold text-lg sm:text-xl md:text-2xl px-8 sm:px-10 md:px-14 py-3 sm:py-4 md:py-5 rounded-full transition-transform duration-200 ease-out transform hover:scale-105 focus:scale-105 active:scale-100 shadow-2xl outline-none focus:ring-4 focus:ring-indigo-300/40"
+            className="inline-block bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold text-lg sm:text-xl md:text-2xl px-8 sm:px-10 md:px-14 py-3 sm:py-4 md:py-5 rounded-full transition-transform duration-200 ease-out transform hover:scale-[1.02] focus:scale-[1.02] active:scale-100 shadow-2xl outline-none focus:ring-4 focus:ring-indigo-300/40"
             aria-label="Join Quantum Device Consortium"
           >
             Join Us
