@@ -10,12 +10,12 @@ export default function AboutUs() {
         {/* What We Do Section */}
         <div className="mb-20 md:mb-32">
           <AnimatedSection direction="fade" delay={0.1}>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black text-center mb-8 md:mb-12">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-black text-center mb-8 md:mb-12">
               What We Do
             </h2>
           </AnimatedSection>
           <AnimatedSection direction="up" delay={0.2}>
-            <p className="text-base sm:text-lg md:text-xl text-black text-center max-w-5xl mx-auto leading-relaxed px-4">
+            <p className="text-lg sm:text-xl md:text-2xl text-black text-center max-w-5xl mx-auto leading-relaxed px-4">
               At QDC, we maintain and extend open-source tools for quantum device design and simulation. Our work includes contributions to widely used platforms 
               such as Qiskit Metal, AWS Palace, and other software essential for quantum research and engineering. By improving these tools, we enable researchers and 
               developers worldwide to design, simulate, and optimize superconducting quantum devices more efficiently.
@@ -42,10 +42,10 @@ export default function AboutUs() {
 
           {/* Text Content */}
           <AnimatedSection direction="right" delay={0.2} className="order-2 lg:order-2">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-6 md:mb-8">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-black mb-6 md:mb-8">
               About Us
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-black leading-relaxed">
+            <p className="text-lg sm:text-xl md:text-2xl text-black leading-relaxed">
               We are a collaborative group of research scientists dedicated to advancing quantum device 
               science with a focus on superconducting systems. Supported by the Quantum Computing 
               Student Association (QCSA) at UCLA and USC, our work brings together researchers and 

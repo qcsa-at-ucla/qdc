@@ -44,7 +44,7 @@ export default function Header() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.4, 0.25, 1] }}
-          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-white text-center mb-6 sm:mb-8 break-words sm:whitespace-nowrap px-2"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-white text-center mb-6 sm:mb-8 break-words sm:whitespace-nowrap px-2"
         >
           Quantum Device Consortium
         </motion.h1>
@@ -54,7 +54,7 @@ export default function Header() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
-          className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white text-center max-w-4xl mb-8 sm:mb-10 md:mb-12 leading-relaxed px-2"
+          className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white text-center max-w-4xl mb-8 sm:mb-10 md:mb-12 leading-relaxed px-2"
         >
           The Quantum Device Community aims to be an open association for pioneers of the quantum device design and simulation community.
         </motion.p>
@@ -67,7 +67,7 @@ export default function Header() {
         >
           <Link
             href="/join"
-            className="inline-block bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold text-lg sm:text-xl md:text-2xl px-8 sm:px-10 md:px-14 py-3 sm:py-4 md:py-5 rounded-full transition-transform duration-200 ease-out transform hover:scale-[1.02] focus:scale-[1.02] active:scale-100 shadow-2xl outline-none focus:ring-4 focus:ring-indigo-300/40"
+            className="inline-block bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold text-xl sm:text-2xl md:text-3xl px-8 sm:px-10 md:px-14 py-3 sm:py-4 md:py-5 rounded-full transition-transform duration-200 ease-out transform hover:scale-[1.02] focus:scale-[1.02] active:scale-100 shadow-2xl outline-none focus:ring-4 focus:ring-indigo-300/40"
             aria-label="Join Quantum Device Consortium"
           >
             Join Us

@@ -31,7 +31,7 @@ export default function Opportunity() {
           {/* Left: Text */}
           <AnimatedSection direction="left" delay={0.1}>
             <div>
-              <p className="text-4xl md:text-5xl font-bold text-white leading-tight font-sans">
+              <p className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight font-sans">
                 Provide opportunity and projects to students and individuals aiming to get exposed to the field
               </p>
             </div>
@@ -53,7 +53,7 @@ export default function Opportunity() {
                 whileHover={{ scale: 1.02 }}
                 className="group relative bg-white/15 backdrop-blur-sm rounded-xl px-8 py-4 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-700/40"
               >
-                <p className="text-white text-xl font-medium text-center transition-colors duration-300 ease-in-out group-hover:text-gray-400 font-sans">
+                <p className="text-white text-xl sm:text-2xl font-medium text-center transition-colors duration-300 ease-in-out group-hover:text-gray-400 font-sans">
                   {title}
                 </p>
               </motion.div>
