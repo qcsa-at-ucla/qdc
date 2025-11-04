@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Header() {
   return (
@@ -40,10 +41,14 @@ export default function Header() {
           The Quantum Device Community aims to be an open association for pioneers of the quantum device design and simulation community.
         </p>
 
-        {/* Join Us Button with gradient */}
-        <button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold text-lg sm:text-xl md:text-2xl px-10 sm:px-12 md:px-16 py-3 sm:py-4 md:py-5 rounded-full transition-all duration-300 ease-in-out hover:scale-105 shadow-2xl">
+        {/* Join Us Link (styled like a button) with gradient and expand-on-hover/focus */}
+        <Link
+          href="/join"
+          className="inline-block bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold text-lg sm:text-xl md:text-2xl px-8 sm:px-10 md:px-14 py-3 sm:py-4 md:py-5 rounded-full transition-transform duration-200 ease-out transform hover:scale-105 focus:scale-105 active:scale-100 shadow-2xl outline-none focus:ring-4 focus:ring-indigo-300/40"
+          aria-label="Join Quantum Device Consortium"
+        >
           Join Us
-        </button>
+        </Link>
       </div>
     </header>
   );
