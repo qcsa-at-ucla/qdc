@@ -51,7 +51,7 @@ export default function Opportunity() {
                   ease: 'easeOut',
                 }}
                 whileHover={{ scale: 1.02 }}
-                className="group relative bg-white/15 backdrop-blur-sm rounded-xl px-8 py-4 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-700/40"
+                className="group relative bg-white/15 backdrop-blur-sm rounded-xl px-8 py-4 cursor-pointer transition-all duration-300 ease-in-out hover:bg-neutral-800/60 hover:scale-[1.02] text-gray-200 hover:text-white"
               >
                 <p className="text-white text-xl sm:text-2xl font-medium text-center transition-colors duration-300 ease-in-out group-hover:text-gray-400 font-sans">
                   {title}
