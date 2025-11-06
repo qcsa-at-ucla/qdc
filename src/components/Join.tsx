@@ -28,21 +28,21 @@ export default function Join() {
     const form = event.currentTarget;
     const formData = new FormData(form);
 
-    const membershipData = {
+    const joinData = {
       firstName: formData.get("firstName") as string,
       lastName: formData.get("lastName") as string,
       email: formData.get("email") as string,
-      educationalBackground: formData.get("educationalBackground") as string,
-      reasonToJoin: formData.get("reasonToJoin") as string,
-      institutionName: formData.get("institutionName") as string,
+      designation: formData.get("designation") as string,
+      location: formData.get("location") as string,
     };
 
     try {
-      const response = await fetch("/api/submit-membership", {
+      const response = await fetch("/api/submit-join", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(membershipData),
+        body: JSON.stringify(joinData),
       });
+
 
       if (response.ok) {
         setTimeout(() => setSent(true), 300);
@@ -139,7 +139,7 @@ export default function Join() {
           </form>
         ) : (
           <div className="text-center text-main">
-            <h3 className="text-3xl font-bold mb-2">Thanks for registering!</h3>
+            <h3 className="text-3xl font-bold mb-2">Thanks for joining!</h3>
             <p className="text-lg font-normal">We received your response.</p>
           </div>
         )}
