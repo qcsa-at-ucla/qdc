@@ -1,78 +1,85 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Footer() {
   return (
+    <footer className="bg-[#090714] text-neutral-300 py-6 px-8">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+
+        {/*Social Media Links*/}
+
+
+        <div className="flex items-center space-x-6">
 
 
 
-    <footer className="relative bg-gradient-to-b from-neutral-900 via-black to-black text-neutral-300 mt-0">
-      
-      
-      {/*Curved Footer Bar*/}
-      <div className="absolute -top-10 left-0 w-full overflow-hidden leading-none rotate-180">
-        <svg
-          viewBox="0 0 1200 120"
-          preserveAspectRatio="none"
-          className="relative block w-[calc(100%+1.3px)] h-10 text-neutral-900"
-        >
-          <path
-            d="M985.66 83.4c-70.5 0-142-16.1-212.5-33.3C704.66 31.4 634.66 15.4 564.66 15.4S424.66 31.4 354.66 50.1c-70.5 17.2-142 33.3-212.5 33.3H0v36h1200v-36h-214.34z"
-            fill="currentColor"
-          ></path>
-        </svg>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
-        viewport={{ once: true }}
-        className="relative z-10 flex flex-col items-center text-center px-6 py-16 space-y-6"
-      >
+          {/* GitHub */}
+          <Link
+            href="#"
+            className="hover:opacity-80 transition-opacity"
+          >
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 40 39"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M19.7083 0C17.1202 0 14.5574 0.509771 12.1663 1.50021C9.77515 2.49064 7.60252 3.94235 5.77244 5.77244C2.07641 9.46847 0 14.4814 0 19.7083C0 28.4194 5.65629 35.81 13.4805 38.4312C14.4659 38.5889 14.7812 37.978 14.7812 37.4458V34.1151C9.32204 35.2976 8.15925 31.4742 8.15925 31.4742C7.25267 29.188 5.97162 28.5771 5.97162 28.5771C4.17817 27.3552 6.10958 27.3946 6.10958 27.3946C8.08042 27.5325 9.12496 29.4245 9.12496 29.4245C10.8396 32.4202 13.7367 31.5333 14.8601 31.0603C15.0375 29.7793 15.5499 28.9121 16.1017 28.4194C11.7265 27.9267 7.13442 26.2318 7.13442 18.7229C7.13442 16.5353 7.88333 14.7812 9.16437 13.382C8.96729 12.8892 8.2775 10.8396 9.36146 8.17896C9.36146 8.17896 11.017 7.64683 14.7812 10.1892C16.3382 9.75562 18.0331 9.53883 19.7083 9.53883C21.3835 9.53883 23.0785 9.75562 24.6354 10.1892C28.3997 7.64683 30.0552 8.17896 30.0552 8.17896C31.1392 10.8396 30.4494 12.8892 30.2523 13.382C31.5333 14.7812 32.2822 16.5353 32.2822 18.7229C32.2822 26.2515 27.6705 27.907 23.2755 28.3997C23.985 29.0107 24.6354 30.2129 24.6354 32.0457V37.4458C24.6354 37.978 24.9507 38.6086 25.9559 38.4312C33.7801 35.7903 39.4167 28.4194 39.4167 19.7083C39.4167 17.1202 38.9069 14.5574 37.9165 12.1663C36.926 9.77516 35.4743 7.60252 33.6442 5.77244C31.8141 3.94235 29.6415 2.49064 27.2504 1.50021C24.8593 0.509771 22.2965 0 19.7083 0Z"
+                fill="white"
+              />
+            </svg>
+          </Link>
 
 
 
-        {/* Footer Title */}
-        <div className="flex flex-col items-center space-y-4">
-          <Image
+          {/* Discord */}
+          <Link
+            href="#"
+            className="hover:opacity-80 transition-opacity"
+          >
+            <svg
+              width="34"
+              height="26"
+              viewBox="0 0 42 32"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M35.0181 2.62121C32.3969 1.39929 29.5589 0.512417 26.6026 0C26.5506 0.000740452 26.5011 0.0219921 26.4647 0.0591254C26.1099 0.7095 25.696 1.55696 25.4201 2.20733C22.2845 1.73463 19.0958 1.73463 15.9601 2.20733C15.6842 1.53725 15.2703 0.7095 14.8959 0.0591254C14.8762 0.0197087 14.817 0 14.7579 0C11.8017 0.512417 8.98338 1.39929 6.34246 2.62121C6.32276 2.62121 6.30305 2.64092 6.28334 2.66062C0.922674 10.6819 -0.555452 18.4864 0.173757 26.2121C0.173757 26.2515 0.193465 26.2909 0.232882 26.3106C3.78038 28.9121 7.18992 30.4888 10.56 31.5333C10.6192 31.553 10.6783 31.5333 10.698 31.4939C11.4863 30.41 12.1958 29.2669 12.8068 28.0647C12.8462 27.9858 12.8068 27.907 12.728 27.8873C11.6046 27.4537 10.5403 26.9413 9.4958 26.35C9.41697 26.3106 9.41697 26.1924 9.47609 26.1332C9.69288 25.9756 9.90967 25.7982 10.1265 25.6405C10.1659 25.6011 10.225 25.6011 10.2644 25.6208C17.0441 28.715 24.3559 28.715 31.0567 25.6208C31.0961 25.6011 31.1553 25.6011 31.1947 25.6405C31.4115 25.8179 31.6283 25.9756 31.845 26.153C31.9239 26.2121 31.9239 26.3303 31.8253 26.3697C30.8005 26.9807 29.7166 27.4734 28.5932 27.907C28.5143 27.9267 28.4946 28.0252 28.5143 28.0844C29.145 29.2866 29.8545 30.4297 30.6231 31.5136C30.6823 31.5333 30.7414 31.553 30.8005 31.5333C34.1903 30.4888 37.5999 28.9121 41.1474 26.3106C41.1868 26.2909 41.2065 26.2515 41.2065 26.2121C42.0737 17.2842 39.7678 9.53883 35.0969 2.66062C35.0772 2.64092 35.0575 2.62121 35.0181 2.62121ZM13.8316 21.5018C11.8017 21.5018 10.1068 19.6295 10.1068 17.3236C10.1068 15.0177 11.7623 13.1455 13.8316 13.1455C15.9207 13.1455 17.5762 15.0375 17.5565 17.3236C17.5565 19.6295 15.901 21.5018 13.8316 21.5018ZM27.5683 21.5018C25.5384 21.5018 23.8435 19.6295 23.8435 17.3236C23.8435 15.0177 25.499 13.1455 27.5683 13.1455C29.6574 13.1455 31.3129 15.0375 31.2932 17.3236C31.2932 19.6295 29.6574 21.5018 27.5683 21.5018Z"
+                fill="white"
+              />
+            </svg>
+          </Link>
+        </div>
+
+
+
+
+        {/*QDC Text*/}
+        <div className="flex items-center space-x-3">
+          <img
             src="/images/qdcLogo.png"
             alt="QDC Logo"
-            width={160}
-            height={160}
-            className="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 drop-shadow-2xl"
+            className="w-14 h-14 sm:w-16 sm:h-17"
           />
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white">
-            Quantum Device Consortium
-          </h2>
+          <div className="flex flex-col leading-tight text-right">
+            <span className="text-base sm:text-2xl font-semibold text-white">Quantum</span>
+            <span className="text-base sm:text-2xl font-semibold text-white">Device</span>
+            <span className="text-base sm:text-2xl font-semibold text-white">Consortium</span>
+          </div>
         </div>
+      </div>
 
 
 
 
-        {/* Contact Info */}
-        <div className="space-y-1 text-sm sm:text-base text-neutral-400">
-          <p className="font-medium text-white">Contact Us</p>
-          <a
-            href="mailto:info@quantumdevices.org"
-            className="text-indigo-400 hover:text-indigo-300 transition-colors"
-          >
-            info@quantumdevices.org
-          </a>
-        </div>
-      </motion.div>
-
-
-
-
-      {/* Bottom Bar */}
-      <div className="relative z-10 border-t border-neutral-800 py-4 text-center text-xs text-neutral-500">
-        © {new Date().getFullYear()} Quantum Device Consortium · All rights reserved.
+      {/* Copyright */}
+      <div className="mt-4 text-center text-xs text-neutral-500">
+        © {new Date().getFullYear()} Quantum Device Consortium. All rights reserved.
       </div>
     </footer>
-
-
   );
 }
