@@ -14,13 +14,13 @@ export default function ResearchPartners() {
     },
     {
       name: 'USC',
-      logo: '/images/partners/usc.png',
+      logo: '/images/partners/eli.png',
       width: 200,
       height: 100,
     },
     {
       name: 'Northwestern University',
-      logo: '/images/partners/northwestern.png',
+      logo: '/images/partners/koch.png',
       width: 280,
       height: 100,
     },
@@ -38,7 +38,7 @@ export default function ResearchPartners() {
     },
     {
       name: 'UCLA',
-      logo: '/images/partners/ucla.png',
+      logo: '/images/partners/Final_QCSA_Logo-15.png',
       width: 200,
       height: 100,
     },
