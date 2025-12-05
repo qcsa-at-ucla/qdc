@@ -37,10 +37,11 @@ export default function ResearchPartners() {
       height: 100,
     },
     {
-      name: 'UCLA',
+      name: 'QCSA',
       logo: '/images/partners/Final_QCSA_Logo-15.png',
-      width: 200,
-      height: 100,
+      width: 260,
+      height: 130,
+      scale: 2.4,
     },
   ];
 
@@ -70,7 +71,10 @@ export default function ResearchPartners() {
               whileHover={{ scale: 1.05 }}
               className="flex items-center justify-center w-full h-24 md:h-28 lg:h-32 px-4"
             >
-              <div className="relative w-full h-full flex items-center justify-center">
+              <div 
+                className="relative w-full h-full flex items-center justify-center"
+                style={partner.scale ? { transform: `scale(${partner.scale})` } : undefined}
+              >
                 <Image
                   src={partner.logo}
                   alt={partner.name}
