@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 
 export default function Header() {
   return (
-    <header className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
+    <header className="relative min-h-screen w-full flex items-center justify-center overflow-hidden pt-16">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -20,22 +20,6 @@ export default function Header() {
 
       {/* Overlay for better text readability */}
       <div className="absolute inset-0 bg-black/30 z-10" />
-
-      {/* Logo in top left */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="absolute top-4 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8 z-20"
-      >
-        <Image
-          src="/images/qdcLogo.png"
-          alt="QDC Logo"
-          width={120}
-          height={120}
-          className="w-12 h-12 sm:w-16 sm:h-16 md:w-24 md:h-24 lg:w-28 lg:h-28 transition-transform duration-200 hover:scale-110"
-        />
-      </motion.div>
 
       {/* Content Container */}
       <div className="relative z-20 flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 lg:px-12 py-16 sm:py-20 md:py-24 max-w-7xl mx-auto">

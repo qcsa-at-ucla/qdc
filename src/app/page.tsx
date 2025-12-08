@@ -10,7 +10,7 @@ export default function Home() {
       <Header />
       <AboutUs />
       <ResearchPartners />
-      <Opportunity />
+      {/* <Opportunity /> */}
       <Join/>
     </main>
   );

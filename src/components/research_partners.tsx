@@ -1,10 +1,23 @@
 'use client';
 
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
 import AnimatedSection from './AnimatedSection';
 
-export default function ResearchPartners() {
+export default function ResearchPartners({ direction = 'left' }: { direction?: 'left' | 'right' }) {
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  // Check for reduced motion preference
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReducedMotion(mediaQuery.matches);
+    
+    const handleChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   const partners = [
     {
       name: 'University of Oregon',
@@ -41,52 +54,151 @@ export default function ResearchPartners() {
       logo: '/images/partners/Final_QCSA_Logo-15.png',
       width: 260,
       height: 130,
-      scale: 2.4,
     },
   ];
 
   return (
-    <section className="bg-white py-16 md:py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Title */}
-        <AnimatedSection direction="fade" delay={0.1}>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-black text-center mb-12 md:mb-20">
-            Research Partners
-          </h2>
-        </AnimatedSection>
+    <>
+      <style>{`
+        @keyframes scrollLeft {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        
+        @keyframes scrollRight {
+          0% {
+            transform: translateX(-50%);
+          }
+          100% {
+            transform: translateX(0);
+          }
+        }
+        
+        .animate-scroll-left {
+          animation: scrollLeft 25s linear infinite;
+        }
+        
+        .animate-scroll-right {
+          animation: scrollRight 25s linear infinite;
+        }
+        
+        .animate-scroll-left.paused,
+        .animate-scroll-right.paused {
+          animation-play-state: paused;
+        }
+        
+        /* Respect reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+          .animate-scroll-left,
+          .animate-scroll-right {
+            animation: none !important;
+          }
+        }
+      `}</style>
 
-        {/* Partners Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 lg:gap-16 items-center justify-items-center">
-          {partners.map((partner, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{
-                duration: 0.5,
-                delay: index * 0.1,
-                ease: 'easeOut',
-              }}
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center justify-center w-full h-24 md:h-28 lg:h-32 px-4"
-            >
-              <div 
-                className="relative w-full h-full flex items-center justify-center"
-                style={partner.scale ? { transform: `scale(${partner.scale})` } : undefined}
-              >
-                <Image
-                  src={partner.logo}
-                  alt={partner.name}
-                  width={partner.width}
-                  height={partner.height}
-                  className="object-contain max-w-full max-h-full"
-                />
-              </div>
-            </motion.div>
-          ))}
+      <section className="bg-white py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Title */}
+          <AnimatedSection direction="fade" delay={0.1}>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-black text-center mb-12 md:mb-20">
+              Research Partners
+            </h2>
+          </AnimatedSection>
         </div>
-      </div>
-    </section>
+
+        {/* Infinite Carousel */}
+        <div className="w-full px-4">
+          <div 
+            className="relative overflow-hidden"
+            role="region"
+            aria-label="Scrolling partner logos"
+            aria-live="polite"
+          >
+            {/* Gradient overlays */}
+            <div 
+              className="absolute left-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" 
+              style={{ background: 'linear-gradient(to right, #ffffff, transparent)' }}
+              aria-hidden="true"
+            ></div>
+            <div 
+              className="absolute right-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" 
+              style={{ background: 'linear-gradient(to left, #ffffff, transparent)' }}
+              aria-hidden="true"
+            ></div>
+            
+            {/* Scrolling container */}
+            <div 
+              className={`flex ${!reducedMotion ? (direction === 'left' ? 'animate-scroll-left' : 'animate-scroll-right') : ''}`}
+            >
+              {/* First set of logos */}
+              {partners.map((partner, index) => (
+                <div
+                  key={`first-${index}`}
+                  className="flex-shrink-0 mx-4 sm:mx-6 md:mx-8 flex items-center justify-center h-20 w-32 sm:h-24 sm:w-36 md:h-28 md:w-44 lg:h-40 lg:w-60 bg-white rounded-lg transition-all duration-300 cursor-pointer hover:scale-105"
+                  style={{
+                    boxShadow: '0 10px 15px -3px rgba(51, 102, 255, 0.1), 0 4px 6px -2px rgba(51, 102, 255, 0.05)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(51, 102, 255, 0.25)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(51, 102, 255, 0.1), 0 4px 6px -2px rgba(51, 102, 255, 0.05)';
+                  }}
+                  aria-label={partner.name}
+                >
+                  <Image
+                    src={partner.logo}
+                    alt={`${partner.name} logo`}
+                    width={partner.width}
+                    height={partner.height}
+                    className="max-w-full max-h-full object-contain transition-all duration-300 p-2"
+                  />
+                </div>
+              ))}
+              
+              {/* Duplicate set for seamless loop */}
+              {partners.map((partner, index) => (
+                <div
+                  key={`second-${index}`}
+                  className="flex-shrink-0 mx-4 sm:mx-6 md:mx-8 flex items-center justify-center h-20 w-32 sm:h-24 sm:w-36 md:h-28 md:w-44 lg:h-40 lg:w-60 bg-white rounded-lg transition-all duration-300 cursor-pointer hover:scale-105"
+                  style={{
+                    boxShadow: '0 10px 15px -3px rgba(51, 102, 255, 0.1), 0 4px 6px -2px rgba(51, 102, 255, 0.05)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(51, 102, 255, 0.25)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(51, 102, 255, 0.1), 0 4px 6px -2px rgba(51, 102, 255, 0.05)';
+                  }}
+                  aria-hidden="true"
+                >
+                  <Image
+                    src={partner.logo}
+                    alt=""
+                    width={partner.width}
+                    height={partner.height}
+                    className="max-w-full max-h-full object-contain transition-all duration-300 p-2"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Screen reader friendly list */}
+          <div className="sr-only">
+            <h3>Complete list of research partners:</h3>
+            <ul>
+              {partners.map((partner, index) => (
+                <li key={index}>{partner.name}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
