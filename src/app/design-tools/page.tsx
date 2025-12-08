@@ -5,28 +5,32 @@ import Image from "next/image";
 const tools = [
   {
     name: "Qiskit Metal",
-    image: "/images/tools/qiskit-metal.png",
+    id: "qiskit-metal",
+    image: "/images/tools/qiskit_quantum_device.png",
     description:
       "Qiskit Metal is used for designing superconducting quantum hardware at the chip-layout level, making it suitable for creating transmon qubits, resonators, and coupling structures. It is typically used through Python scripting or its built-in GUI to place parameterized design elements, export layouts, and interface with EM solvers such as HFSS or Sonnet. At present, Qiskit Metal is most useful for conceptual device design, exploring geometry variations, generating fabrication-ready layouts, and preparing models for downstream electromagnetic simulation.",
     github: "https://github.com/Qiskit/qiskit-metal",
   },
   {
     name: "AWS Palace",
-    image: "/images/tools/aws-palace.png",
+    id: "aws-palace",
+    image: "/images/tools/Palace.png",
     description:
       "AWS Palace provides a cloud-based environment for large-scale simulation of quantum hardware, particularly when classical compute resources are insufficient. It is used by uploading device descriptions and running numerical simulations on distributed AWS infrastructure, allowing workflows that include parameter sweeps, EM simulations, and optimization. Right now, it is ideal for scalable simulation campaigns, collaborative design workflows, and integrating simulation pipelines into high-performance computing environments.",
     github: "https://github.com/awslabs/palace",
   },
   {
     name: "SQUAADS",
-    image: "/images/tools/squaads.png",
+    id: "squaads",
+    image: "/images/tools/SQuADDS.png",
     description:
       "SQUAADS is used for systematic design exploration and optimization of superconducting quantum devices, focusing on automation across large multidimensional parameter spaces. Users define device parameters, cost metrics, and constraints, after which SQUAADS executes sweeps, analyzes performance, and ranks candidate designs. Currently, it is best applied when investigating how fabrication tolerances, geometric choices, or circuit scaling impact device properties, making it valuable for rapid iteration and narrowing large design spaces.",
     github: "https://github.com/LFL-Lab/SQuADDS",
   },
   {
     name: "scqubits",
-    image: "/images/tools/scqubits.png",
+    id: "scqubits",
+    image: "/images/tools/scQubits.png",
     description:
       "scqubits is used for detailed quantum-level modeling of superconducting qubits, including computing spectra, anharmonicities, dispersive shifts, and wavefunctions. It is used programmatically by specifying qubit type (e.g., transmon or fluxonium) and circuit parameters and calling built-in numerical solvers to analyze Hamiltonians. Today, scqubits is particularly effective for connecting physical layouts and circuit parameters to predicted quantum behavior, validating qubit operating frequencies, and characterizing device-level performance after electromagnetic modeling.",
     github: "https://github.com/scqubits/scqubits",
@@ -49,18 +53,19 @@ export default function DesignToolsPage() {
             {tools.map((tool, index) => (
               <div
                 key={tool.name}
+                id={tool.id}
                 className={`flex flex-col ${
                   index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-                } gap-8 md:gap-12 items-center`}
+                } gap-8 md:gap-12 items-center scroll-mt-24`}
               >
                 {/* Image */}
                 <div className="w-full md:w-1/2 flex justify-center">
-                  <div className="relative w-full max-w-md aspect-square bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl overflow-hidden shadow-lg border border-gray-100">
+                  <div className="relative w-full max-w-lg aspect-video bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl overflow-hidden shadow-lg border border-gray-100">
                     <Image
                       src={tool.image}
                       alt={tool.name}
                       fill
-                      className="object-contain p-6"
+                      className="object-contain p-4"
                       sizes="(max-width: 768px) 100vw, 50vw"
                     />
                   </div>
