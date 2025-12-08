@@ -5,17 +5,22 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Navbar() {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isContactDropdownOpen, setIsContactDropdownOpen] = useState(false);
+  const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const contactDropdownRef = useRef<HTMLDivElement>(null);
+  const toolsDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
+      if (contactDropdownRef.current && !contactDropdownRef.current.contains(event.target as Node)) {
+        setIsContactDropdownOpen(false);
+      }
+      if (toolsDropdownRef.current && !toolsDropdownRef.current.contains(event.target as Node)) {
+        setIsToolsDropdownOpen(false);
       }
       // Check if click is outside both the menu and the button
       if (
@@ -32,11 +37,12 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Close dropdown on escape key
+  // Close dropdowns on escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setIsDropdownOpen(false);
+        setIsContactDropdownOpen(false);
+        setIsToolsDropdownOpen(false);
         setIsMobileMenuOpen(false);
       }
     };
@@ -45,12 +51,25 @@ export default function Navbar() {
     return () => document.removeEventListener('keydown', handleEscape);
   }, []);
 
-  const memberLinks = [
+  const contactLinks = [
     {
       name: 'Member Interest Form',
       href: 'https://docs.google.com/forms/d/e/1FAIpQLSdIjYlL-Bc9mDbAtzYaoFJJMZwLFPZx048jhwuIz_rvDkCbrw/viewform',
       external: true,
     },
+    {
+      name: 'Contact Us',
+      href: '/contact',
+      external: false,
+    },
+  ];
+
+  const toolsLinks = [
+    { name: 'Qiskit Metal', href: '/design-tools#qiskit-metal' },
+    { name: 'AWS Palace', href: '/design-tools#aws-palace' },
+    { name: 'SQUAADS', href: '/design-tools#squaads' },
+    { name: 'scqubits', href: '/design-tools#scqubits' },
+    { name: 'View All Tools', href: '/design-tools' },
   ];
 
   return (
@@ -80,23 +99,27 @@ export default function Navbar() {
               Home
             </Link>
             
-            {/* Members Dropdown */}
-            <div className="relative" ref={dropdownRef}>
+            {/* Design & Simulation Tools Dropdown */}
+            <div className="relative" ref={toolsDropdownRef}>
               <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                onClick={() => {
+                  setIsToolsDropdownOpen(!isToolsDropdownOpen);
+                  setIsContactDropdownOpen(false);
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    setIsDropdownOpen(!isDropdownOpen);
+                    setIsToolsDropdownOpen(!isToolsDropdownOpen);
+                    setIsContactDropdownOpen(false);
                   }
                 }}
                 className="flex items-center gap-1 text-white/80 hover:text-white transition-colors duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-black/80 rounded-md px-2 py-1"
-                aria-expanded={isDropdownOpen}
+                aria-expanded={isToolsDropdownOpen}
                 aria-haspopup="true"
               >
-                Members
+                Design & Simulation
                 <svg
-                  className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                  className={`w-4 h-4 transition-transform duration-200 ${isToolsDropdownOpen ? 'rotate-180' : ''}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -105,36 +128,86 @@ export default function Navbar() {
                 </svg>
               </button>
 
-              {/* Dropdown Menu */}
-              {isDropdownOpen && (
+              {/* Tools Dropdown Menu */}
+              {isToolsDropdownOpen && (
                 <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 animate-fade-in">
-                  {memberLinks.map((link, index) => (
-                    <a
+                  {toolsLinks.map((link, index) => (
+                    <Link
                       key={index}
                       href={link.href}
-                      target={link.external ? '_blank' : undefined}
-                      rel={link.external ? 'noopener noreferrer' : undefined}
-                      className="flex items-center gap-2 px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150 text-sm"
-                      onClick={() => setIsDropdownOpen(false)}
+                      className={`block px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150 text-sm ${
+                        link.name === 'View All Tools' ? 'border-t border-gray-100 font-medium' : ''
+                      }`}
+                      onClick={() => setIsToolsDropdownOpen(false)}
                     >
                       {link.name}
-                      {link.external && (
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                      )}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               )}
             </div>
 
-            <Link
-              href="/join"
-              className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-medium text-sm px-4 py-2 rounded-full transition-all duration-200 hover:scale-105 shadow-lg"
-            >
-              Join Us
-            </Link>
+            {/* Contact Dropdown */}
+            <div className="relative" ref={contactDropdownRef}>
+              <button
+                onClick={() => {
+                  setIsContactDropdownOpen(!isContactDropdownOpen);
+                  setIsToolsDropdownOpen(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setIsContactDropdownOpen(!isContactDropdownOpen);
+                    setIsToolsDropdownOpen(false);
+                  }
+                }}
+                className="flex items-center gap-1 text-white/80 hover:text-white transition-colors duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-black/80 rounded-md px-2 py-1"
+                aria-expanded={isContactDropdownOpen}
+                aria-haspopup="true"
+              >
+                Contact
+                <svg
+                  className={`w-4 h-4 transition-transform duration-200 ${isContactDropdownOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Contact Dropdown Menu */}
+              {isContactDropdownOpen && (
+                <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 animate-fade-in">
+                  {contactLinks.map((link, index) => (
+                    link.external ? (
+                      <a
+                        key={index}
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150 text-sm"
+                        onClick={() => setIsContactDropdownOpen(false)}
+                      >
+                        {link.name}
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    ) : (
+                      <Link
+                        key={index}
+                        href={link.href}
+                        className="block px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150 text-sm"
+                        onClick={() => setIsContactDropdownOpen(false)}
+                      >
+                        {link.name}
+                      </Link>
+                    )
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -180,37 +253,55 @@ export default function Navbar() {
                   Home
                 </Link>
                 
-                {/* Mobile Members Section */}
-                <div className="px-4 py-2">
+                {/* Mobile Design & Simulation Tools Section */}
+                <div className="px-4 py-2 mt-2">
                   <span className="text-white/50 text-xs font-semibold uppercase tracking-wider">
-                    Members
+                    Design & Simulation
                   </span>
                 </div>
-                {memberLinks.map((link, index) => (
-                  <a
+                {toolsLinks.map((link, index) => (
+                  <Link
                     key={index}
                     href={link.href}
-                    target={link.external ? '_blank' : undefined}
-                    rel={link.external ? 'noopener noreferrer' : undefined}
-                    className="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 transition-colors duration-200 text-sm font-medium px-6 py-3 rounded-lg"
+                    className="text-white/80 hover:text-white hover:bg-white/10 transition-colors duration-200 text-sm font-medium px-6 py-3 rounded-lg"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {link.name}
-                    {link.external && (
+                  </Link>
+                ))}
+
+                {/* Mobile Contact Section */}
+                <div className="px-4 py-2 mt-2">
+                  <span className="text-white/50 text-xs font-semibold uppercase tracking-wider">
+                    Contact
+                  </span>
+                </div>
+                {contactLinks.map((link, index) => (
+                  link.external ? (
+                    <a
+                      key={index}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 transition-colors duration-200 text-sm font-medium px-6 py-3 rounded-lg"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {link.name}
                       <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
-                    )}
-                  </a>
+                    </a>
+                  ) : (
+                    <Link
+                      key={index}
+                      href={link.href}
+                      className="text-white/80 hover:text-white hover:bg-white/10 transition-colors duration-200 text-sm font-medium px-6 py-3 rounded-lg"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {link.name}
+                    </Link>
+                  )
                 ))}
-                
-                <Link
-                  href="/join"
-                  className="mt-2 text-center bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-medium text-sm px-4 py-3 rounded-full transition-all duration-200 shadow-lg"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Join Us
-                </Link>
               </div>
             </div>
           </>
