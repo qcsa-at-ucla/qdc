@@ -145,8 +145,8 @@ export default function ContactPage() {
 
         <p className="text-xl sm:text-2xl text-gray-600 text-center mt-16 max-w-3xl mx-auto px-4">
           You can also reach us directly at{" "}
-          <a href="mailto:info@quantumdevices.org" className="text-indigo-600 hover:text-indigo-700 underline">
-            info@quantumdevices.org
+          <a href="mailto:quantum.ucla@gmail.com" className="text-indigo-600 hover:text-indigo-700 underline">
+            quantum.ucla@gmail.com
           </a>
         </p>
       </section>

@@ -75,6 +75,7 @@ export default function Navbar() {
     { name: 'AWS Palace', href: '/design-tools#aws-palace' },
     { name: 'SQUAADS', href: '/design-tools#squaads' },
     { name: 'scqubits', href: '/design-tools#scqubits' },
+    { name: 'SuperQubit', href: '/design-tools#superqubit' },
     { name: 'View All Tools', href: '/design-tools' },
   ];
 
