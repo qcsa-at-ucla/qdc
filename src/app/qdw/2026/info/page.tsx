@@ -7,6 +7,15 @@ import Link from 'next/link';
 
 export default function QDW2026Info() {
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    designation: '',
+    location: '',
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Check for reduced motion preference
   useEffect(() => {
@@ -18,6 +27,42 @@ export default function QDW2026Info() {
     
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Google Form submission URL from environment variables
+    const googleFormUrl = process.env.NEXT_PUBLIC_GOOGLE_FORM_URL || '';
+
+    // Map form data to Google Form entry IDs from environment variables
+    const formDataToSubmit = new FormData();
+    formDataToSubmit.append(process.env.NEXT_PUBLIC_ENTRY_FIRST_NAME || '', formData.firstName);
+    formDataToSubmit.append(process.env.NEXT_PUBLIC_ENTRY_LAST_NAME || '', formData.lastName);
+    formDataToSubmit.append(process.env.NEXT_PUBLIC_ENTRY_EMAIL || '', formData.email);
+    formDataToSubmit.append(process.env.NEXT_PUBLIC_ENTRY_DESIGNATION || '', formData.designation);
+    formDataToSubmit.append(process.env.NEXT_PUBLIC_ENTRY_LOCATION || '', formData.location);
+
+    try {
+      await fetch(googleFormUrl, {
+        method: 'POST',
+        body: formDataToSubmit,
+        mode: 'no-cors',
+      });
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setIsSubmitted(true);
+    }
+
+    setIsSubmitting(false);
+  };
+
   // Sponsors - using partner images as placeholders
   const sponsors = [
     { name: 'Google Quantum', logo: '/images/partners/google-quantum.png' },
@@ -272,84 +317,109 @@ export default function QDW2026Info() {
               Join Now
             </h3>
             
-            {/* Form fields */}
-            <div className="space-y-6">
-              {/* Name fields */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Name <span className="text-gray-500">(required)</span>
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="firstName" className="block text-xs text-gray-500 mb-1">First Name</label>
-                    <input
-                      type="text"
-                      id="firstName"
-                      name="firstName"
-                      className="w-full h-12 px-4 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="lastName" className="block text-xs text-gray-500 mb-1">Last Name</label>
-                    <input
-                      type="text"
-                      id="lastName"
-                      name="lastName"
-                      className="w-full h-12 px-4 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
+            {isSubmitted ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h4 className="text-xl font-bold text-gray-900 mb-2">Registration Submitted!</h4>
+                <p className="text-gray-600">Thank you for registering for QDW 2026.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Name fields */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Name <span className="text-gray-500">(required)</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="info-firstName" className="block text-xs text-gray-500 mb-1">First Name</label>
+                      <input
+                        type="text"
+                        id="info-firstName"
+                        name="firstName"
+                        required
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                        className="w-full h-12 px-4 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="info-lastName" className="block text-xs text-gray-500 mb-1">Last Name</label>
+                      <input
+                        type="text"
+                        id="info-lastName"
+                        name="lastName"
+                        required
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                        className="w-full h-12 px-4 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Email field */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email <span className="text-gray-500">(required)</span>
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  className="w-full h-12 px-4 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                />
-              </div>
+                {/* Email field */}
+                <div>
+                  <label htmlFor="info-email" className="block text-sm font-medium text-gray-700 mb-1">
+                    Email <span className="text-gray-500">(required)</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="info-email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full h-12 px-4 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
 
-              {/* Designation field */}
-              <div>
-                <label htmlFor="designation" className="block text-sm font-medium text-gray-700 mb-1">
-                  Designation <span className="text-gray-500 text-xs">student (undergrad/grad), postdocs, professor, industry professional, other</span>
-                </label>
-                <input
-                  type="text"
-                  id="designation"
-                  name="designation"
-                  className="w-full h-12 px-4 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                />
-              </div>
+                {/* Designation field */}
+                <div>
+                  <label htmlFor="info-designation" className="block text-sm font-medium text-gray-700 mb-1">
+                    Designation <span className="text-gray-500 text-xs">student (undergrad/grad), postdocs, professor, industry professional, other</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="info-designation"
+                    name="designation"
+                    value={formData.designation}
+                    onChange={handleInputChange}
+                    className="w-full h-12 px-4 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
 
-              {/* Location field */}
-              <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  id="location"
-                  name="location"
-                  className="w-full h-12 px-4 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                />
-              </div>
+                {/* Location field */}
+                <div>
+                  <label htmlFor="info-location" className="block text-sm font-medium text-gray-700 mb-1">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    id="info-location"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    className="w-full h-12 px-4 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
 
-              {/* Register button */}
-              <div className="flex justify-center pt-4">
-                <Link
-                  href="/qdw/2026/registration"
-                  className="bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-full px-12 py-3 text-lg transition-all duration-200 hover:scale-105"
-                >
-                  Register
-                </Link>
-              </div>
-            </div>
+                {/* Register button */}
+                <div className="flex justify-center pt-4">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-full px-12 py-3 text-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Register'}
+                  </button>
+                </div>
+              </form>
+            )}
           </motion.div>
         </div>
       </section>
