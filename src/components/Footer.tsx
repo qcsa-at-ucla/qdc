@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#090714] text-neutral-300 py-6 px-8">
+    <footer id="qdc-footer" className="bg-[#090714] text-neutral-300 py-6 px-8">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
 
         {/*Social Media Links*/}
@@ -16,7 +16,7 @@ export default function Footer() {
 
           {/* GitHub */}
           <Link
-            href="#"
+            href="https://github.com/qcsa-at-ucla/qdc"
             className="hover:opacity-80 transition-opacity"
           >
             <svg

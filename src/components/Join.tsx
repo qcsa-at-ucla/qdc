@@ -145,7 +145,7 @@ export default function Join() {
         )}
       </div>
       <h2 className="text-2xl sm:text-2xl md:text-3xl xl:text-4xl font-normal text-black text-center md:my-[150px] ">
-        If you have any inquiries, please contact us at info@quantumdevices.org
+        If you have any inquiries, please contact us at quantum.ucla@gmail.com
       </h2>
     </section>
   );

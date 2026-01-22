@@ -36,12 +36,12 @@ const tools = [
     github: "https://github.com/scqubits/scqubits",
   },
   {
-    name: "SuperQubit",
-    id: "superqubit",
+    name: "Qultra",
+    id: "Qultra",
     image: "/images/partners/superqubit.png",
     description:
-      "SuperQubit is a comprehensive resource for quantum device design and simulation, providing valuable insights and tools for the quantum computing community. This platform offers practical implementations, research contributions, and design methodologies that support the development of superconducting quantum circuits. It serves as a bridge between theoretical concepts and practical applications, helping researchers and engineers advance their quantum device designs through proven techniques and innovative approaches.",
-    github: "https://superqubit.wordpress.com/my-works/",
+      "Qultra is a comprehensive resource for quantum device design and simulation, providing valuable insights and tools for the quantum computing community. This platform offers practical implementations, research contributions, and design methodologies that support the development of superconducting quantum circuits. It serves as a bridge between theoretical concepts and practical applications, helping researchers and engineers advance their quantum device designs through proven techniques and innovative approaches.",
+    github: "https://superqubit.wordpress.com/2025/08/19/qultra-quantum-hybrid-lumped-andtransmission-lines-circuits-analyzer/",
   },
 ];
 

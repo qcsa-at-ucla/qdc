@@ -8,10 +8,15 @@ export default function Navbar() {
   const [isContactDropdownOpen, setIsContactDropdownOpen] = useState(false);
   const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
   const [isResourcesDropdownOpen, setIsResourcesDropdownOpen] = useState(false);
+  const [isQdwDropdownOpen, setIsQdwDropdownOpen] = useState(false);
+  const [isQdw2026SubOpen, setIsQdw2026SubOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileQdwOpen, setIsMobileQdwOpen] = useState(false);
+  const [isMobileQdw2026Open, setIsMobileQdw2026Open] = useState(false);
   const contactDropdownRef = useRef<HTMLDivElement>(null);
   const toolsDropdownRef = useRef<HTMLDivElement>(null);
   const resourcesDropdownRef = useRef<HTMLDivElement>(null);
+  const qdwDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -26,6 +31,10 @@ export default function Navbar() {
       }
       if (resourcesDropdownRef.current && !resourcesDropdownRef.current.contains(event.target as Node)) {
         setIsResourcesDropdownOpen(false);
+      }
+      if (qdwDropdownRef.current && !qdwDropdownRef.current.contains(event.target as Node)) {
+        setIsQdwDropdownOpen(false);
+        setIsQdw2026SubOpen(false);
       }
       // Check if click is outside both the menu and the button
       if (
@@ -49,6 +58,8 @@ export default function Navbar() {
         setIsContactDropdownOpen(false);
         setIsToolsDropdownOpen(false);
         setIsResourcesDropdownOpen(false);
+        setIsQdwDropdownOpen(false);
+        setIsQdw2026SubOpen(false);
         setIsMobileMenuOpen(false);
       }
     };
@@ -114,6 +125,101 @@ export default function Navbar() {
             >
               Home
             </Link>
+
+            {/* QDW Dropdown with nested sub-menus */}
+            <div className="relative" ref={qdwDropdownRef}>
+              <button
+                onClick={() => {
+                  setIsQdwDropdownOpen(!isQdwDropdownOpen);
+                  setIsToolsDropdownOpen(false);
+                  setIsContactDropdownOpen(false);
+                  setIsResourcesDropdownOpen(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setIsQdwDropdownOpen(!isQdwDropdownOpen);
+                    setIsToolsDropdownOpen(false);
+                    setIsContactDropdownOpen(false);
+                    setIsResourcesDropdownOpen(false);
+                  }
+                }}
+                className="flex items-center gap-1 text-white/80 hover:text-white transition-colors duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-black/80 rounded-md px-2 py-1"
+                aria-expanded={isQdwDropdownOpen}
+                aria-haspopup="true"
+              >
+                QDW
+                <svg
+                  className={`w-4 h-4 transition-transform duration-200 ${isQdwDropdownOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* QDW Dropdown Menu */}
+              {isQdwDropdownOpen && (
+                <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 animate-fade-in">
+                  {/* QDW 2026 with sub-dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsQdw2026SubOpen(!isQdw2026SubOpen)}
+                      className="w-full flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150 text-sm"
+                    >
+                      QDW 2026
+                      <svg
+                        className={`w-4 h-4 transition-transform duration-200 ${isQdw2026SubOpen ? 'rotate-90' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                    
+                    {/* QDW 2026 Sub-menu */}
+                    {isQdw2026SubOpen && (
+                      <div className="absolute left-full top-0 ml-1 w-48 bg-white rounded-lg shadow-xl border border-gray-100 py-2 animate-fade-in">
+                        <Link
+                          href="/qdw/2026/info"
+                          className="block px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150 text-sm"
+                          onClick={() => {
+                            setIsQdwDropdownOpen(false);
+                            setIsQdw2026SubOpen(false);
+                          }}
+                        >
+                          Info
+                        </Link>
+                        <Link
+                          href="/qdw/2026/registration"
+                          className="block px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150 text-sm"
+                          onClick={() => {
+                            setIsQdwDropdownOpen(false);
+                            setIsQdw2026SubOpen(false);
+                          }}
+                        >
+                          Registration
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* QDW 2025 direct link */}
+                  <Link
+                    href="/qdw/2025"
+                    className="block px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150 text-sm"
+                    onClick={() => {
+                      setIsQdwDropdownOpen(false);
+                      setIsQdw2026SubOpen(false);
+                    }}
+                  >
+                    QDW 2025
+                  </Link>
+                </div>
+              )}
+            </div>
             
             {/* Design & Simulation Tools Dropdown */}
             <div className="relative" ref={toolsDropdownRef}>
@@ -122,6 +228,8 @@ export default function Navbar() {
                   setIsToolsDropdownOpen(!isToolsDropdownOpen);
                   setIsContactDropdownOpen(false);
                   setIsResourcesDropdownOpen(false);
+                  setIsQdwDropdownOpen(false);
+                  setIsQdw2026SubOpen(false);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -129,6 +237,8 @@ export default function Navbar() {
                     setIsToolsDropdownOpen(!isToolsDropdownOpen);
                     setIsContactDropdownOpen(false);
                     setIsResourcesDropdownOpen(false);
+                    setIsQdwDropdownOpen(false);
+                    setIsQdw2026SubOpen(false);
                   }
                 }}
                 className="flex items-center gap-1 text-white/80 hover:text-white transition-colors duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-black/80 rounded-md px-2 py-1"
@@ -172,6 +282,8 @@ export default function Navbar() {
                   setIsResourcesDropdownOpen(!isResourcesDropdownOpen);
                   setIsContactDropdownOpen(false);
                   setIsToolsDropdownOpen(false);
+                  setIsQdwDropdownOpen(false);
+                  setIsQdw2026SubOpen(false);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -179,6 +291,8 @@ export default function Navbar() {
                     setIsResourcesDropdownOpen(!isResourcesDropdownOpen);
                     setIsContactDropdownOpen(false);
                     setIsToolsDropdownOpen(false);
+                    setIsQdwDropdownOpen(false);
+                    setIsQdw2026SubOpen(false);
                   }
                 }}
                 className="flex items-center gap-1 text-white/80 hover:text-white transition-colors duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-black/80 rounded-md px-2 py-1"
@@ -232,6 +346,8 @@ export default function Navbar() {
                   setIsContactDropdownOpen(!isContactDropdownOpen);
                   setIsToolsDropdownOpen(false);
                   setIsResourcesDropdownOpen(false);
+                  setIsQdwDropdownOpen(false);
+                  setIsQdw2026SubOpen(false);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -239,6 +355,8 @@ export default function Navbar() {
                     setIsContactDropdownOpen(!isContactDropdownOpen);
                     setIsToolsDropdownOpen(false);
                     setIsResourcesDropdownOpen(false);
+                    setIsQdwDropdownOpen(false);
+                    setIsQdw2026SubOpen(false);
                   }
                 }}
                 className="flex items-center gap-1 text-white/80 hover:text-white transition-colors duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-black/80 rounded-md px-2 py-1"
@@ -332,6 +450,70 @@ export default function Navbar() {
                 >
                   Home
                 </Link>
+
+                {/* Mobile QDW Section */}
+                <div className="px-4 py-2 mt-2">
+                  <button
+                    onClick={() => setIsMobileQdwOpen(!isMobileQdwOpen)}
+                    className="flex items-center justify-between w-full text-white/50 text-xs font-semibold uppercase tracking-wider"
+                  >
+                    QDW
+                    <svg
+                      className={`w-4 h-4 transition-transform duration-200 ${isMobileQdwOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                </div>
+                {isMobileQdwOpen && (
+                  <>
+                    {/* QDW 2026 sub-section */}
+                    <div className="px-6 py-2">
+                      <button
+                        onClick={() => setIsMobileQdw2026Open(!isMobileQdw2026Open)}
+                        className="flex items-center justify-between w-full text-white/70 text-sm font-medium"
+                      >
+                        QDW 2026
+                        <svg
+                          className={`w-4 h-4 transition-transform duration-200 ${isMobileQdw2026Open ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                    </div>
+                    {isMobileQdw2026Open && (
+                      <>
+                        <Link
+                          href="/qdw/2026/info"
+                          className="text-white/80 hover:text-white hover:bg-white/10 transition-colors duration-200 text-sm font-medium px-8 py-3 rounded-lg"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Info
+                        </Link>
+                        <Link
+                          href="/qdw/2026/registration"
+                          className="text-white/80 hover:text-white hover:bg-white/10 transition-colors duration-200 text-sm font-medium px-8 py-3 rounded-lg"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Registration
+                        </Link>
+                      </>
+                    )}
+                    <Link
+                      href="/qdw/2025"
+                      className="text-white/80 hover:text-white hover:bg-white/10 transition-colors duration-200 text-sm font-medium px-6 py-3 rounded-lg"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      QDW 2025
+                    </Link>
+                  </>
+                )}
                 
                 {/* Mobile Design & Simulation Tools Section */}
                 <div className="px-4 py-2 mt-2">
