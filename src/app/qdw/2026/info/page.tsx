@@ -210,10 +210,10 @@ export default function QDW2026Info() {
             <div className="flex flex-col md:flex-row gap-8 items-center">
               <div className="flex-1">
                 <p className="text-gray-300 text-lg leading-relaxed mb-4">
-                  The Quantum Device Workshop was hosted in person at the <strong className="text-white">Tesla and Shannon Rooms of Engineering IV</strong>, 420 Westwood Plaza, Los Angeles, CA 90095
+                  The Quantum Device Workshop will be hosted in person at the <strong className="text-white">Cohen Room and Mong auditorium in the Engineering VI Building at UCLA</strong>, 404 Westwood Plaza, Los Angeles, CA 90095
                 </p>
                 <p className="text-gray-400">
-                  Online sessions were also available via Zoom for remote participants.
+                  Online sessions will also available via Zoom for remote participants.
                 </p>
               </div>
               <div className="w-full md:w-1/3">
@@ -251,43 +251,41 @@ export default function QDW2026Info() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-white">Beginner Track</h3>
+                  <h3 className="text-2xl font-bold text-white">Introductory Track</h3>
                 </div>
                 
                 <div className="space-y-6">
                   <div className="border-l-2 border-green-500/50 pl-4">
                     <h4 className="text-lg font-semibold text-green-400 mb-2">Day 1: Foundation</h4>
                     <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• Review classical LC circuits, resonance, and transmission lines</li>
-                      <li>• Circuit quantization, the Josephson junction, and transmon qubits</li>
-                      <li>• Introduction to circuit QED and dispersive interactions</li>
+                      <li>• Review of Device Design and Simulation Toolss</li>
+                      <li>• Initialization, Gates & Readout</li>
+                      <li>• Workshop on Design&Layout</li>
                     </ul>
                   </div>
                   
                   <div className="border-l-2 border-green-500/50 pl-4">
-                    <h4 className="text-lg font-semibold text-green-400 mb-2">Day 2: Theory</h4>
+                    <h4 className="text-lg font-semibold text-green-400 mb-2">Day 2: Couplers</h4>
                     <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• Charge and flux drives and single-qubit gates</li>
-                      <li>• Qubit-qubit coupling and two-qubit gates</li>
-                      <li>• Readout, SNR, and Purcell effects</li>
+                      <li>• Couplers and Noise in superconducting systems</li>
+                      <li>• Designing Qubit-Coupler System</li>
+                      <li>• Workshop on Simulation Techniques</li>
                     </ul>
                   </div>
                   
                   <div className="border-l-2 border-green-500/50 pl-4">
-                    <h4 className="text-lg font-semibold text-green-400 mb-2">Day 3: Design</h4>
+                    <h4 className="text-lg font-semibold text-green-400 mb-2">Day 3: Material Considerations & Errors</h4>
                     <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• Design circuit Hamiltonians</li>
-                      <li>• Perform EM simulation and learn layout generation tools</li>
-                      <li>• Interpret EM simulations (LOM and EPR)</li>
+                      <li>• Material Considerations for superconducting systems</li>
+                      <li>• ABCD Formalism, Quantum Error Correction and Large Scale Simulation</li>
+                      <li>• Simulation Workshop of Qubit-Coupler System</li>
                     </ul>
                   </div>
                   
                   <div className="border-l-2 border-green-500/50 pl-4">
-                    <h4 className="text-lg font-semibold text-green-400 mb-2">Day 4: Non-idealities and more</h4>
+                    <h4 className="text-lg font-semibold text-green-400 mb-2">Day 4: Project</h4>
                     <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• Quantum and classical crosstalk, crosstalk suppression techniques</li>
-                      <li>• Interface dielectric loss and suppression techniques</li>
-                      <li>• Advanced designs, including flip-chips, through-silicon vias, and multi-chip-modules</li>
+                      <li>• Design Project</li>
                     </ul>
                   </div>
                 </div>
