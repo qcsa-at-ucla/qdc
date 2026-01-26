@@ -79,6 +79,35 @@ export default function QDW2026Info() {
     { name: 'Oregon', logo: '/images/partners/oregon.png' },
   ];
 
+  // Speakers
+  const speakers = [
+    {
+      name: 'Andrew Bestwick',
+      image: '/images/andrew_bestwick.jpg',
+      bio: 'Andrew Bestwick is a leading researcher in superconducting quantum computing, focusing on qubit design and scalable quantum architectures.',
+    },
+    {
+      name: 'Anna Grassellino',
+      image: '/images/Anna_Grassellino.jpg',
+      bio: 'Anna Grassellino is a physicist at Fermilab, pioneering advances in superconducting radio-frequency cavities and quantum information science.',
+    },
+    {
+      name: 'Eli',
+      image: '/images/ELILF.jpeg',
+      bio: 'Eli is an expert in quantum device fabrication and materials science for superconducting quantum systems.',
+    },
+    {
+      name: 'Yvonne Gao',
+      image: '/images/yvoneegao.jpg',
+      bio: 'Yvonne Gao is a quantum physicist specializing in bosonic quantum error correction and novel qubit architectures.',
+    },
+    {
+      name: 'Zlatko Minev',
+      image: '/images/ZMinev.jpeg',
+      bio: 'Zlatko Minev is a research scientist known for his work on quantum jumps, qubit design, and the development of Qiskit Metal.',
+    },
+  ];
+
   return (
     <>
       <style>{`
@@ -92,6 +121,25 @@ export default function QDW2026Info() {
           100% { transform: translateX(0); }
         }
         
+        @keyframes rotateCircle {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes counterRotate {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(-360deg); }
+        }
+        
+        .animate-rotate-circle {
+          animation: rotateCircle 30s linear infinite;
+        }
+        
+        .animate-counter-rotate {
+          animation: counterRotate 30s linear infinite;
+        }
+        }
+        
         .animate-scroll-left {
           animation: scrollLeft 25s linear infinite;
         }
@@ -102,7 +150,9 @@ export default function QDW2026Info() {
         
         @media (prefers-reduced-motion: reduce) {
           .animate-scroll-left,
-          .animate-scroll-right {
+          .animate-scroll-right,
+          .animate-rotate-circle,
+          .animate-counter-rotate {
             animation: none !important;
           }
         }
@@ -421,6 +471,64 @@ export default function QDW2026Info() {
               </div>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Speakers Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">
+            QDW Speakers
+          </h2>
+        </div>
+        <div className="w-full flex justify-center">
+          <div className="relative w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] md:w-[600px] md:h-[600px] lg:w-[700px] lg:h-[700px]">
+            {/* Rotating container */}
+            <div className={`absolute inset-0 ${!reducedMotion ? 'animate-rotate-circle' : ''}`}>
+              {speakers.map((speaker, index) => {
+                const angle = (index * 360) / speakers.length;
+                const radius = 130; // percentage from center
+                return (
+                  <div
+                    key={index}
+                    className="absolute group"
+                    style={{
+                      left: '50%',
+                      top: '50%',
+                      transform: `rotate(${angle}deg) translateY(-${radius}%) rotate(-${angle}deg)`,
+                      marginLeft: '-60px',
+                      marginTop: '-60px',
+                    }}
+                  >
+                    <div className={`flex flex-col items-center ${!reducedMotion ? 'animate-counter-rotate' : ''}`}>
+                      <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 rounded-full overflow-hidden border-4 border-purple-500/50 hover:border-purple-400 transition-all duration-300 hover:scale-110 cursor-pointer bg-gray-900">
+                        <Image
+                          src={speaker.image}
+                          alt={speaker.name}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <p className="text-white font-semibold mt-2 text-center text-xs sm:text-sm whitespace-nowrap">{speaker.name}</p>
+                      {/* Hover tooltip */}
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 p-4 bg-gray-900 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-30 border border-purple-500/30">
+                        <p className="text-white font-semibold mb-1">{speaker.name}</p>
+                        <p className="text-gray-300 text-sm">{speaker.bio}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {/* Center decoration */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-purple-600/20 border-2 border-purple-500/30 flex items-center justify-center">
+                <svg className="w-10 h-10 sm:w-12 sm:h-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
