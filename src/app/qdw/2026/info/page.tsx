@@ -204,7 +204,7 @@ export default function QDW2026Info() {
           >
             <h2 className="text-3xl font-bold text-white mb-8">Location</h2>
             
-            <div className="flex flex-col md:flex-row gap-8 items-center">
+            <div className="flex flex-col md:flex-row gap-8 items-start">
               <div className="flex-1">
                 <p className="text-gray-300 text-lg leading-relaxed mb-4">
                   The Quantum Device Workshop will be hosted in person at the <strong className="text-white">Cohen Room and Mong auditorium in the Engineering VI Building at UCLA</strong>, 404 Westwood Plaza, Los Angeles, CA 90095
