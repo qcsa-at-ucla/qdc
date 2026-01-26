@@ -159,15 +159,15 @@ export default function QDW2026Info() {
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
                 About Quantum Device Workshop
               </h2>
-              <p className="text-gray-300 text-lg leading-relaxed">
+              <p className="text-gray-900 text-lg leading-relaxed">
                 The Quantum Device Workshop is designed to teach advanced undergraduates and graduate students the art of designing quantum devices. This year we have a 4-day hands-on workshop on how to effectively design superconducting qubits.
               </p>
               
-              <p className="text-gray-300 text-lg leading-relaxed">
+              <p className="text-gray-900 text-lg leading-relaxed">
                 We covered basic theory and simulation techniques, best practices, and general constraints for designing superconducting devices. We offered a beginner track and an advanced track so that people of all different skill levels could gain something from this event.
               </p>
               
-              <p className="text-gray-300 text-lg leading-relaxed">
+              <p className="text-gray-900 text-lg leading-relaxed">
                 There was an in-person registration for the lectures, workshop, and panel sessions. Attendants could also register for an online-only session for the lectures and limited workshop sessions.
               </p>
             </motion.div>
