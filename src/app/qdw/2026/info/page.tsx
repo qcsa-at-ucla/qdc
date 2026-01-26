@@ -131,7 +131,7 @@ export default function QDW2026Info() {
               className="text-center lg:text-right lg:ml-auto lg:max-w-2xl"
             >
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-8">
-                Quantum Device Design Workshop: Superconducting Qubits
+                Quantum Device Workshop
               </h1>
               <Link
                 href="/qdw/2026/registration"
@@ -157,10 +157,18 @@ export default function QDW2026Info() {
               className="w-full lg:w-1/2"
             >
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
-                About Quantum Device Design Workshop
+                About Quantum Device Workshop
               </h2>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                The Quantum Device Workshop is designed to teach advanced undergraduates and graduate students the art of designing quantum devices.
+              <p className="text-gray-300 text-lg leading-relaxed">
+                The Quantum Device Workshop is designed to teach advanced undergraduates and graduate students the art of designing quantum devices. This year we have a 4-day hands-on workshop on how to effectively design superconducting qubits.
+              </p>
+              
+              <p className="text-gray-300 text-lg leading-relaxed">
+                We covered basic theory and simulation techniques, best practices, and general constraints for designing superconducting devices. We offered a beginner track and an advanced track so that people of all different skill levels could gain something from this event.
+              </p>
+              
+              <p className="text-gray-300 text-lg leading-relaxed">
+                There was an in-person registration for the lectures, workshop, and panel sessions. Attendants could also register for an online-only session for the lectures and limited workshop sessions.
               </p>
             </motion.div>
 
