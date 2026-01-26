@@ -195,6 +195,42 @@ export default function QDW2026Info() {
         </div>
       </section>
 
+      {/* Location Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 md:p-12 border border-white/10"
+          >
+            <h2 className="text-3xl font-bold text-white mb-8">Location</h2>
+            
+            <div className="flex flex-col md:flex-row gap-8 items-center">
+              <div className="flex-1">
+                <p className="text-gray-300 text-lg leading-relaxed mb-4">
+                  The Quantum Device Workshop was hosted in person at the <strong className="text-white">Tesla and Shannon Rooms of Engineering IV</strong>, 420 Westwood Plaza, Los Angeles, CA 90095
+                </p>
+                <p className="text-gray-400">
+                  Online sessions were also available via Zoom for remote participants.
+                </p>
+              </div>
+              <div className="w-full md:w-1/3">
+                <div className="bg-indigo-500/20 rounded-xl p-6 text-center">
+                  <svg className="w-12 h-12 text-indigo-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <p className="text-white font-semibold">UCLA Engineering IV</p>
+                  <p className="text-gray-400 text-sm">Los Angeles, CA</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Track Schedules */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
