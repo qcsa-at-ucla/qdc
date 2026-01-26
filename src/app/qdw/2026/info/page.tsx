@@ -311,26 +311,25 @@ export default function QDW2026Info() {
                   </div>
                   
                   <div className="border-l-2 border-purple-500/50 pl-4">
-                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 2: Advanced simulation</h4>
+                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 2: Advanced simulation and Cryogenic On Chip Control</h4>
                     <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• Finite element analysis, energy participation ratio calculations, and optimization algorithms</li>
-                      <li>• AI-driven approaches in simulation, automated device design processes, and intelligent control systems</li>
+                      <li>• Advanced simulation methods and cryogenic on chip control architectures</li>
+                    
                     </ul>
                   </div>
                   
                   <div className="border-l-2 border-purple-500/50 pl-4">
-                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 3: Devices</h4>
+                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 3: Quantum Error Correction</h4>
                     <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• Advanced device architectures and cutting-edge applications</li>
-                      <li>• Complex multi-qubit systems and advanced control techniques</li>
+                      <li>• Quantum error correction implementation for device design and simulaton</li>
+            
                     </ul>
                   </div>
                   
                   <div className="border-l-2 border-purple-500/50 pl-4">
-                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 4: Error correction</h4>
+                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 4: Hybrid Systems and Novel Couplers</h4>
                     <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• Surface code implementations and logical qubit architectures</li>
-                      <li>• Device layout optimization</li>
+                      <li>• Hybrid Quantum Systems and novel device architectures</li>
                     </ul>
                   </div>
                 </div>
