@@ -195,6 +195,117 @@ export default function QDW2026Info() {
         </div>
       </section>
 
+      {/* Track Schedules */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-3xl font-bold text-white mb-12 text-center">Workshop Tracks</h2>
+            
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Beginner Track */}
+              <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white">Beginner Track</h3>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="border-l-2 border-green-500/50 pl-4">
+                    <h4 className="text-lg font-semibold text-green-400 mb-2">Day 1: Foundation</h4>
+                    <ul className="text-gray-300 space-y-1 text-sm">
+                      <li>• Review classical LC circuits, resonance, and transmission lines</li>
+                      <li>• Circuit quantization, the Josephson junction, and transmon qubits</li>
+                      <li>• Introduction to circuit QED and dispersive interactions</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="border-l-2 border-green-500/50 pl-4">
+                    <h4 className="text-lg font-semibold text-green-400 mb-2">Day 2: Theory</h4>
+                    <ul className="text-gray-300 space-y-1 text-sm">
+                      <li>• Charge and flux drives and single-qubit gates</li>
+                      <li>• Qubit-qubit coupling and two-qubit gates</li>
+                      <li>• Readout, SNR, and Purcell effects</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="border-l-2 border-green-500/50 pl-4">
+                    <h4 className="text-lg font-semibold text-green-400 mb-2">Day 3: Design</h4>
+                    <ul className="text-gray-300 space-y-1 text-sm">
+                      <li>• Design circuit Hamiltonians</li>
+                      <li>• Perform EM simulation and learn layout generation tools</li>
+                      <li>• Interpret EM simulations (LOM and EPR)</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="border-l-2 border-green-500/50 pl-4">
+                    <h4 className="text-lg font-semibold text-green-400 mb-2">Day 4: Non-idealities and more</h4>
+                    <ul className="text-gray-300 space-y-1 text-sm">
+                      <li>• Quantum and classical crosstalk, crosstalk suppression techniques</li>
+                      <li>• Interface dielectric loss and suppression techniques</li>
+                      <li>• Advanced designs, including flip-chips, through-silicon vias, and multi-chip-modules</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Advanced Track */}
+              <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white">Advanced Track</h3>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="border-l-2 border-purple-500/50 pl-4">
+                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 1: Introduction</h4>
+                    <ul className="text-gray-300 space-y-1 text-sm">
+                      <li>• Review of essential topics in superconducting quantum devices, including device design, simulation, and control integration</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="border-l-2 border-purple-500/50 pl-4">
+                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 2: Advanced simulation</h4>
+                    <ul className="text-gray-300 space-y-1 text-sm">
+                      <li>• Finite element analysis, energy participation ratio calculations, and optimization algorithms</li>
+                      <li>• AI-driven approaches in simulation, automated device design processes, and intelligent control systems</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="border-l-2 border-purple-500/50 pl-4">
+                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 3: Devices</h4>
+                    <ul className="text-gray-300 space-y-1 text-sm">
+                      <li>• Advanced device architectures and cutting-edge applications</li>
+                      <li>• Complex multi-qubit systems and advanced control techniques</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="border-l-2 border-purple-500/50 pl-4">
+                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 4: Error correction</h4>
+                    <ul className="text-gray-300 space-y-1 text-sm">
+                      <li>• Surface code implementations and logical qubit architectures</li>
+                      <li>• Device layout optimization</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Sponsors Section */}
       <section className="py-16 bg-gray-50 border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
