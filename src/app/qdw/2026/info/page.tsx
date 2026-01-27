@@ -97,7 +97,7 @@ export default function QDW2026Info() {
     {
       name: 'Eli Levenson-Falk',
       image: '/images/ELILF.jpeg',
-      bio: 'Eli is an expert in quantum device fabrication and materials science for superconducting quantum systems.',
+      bio: 'Eli Levenson-Falk is an expert in quantum device fabrication and materials science for superconducting quantum systems.',
     },
     {
       name: 'Yvonne Gao',
