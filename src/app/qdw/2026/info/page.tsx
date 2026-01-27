@@ -483,7 +483,7 @@ export default function QDW2026Info() {
             QDW Speakers
           </h2>
           <p className="text-gray-400 text-center mb-8">
-            {isCarouselSpinning ? 'Click anywhere to stop' : 'Click any speaker or center to browse'}
+            {isCarouselSpinning ? 'Click anywhere to stop' : 'Click any speaker browse'}
           </p>
         </div>
         <div className="w-full flex justify-center">
