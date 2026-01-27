@@ -27,16 +27,16 @@ const faqItems: FAQItem[] = [
     question: "4) I noticed the in-person registration closed, can I still sign up in-person?",
     answer: "We really appreciate your interest but unfortunately, our venue likely cannot support more people in-person without creating a fire hazard. If you registered for the virtual version and sent us an email to switch to the in-person version before May 2, and we missed your email by mistake, we will double check to see if there were any cancellations. It is highly likely we will try to host a larger scale version of this event next year that can accommodate more people in person (and iron out any technical issues that may pop up for the virtual version of the workshop this year). We apologize if this causes any inconvenience, but we hope we can make the virtual version of the workshop a super awesome experience for those that attend!"
   },
+//   {
+//     question: "5) Squarespace still displays 'payment pending'. Did my payment go through? Am I registered for the workshop?",
+//     answer: "Yes, we have received your payment. Squarespace is just being strange. For some reason it displays this for everyone."
+//   },
   {
-    question: "5) Squarespace still displays 'payment pending'. Did my payment go through? Am I registered for the workshop?",
-    answer: "Yes, we have received your payment. Squarespace is just being strange. For some reason it displays this for everyone."
-  },
-  {
-    question: "6) Will there be a certificate for completion of the workshop?",
+    question: "5) Will there be a certificate for completion of the workshop?",
     answer: "We can provide a certificate of workshop attendance signed by the organizers upon reasonable request."
   },
   {
-    question: "7) There are significant barriers that prevent me from paying for the workshop. Can I have a fee waiver?",
+    question: "6) There are significant barriers that prevent me from paying for the workshop. Can I have a fee waiver?",
     answer: "Email quantum.ucla@gmail.com with your resume/CV and provide the reason for why it is difficult for you to pay the workshop fee. We will get back to you as soon as we can."
   }
 ];
