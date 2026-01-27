@@ -433,8 +433,8 @@ export default function QDW2026FAQ() {
                   </ul>
                 </div>
                 <div>
-                  <div className="space-y-4 mb-6">
-                    <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-lg">
+                  <div className="space-y-4 mb-6 flex justify-end">
+                    <div className="relative w-3/4 aspect-[4/3] rounded-xl overflow-hidden shadow-lg">
                       <Image
                         src="/images/sushi.png"
                         alt="Sushi"
@@ -455,7 +455,7 @@ export default function QDW2026FAQ() {
                   </ul>
                 </div>
               </div>
-              <div className="grid md:grid-cols-2 gap-4 mt-8">
+              <div className="grid md:grid-cols-3 gap-32 mt-12">
                 <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-lg">
                   <Image
                     src="/images/noodles.png"
@@ -464,6 +464,7 @@ export default function QDW2026FAQ() {
                     className="object-cover"
                   />
                 </div>
+                <div></div>
                 <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-lg">
                   <Image
                     src="/images/dessert.png"
@@ -539,7 +540,7 @@ export default function QDW2026FAQ() {
             <div className="flex items-center gap-6">
               {/* GitHub */}
               <a
-                href="https://github.com"
+                href="https://github.com/qcsa-at-ucla/qdc"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/70 hover:text-white transition-colors"
