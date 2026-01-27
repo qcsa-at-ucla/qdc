@@ -147,7 +147,7 @@ export default function QDW2026FAQ() {
             transition={{ duration: 0.8 }}
             className="text-center"
           >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
+            <h1 className="text-4xl sm:text-4xl md:text-4xl font-bold text-white mb-6">
               Frequently Asked Questions
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
