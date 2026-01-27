@@ -7,6 +7,9 @@ import Link from 'next/link';
 
 export default function QDW2026Info() {
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [isCarouselSpinning, setIsCarouselSpinning] = useState(false);
+  const [isSponsorsScrolling, setIsSponsorsScrolling] = useState(false);
+  const [isAcademicScrolling, setIsAcademicScrolling] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -138,14 +141,13 @@ export default function QDW2026Info() {
         .animate-counter-rotate {
           animation: counterRotate 30s linear infinite;
         }
-        }
         
         .animate-scroll-left {
-          animation: scrollLeft 25s linear infinite;
+          animation: scrollLeft 12s linear infinite;
         }
         
         .animate-scroll-right {
-          animation: scrollRight 25s linear infinite;
+          animation: scrollRight 12s linear infinite;
         }
         
         @media (prefers-reduced-motion: reduce) {
@@ -477,21 +479,24 @@ export default function QDW2026Info() {
       {/* Speakers Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-4">
             QDW Speakers
           </h2>
+          <p className="text-gray-400 text-center mb-8">
+            {isCarouselSpinning ? 'Click anywhere to stop' : 'Click any speaker or center to browse'}
+          </p>
         </div>
         <div className="w-full flex justify-center">
           <div className="relative w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] md:w-[600px] md:h-[600px] lg:w-[700px] lg:h-[700px]">
             {/* Rotating container */}
-            <div className={`absolute inset-0 ${!reducedMotion ? 'animate-rotate-circle' : ''}`}>
+            <div className={`absolute inset-0 z-10 ${isCarouselSpinning && !reducedMotion ? 'animate-rotate-circle' : ''}`}>
               {speakers.map((speaker, index) => {
                 const angle = (index * 360) / speakers.length;
                 const radius = 130; // percentage from center
                 return (
                   <div
                     key={index}
-                    className="absolute group"
+                    className="absolute group hover:z-50"
                     style={{
                       left: '50%',
                       top: '50%',
@@ -500,18 +505,21 @@ export default function QDW2026Info() {
                       marginTop: '-60px',
                     }}
                   >
-                    <div className={`flex flex-col items-center ${!reducedMotion ? 'animate-counter-rotate' : ''}`}>
-                      <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 rounded-full overflow-hidden border-4 border-purple-500/50 hover:border-purple-400 transition-all duration-300 hover:scale-110 cursor-pointer bg-gray-900">
+                    <div className={`flex flex-col items-center ${isCarouselSpinning && !reducedMotion ? 'animate-counter-rotate' : ''}`}>
+                      <button
+                        onClick={() => setIsCarouselSpinning(!isCarouselSpinning)}
+                        className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 rounded-full overflow-hidden border-4 border-purple-500/50 hover:border-purple-400 transition-all duration-300 hover:scale-110 cursor-pointer bg-gray-900"
+                      >
                         <Image
                           src={speaker.image}
                           alt={speaker.name}
                           fill
                           className="object-cover"
                         />
-                      </div>
+                      </button>
                       <p className="text-white font-semibold mt-2 text-center text-xs sm:text-sm whitespace-nowrap">{speaker.name}</p>
                       {/* Hover tooltip */}
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 p-4 bg-gray-900 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-30 border border-purple-500/30">
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 p-4 bg-gray-900 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50 border border-purple-500/30">
                         <p className="text-white font-semibold mb-1">{speaker.name}</p>
                         <p className="text-gray-300 text-sm">{speaker.bio}</p>
                       </div>
@@ -520,13 +528,24 @@ export default function QDW2026Info() {
                 );
               })}
             </div>
-            {/* Center decoration */}
+            {/* Center button - click to toggle rotation */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-purple-600/20 border-2 border-purple-500/30 flex items-center justify-center">
-                <svg className="w-10 h-10 sm:w-12 sm:h-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
+              <button
+                onClick={() => setIsCarouselSpinning(!isCarouselSpinning)}
+                className="pointer-events-auto w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-purple-600/20 border-2 border-purple-500/30 flex items-center justify-center hover:bg-purple-600/40 hover:border-purple-400 transition-all duration-300 cursor-pointer"
+                aria-label={isCarouselSpinning ? 'Stop carousel' : 'Start carousel'}
+              >
+                {isCarouselSpinning ? (
+                  <svg className="w-10 h-10 sm:w-12 sm:h-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-10 h-10 sm:w-12 sm:h-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -535,18 +554,24 @@ export default function QDW2026Info() {
       {/* Sponsors Section */}
       <section className="py-16 bg-gray-50 border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-4">
             Sponsors
           </h2>
+          <p className="text-gray-500 text-center mb-8 text-sm">
+            {isSponsorsScrolling ? 'Click to stop' : 'Click to browse'}
+          </p>
         </div>
         <div className="w-full">
-          <div className="relative overflow-hidden">
+          <div 
+            className="relative overflow-hidden cursor-pointer"
+            onClick={() => setIsSponsorsScrolling(!isSponsorsScrolling)}
+          >
             {/* Gradient overlays */}
             <div className="absolute left-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, #f9fafb, transparent)' }}></div>
             <div className="absolute right-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(to left, #f9fafb, transparent)' }}></div>
             
             {/* Scrolling container */}
-            <div className={`flex ${!reducedMotion ? 'animate-scroll-left' : ''}`}>
+            <div className={`flex ${isSponsorsScrolling && !reducedMotion ? 'animate-scroll-left' : ''}`}>
               {/* First set */}
               {sponsors.map((sponsor, index) => (
                 <div
@@ -585,18 +610,24 @@ export default function QDW2026Info() {
       {/* Academic Groups Section */}
       <section className="py-16 bg-white border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-4">
             Academic Groups
           </h2>
+          <p className="text-gray-500 text-center mb-8 text-sm">
+            {isAcademicScrolling ? 'Click to stop' : 'Click to browse'}
+          </p>
         </div>
         <div className="w-full">
-          <div className="relative overflow-hidden">
+          <div 
+            className="relative overflow-hidden cursor-pointer"
+            onClick={() => setIsAcademicScrolling(!isAcademicScrolling)}
+          >
             {/* Gradient overlays */}
             <div className="absolute left-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, #ffffff, transparent)' }}></div>
             <div className="absolute right-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(to left, #ffffff, transparent)' }}></div>
             
             {/* Scrolling container - opposite direction */}
-            <div className={`flex ${!reducedMotion ? 'animate-scroll-right' : ''}`}>
+            <div className={`flex ${isAcademicScrolling && !reducedMotion ? 'animate-scroll-right' : ''}`}>
               {/* First set */}
               {academicGroups.map((group, index) => (
                 <div
