@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 export default function QDW2026Info() {
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [isCarouselSpinning, setIsCarouselSpinning] = useState(false);
+  const [speakerPage, setSpeakerPage] = useState(0);
   const [isSponsorsScrolling, setIsSponsorsScrolling] = useState(false);
   const [isAcademicScrolling, setIsAcademicScrolling] = useState(false);
   const [formData, setFormData] = useState({
@@ -479,74 +479,79 @@ export default function QDW2026Info() {
       {/* Speakers Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">
             QDW Speakers
           </h2>
-          <p className="text-gray-400 text-center mb-8">
-            {isCarouselSpinning ? 'Click anywhere to stop' : 'Click any speaker browse'}
-          </p>
-        </div>
-        <div className="w-full flex justify-center">
-          <div className="relative w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] md:w-[600px] md:h-[600px] lg:w-[700px] lg:h-[700px]">
-            {/* Rotating container */}
-            <div className={`absolute inset-0 z-10 ${isCarouselSpinning && !reducedMotion ? 'animate-rotate-circle' : ''}`}>
-              {speakers.map((speaker, index) => {
-                const angle = (index * 360) / speakers.length;
-                const radius = 130; // percentage from center
-                return (
-                  <div
-                    key={index}
-                    className="absolute group hover:z-50"
-                    style={{
-                      left: '50%',
-                      top: '50%',
-                      transform: `rotate(${angle}deg) translateY(-${radius}%) rotate(-${angle}deg)`,
-                      marginLeft: '-60px',
-                      marginTop: '-60px',
-                    }}
-                  >
-                    <div className={`flex flex-col items-center ${isCarouselSpinning && !reducedMotion ? 'animate-counter-rotate' : ''}`}>
-                      <button
-                        onClick={() => setIsCarouselSpinning(!isCarouselSpinning)}
-                        className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 rounded-full overflow-hidden border-4 border-purple-500/50 hover:border-purple-400 transition-all duration-300 hover:scale-110 cursor-pointer bg-gray-900"
-                      >
-                        <Image
-                          src={speaker.image}
-                          alt={speaker.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </button>
-                      <p className="text-white font-semibold mt-2 text-center text-xs sm:text-sm whitespace-nowrap">{speaker.name}</p>
-                      {/* Hover tooltip */}
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 p-4 bg-gray-900 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50 border border-purple-500/30">
-                        <p className="text-white font-semibold mb-1">{speaker.name}</p>
-                        <p className="text-gray-300 text-sm">{speaker.bio}</p>
-                      </div>
+          
+          {/* Speakers list with navigation */}
+          <div className="relative">
+            {/* Left Arrow */}
+            <button
+              onClick={() => setSpeakerPage((prev) => (prev === 0 ? Math.ceil(speakers.length / 4) - 1 : prev - 1))}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-600/30 border border-purple-500/50 flex items-center justify-center hover:bg-purple-600/50 transition-all duration-300"
+              aria-label="Previous speakers"
+            >
+              <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            
+            {/* Speakers Grid */}
+            <div className="overflow-x-hidden overflow-y-visible mx-8 md:mx-12">
+              <div 
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{ transform: `translateX(-${speakerPage * 100}%)` }}
+              >
+                {/* Group speakers into pages of 4 */}
+                {Array.from({ length: Math.ceil(speakers.length / 4) }).map((_, pageIndex) => (
+                  <div key={pageIndex} className="flex-shrink-0 w-full">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 pb-48">
+                      {speakers.slice(pageIndex * 4, pageIndex * 4 + 4).map((speaker, index) => (
+                        <div key={index} className="relative flex flex-col items-center group">
+                          <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 rounded-full overflow-hidden border-4 border-purple-500/50 hover:border-purple-400 transition-all duration-300 hover:scale-105 bg-gray-900 cursor-pointer">
+                            <Image
+                              src={speaker.image}
+                              alt={speaker.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <p className="text-white font-semibold mt-3 text-center text-sm sm:text-base">{speaker.name}</p>
+                          {/* Hover tooltip */}
+                          <div className={`absolute top-full mt-2 w-56 sm:w-64 p-3 sm:p-4 bg-gray-900 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50 border border-purple-500/30 ${index % 2 === 0 ? 'left-0 sm:left-1/2 sm:-translate-x-1/2' : 'right-0 sm:left-1/2 sm:-translate-x-1/2'}`}>
+                            <p className="text-white font-semibold mb-1 text-sm sm:text-base">{speaker.name}</p>
+                            <p className="text-gray-300 text-xs sm:text-sm">{speaker.bio}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
-            {/* Center button - click to toggle rotation */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            
+            {/* Right Arrow */}
+            <button
+              onClick={() => setSpeakerPage((prev) => (prev === Math.ceil(speakers.length / 4) - 1 ? 0 : prev + 1))}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-600/30 border border-purple-500/50 flex items-center justify-center hover:bg-purple-600/50 transition-all duration-300"
+              aria-label="Next speakers"
+            >
+              <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* Page indicators */}
+          <div className="flex justify-center gap-2 mt-8">
+            {Array.from({ length: Math.ceil(speakers.length / 4) }).map((_, index) => (
               <button
-                onClick={() => setIsCarouselSpinning(!isCarouselSpinning)}
-                className="pointer-events-auto w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-purple-600/20 border-2 border-purple-500/30 flex items-center justify-center hover:bg-purple-600/40 hover:border-purple-400 transition-all duration-300 cursor-pointer"
-                aria-label={isCarouselSpinning ? 'Stop carousel' : 'Start carousel'}
-              >
-                {isCarouselSpinning ? (
-                  <svg className="w-10 h-10 sm:w-12 sm:h-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                ) : (
-                  <svg className="w-10 h-10 sm:w-12 sm:h-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                )}
-              </button>
-            </div>
+                key={index}
+                onClick={() => setSpeakerPage(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${speakerPage === index ? 'bg-purple-500 w-6' : 'bg-gray-600 hover:bg-gray-500'}`}
+                aria-label={`Go to page ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
       </section>
