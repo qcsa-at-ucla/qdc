@@ -13,6 +13,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileQdwOpen, setIsMobileQdwOpen] = useState(false);
   const [isMobileQdw2026Open, setIsMobileQdw2026Open] = useState(false);
+  const [isMobileToolsOpen, setIsMobileToolsOpen] = useState(false);
   const contactDropdownRef = useRef<HTMLDivElement>(null);
   const toolsDropdownRef = useRef<HTMLDivElement>(null);
   const resourcesDropdownRef = useRef<HTMLDivElement>(null);
@@ -449,7 +450,7 @@ export default function Navbar() {
             />
             <div 
               ref={mobileMenuRef} 
-              className="absolute left-0 right-0 top-16 md:hidden py-4 bg-black/95 backdrop-blur-md border-t border-white/10 animate-fade-in z-50"
+              className="absolute left-0 right-0 top-16 md:hidden py-4 bg-black/95 backdrop-blur-md border-t border-white/10 animate-fade-in z-50 max-h-[calc(100vh-4rem)] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col gap-2 px-4">
@@ -534,11 +535,22 @@ export default function Navbar() {
                 
                 {/* Mobile Design & Simulation Tools Section */}
                 <div className="px-4 py-2 mt-2">
-                  <span className="text-white/50 text-xs font-semibold uppercase tracking-wider">
+                  <button
+                    onClick={() => setIsMobileToolsOpen(!isMobileToolsOpen)}
+                    className="flex items-center justify-between w-full text-white/50 text-xs font-semibold uppercase tracking-wider"
+                  >
                     Design & Simulation
-                  </span>
+                    <svg
+                      className={`w-4 h-4 transition-transform duration-200 ${isMobileToolsOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
                 </div>
-                {toolsLinks.map((link, index) => (
+                {isMobileToolsOpen && toolsLinks.map((link, index) => (
                   <Link
                     key={index}
                     href={link.href}
