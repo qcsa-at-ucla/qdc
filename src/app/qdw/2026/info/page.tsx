@@ -95,7 +95,7 @@ export default function QDW2026Info() {
       bio: 'Anna Grassellino is a physicist at Fermilab, pioneering advances in superconducting radio-frequency cavities and quantum information science.',
     },
     {
-      name: 'Eli',
+      name: 'Eli Levenson-Falk',
       image: '/images/ELILF.jpeg',
       bio: 'Eli is an expert in quantum device fabrication and materials science for superconducting quantum systems.',
     },
@@ -320,7 +320,7 @@ export default function QDW2026Info() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-white">Introductory Track</h3>
+                  <h3 className="text-2xl font-bold text-white">Training Track</h3>
                 </div>
                 
                 <div className="space-y-6">
@@ -368,7 +368,7 @@ export default function QDW2026Info() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-white">Advanced Track</h3>
+                  <h3 className="text-2xl font-bold text-white">Professional Track</h3>
                 </div>
                 
                 <div className="space-y-6">
