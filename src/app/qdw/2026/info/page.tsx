@@ -174,6 +174,13 @@ export default function QDW2026Info() {
       image: '/images/Nico_Pancotti.jpeg',
       bio: 'Nicolas Pancotti is a quantum computing researcher working on quantum algorithms and quantum machine learning.',
     },
+    {
+      name: "Murat Can Sarihan",
+      affiliation: 'Google',
+      image: '/images/Murat_Can_Sarihan.jpg',
+      bio: 'Murat Can Sarihan is a research scientist at Google Quantum AI, focusing on superconducting qubit design and quantum error correction.',
+
+    },
   ];
 
   return (
