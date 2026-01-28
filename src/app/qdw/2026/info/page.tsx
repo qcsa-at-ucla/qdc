@@ -285,7 +285,6 @@ export default function QDW2026Info() {
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                className="pointer-events-none"
               />
             </div>
             <p className="text-gray-500 text-sm mt-2">UCLA Engineering VI — QDW 2026</p>
