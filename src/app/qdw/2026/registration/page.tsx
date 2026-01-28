@@ -409,9 +409,9 @@ export default function QDW2026Registration() {
                     />
                     <span className="text-sm text-gray-900">
                       I agree to the{' '}
-                      <Link href="/qdw/2026/terms" className="text-purple-600 hover:text-purple-700 underline">
+                      <a href="/qdw/2026/terms" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:text-purple-700 underline">
                         Terms & Conditions
-                      </Link>
+                      </a>
                       <span className="text-gray-500"> (required)</span>
                     </span>
                   </label>
