@@ -1,11 +1,86 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * Quantum News API - Uses OpenAI Responses API with web search to fetch latest quantum computing news
  * 
  * Required environment variables:
  *   - OPENAI_API_KEY
+ *   - SUPABASE_URL
+ *   - SUPABASE_SERVICE_KEY
+ * 
+ * Rate Limiting (via Supabase):
+ *   - 50 requests per IP per 24 hours (configurable via QUANTUM_NEWS_RATE_LIMIT env var)
  */
+
+// Rate limiting configuration
+const RATE_LIMIT_PER_IP = parseInt(process.env.QUANTUM_NEWS_RATE_LIMIT || '50', 10);
+const RATE_LIMIT_WINDOW_HOURS = 24;
+
+interface RateLimitResult {
+  allowed: boolean;
+  current_count: number;
+  remaining: number;
+  reset_at: string;
+}
+
+async function checkRateLimitWithSupabase(
+  ip: string,
+  supabaseUrl: string,
+  supabaseKey: string
+): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
+  try {
+    // Call the Supabase function to check/update rate limit
+    const response = await fetch(`${supabaseUrl}/rest/v1/rpc/check_rate_limit`, {
+      method: 'POST',
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        p_ip_address: ip,
+        p_endpoint: '/api/quantum-news',
+        p_max_requests: RATE_LIMIT_PER_IP,
+        p_window_hours: RATE_LIMIT_WINDOW_HOURS,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Supabase rate limit check failed:', await response.text());
+      // If rate limiting fails, allow the request but log the error
+      return { allowed: true, remaining: RATE_LIMIT_PER_IP, resetAt: Date.now() + 86400000 };
+    }
+
+    const results: RateLimitResult[] = await response.json();
+    const result = results[0];
+    
+    return {
+      allowed: result.allowed,
+      remaining: result.remaining,
+      resetAt: new Date(result.reset_at).getTime(),
+    };
+  } catch (error) {
+    console.error('Rate limit check error:', error);
+    // If rate limiting fails, allow the request but log the error
+    return { allowed: true, remaining: RATE_LIMIT_PER_IP, resetAt: Date.now() + 86400000 };
+  }
+}
+
+function getClientIP(request: NextRequest): string {
+  // Check various headers for the real IP (handles proxies/load balancers)
+  const forwarded = request.headers.get('x-forwarded-for');
+  if (forwarded) {
+    return forwarded.split(',')[0].trim();
+  }
+  
+  const realIP = request.headers.get('x-real-ip');
+  if (realIP) {
+    return realIP;
+  }
+  
+  // Fallback (may not work in all environments)
+  return 'unknown';
+}
 
 interface NewsItem {
   title: string;
@@ -30,8 +105,34 @@ interface OpenAIResponsesAPIResponse {
   output: OpenAIResponseItem[];
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+
+    // Rate limiting check (only if Supabase is configured)
+    const clientIP = getClientIP(request);
+    let rateLimit = { allowed: true, remaining: RATE_LIMIT_PER_IP, resetAt: Date.now() + 86400000 };
+    
+    if (supabaseUrl && supabaseKey) {
+      rateLimit = await checkRateLimitWithSupabase(clientIP, supabaseUrl, supabaseKey);
+      
+      if (!rateLimit.allowed) {
+        return NextResponse.json(
+          { error: 'Rate limit exceeded. Please try again later.' },
+          { 
+            status: 429,
+            headers: {
+              'X-RateLimit-Limit': RATE_LIMIT_PER_IP.toString(),
+              'X-RateLimit-Remaining': '0',
+              'X-RateLimit-Reset': rateLimit.resetAt.toString(),
+              'Retry-After': Math.ceil((rateLimit.resetAt - Date.now()) / 1000).toString(),
+            }
+          }
+        );
+      }
+    }
+
     const openaiKey = process.env.OPENAI_API_KEY;
 
     if (!openaiKey) {
@@ -130,12 +231,15 @@ IMPORTANT: Return ONLY the JSON array, no other text or markdown formatting.`;
       );
     }
 
-    // Return the news items with cache headers (cache for 1 hour)
+    // Return the news items with cache headers (cache for 1 hour) and rate limit info
     return NextResponse.json(
       { news: newsItems, fetchedAt: new Date().toISOString() },
       {
         headers: {
           'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
+          'X-RateLimit-Limit': RATE_LIMIT_PER_IP.toString(),
+          'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+          'X-RateLimit-Reset': rateLimit.resetAt.toString(),
         },
       }
     );
