@@ -110,7 +110,7 @@ function NewsCard({ item, index }: { item: NewsItem; index: number }) {
           {icon}
           {item.category}
         </span>
-        <span className="text-gray-500 text-sm">{formatDate(item.date)}</span>
+        {/* <span className="text-gray-500 text-sm">{formatDate(item.date)}</span> */}
       </div>
       
       <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-indigo-300 transition-colors line-clamp-2">
