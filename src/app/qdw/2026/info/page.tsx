@@ -66,12 +66,12 @@ export default function QDW2026Info() {
     setIsSubmitting(false);
   };
 
-  // Sponsors - using partner images as placeholders
+  // Sponsors - updated with new sponsor list
   const sponsors = [
+    { name: 'Rigetti', logo: '/images/partners/rigetti.png' },
     { name: 'Google Quantum', logo: '/images/partners/google-quantum.png' },
-    { name: 'Koch', logo: '/images/partners/koch.png' },
-    { name: 'Eli', logo: '/images/partners/eli.png' },
-    { name: 'SuperQubit', logo: '/images/partners/superqubit.png' },
+    { name: 'QBlox', logo: '/images/partners/qblox.png' },
+    { name: 'Nvidia', logo: '/images/partners/nvidia.png' },
   ];
 
   // Academic Groups - using partner images as placeholders
@@ -113,68 +113,57 @@ export default function QDW2026Info() {
 
   return (
     <>
-      <style>{`
-        @keyframes scrollLeft {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        
-        @keyframes scrollRight {
-          0% { transform: translateX(-50%); }
-          100% { transform: translateX(0); }
-        }
-        
-        @keyframes rotateCircle {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        
-        @keyframes counterRotate {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(-360deg); }
-        }
-        
-        .animate-rotate-circle {
-          animation: rotateCircle 30s linear infinite;
-        }
-        
-        .animate-counter-rotate {
-          animation: counterRotate 30s linear infinite;
-        }
-        
-        .animate-scroll-left {
-          animation: scrollLeft 12s linear infinite;
-        }
-        
-        .animate-scroll-right {
-          animation: scrollRight 12s linear infinite;
-        }
-        
-        @media (prefers-reduced-motion: reduce) {
-          .animate-scroll-left,
-          .animate-scroll-right,
-          .animate-rotate-circle,
-          .animate-counter-rotate {
-            animation: none !important;
-          }
-        }
-      `}</style>
       <main className="min-h-screen">
-      {/* Hero Section - Background image with overlay text */}
-      <section className="relative min-h-screen pt-16 overflow-hidden">
-        {/* Background Image */}
+      {/* Quick Navigation Bar */}
+      <section className="bg-black/90 backdrop-blur-md border-b border-white/10 pt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
+            <Link
+              href="/qdw/2026/info"
+              className="text-purple-300 font-semibold px-4 py-2 rounded-full bg-purple-600/20 border border-purple-500/30"
+            >
+              Workshop Info
+            </Link>
+            <Link
+              href="/qdw/2026/registration"
+              className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 px-4 py-2 rounded-full border border-white/20 hover:border-white/40"
+            >
+              Registration
+            </Link>
+            <Link
+              href="/qdw/2026/faq"
+              className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 px-4 py-2 rounded-full border border-white/20 hover:border-white/40"
+            >
+              FAQ
+            </Link>
+            <Link
+              href="/design-tools"
+              className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 px-4 py-2 rounded-full border border-white/20 hover:border-white/40"
+            >
+              Design Tools
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Hero Section - Smaller on desktop (3/4 rule), full on mobile */}
+      <section className="relative min-h-screen lg:min-h-[75vh] pt-0 overflow-hidden">
+        {/* Background Image - smaller visual on horizontal/desktop */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/qdw_main.png"
             alt="Quantum Device Design Workshop"
             fill
-            className="object-cover"
+            className="object-cover object-center lg:object-[center_30%]"
             priority
           />
+          {/* Enhanced gradient overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30"></div>
         </div>
 
         {/* Content overlay */}
-        <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-4rem)]">
+        <div className="relative z-10 flex items-center justify-center min-h-screen lg:min-h-[75vh] pt-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -182,137 +171,142 @@ export default function QDW2026Info() {
               transition={{ duration: 0.8 }}
               className="text-center lg:text-right lg:ml-auto lg:max-w-2xl"
             >
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
-                Quantum Device Workshop
-              </h1>
-              <p className="text-2xl sm:text-3xl font-semibold text-purple-300 mb-8">
-                June 15-18, 2026
-              </p>
-              <Link
-                href="/qdw/2026/registration"
-                className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-full px-8 py-4 text-lg transition-all duration-200 hover:scale-105"
+              <h1 
+                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4"
+                style={{ textShadow: '0 0 20px rgba(147, 51, 234, 0.4), 0 0 40px rgba(147, 51, 234, 0.2), 0 2px 4px rgba(0,0,0,0.5)' }}
               >
-                Register Now
-              </Link>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* About Section - White background */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-            {/* Left side - Text content */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="w-full lg:w-1/2"
-            >
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
-                About Quantum Device Workshop
-              </h2>
-              <p className="text-gray-900 text-lg leading-relaxed">
-                The Quantum Device Workshop is designed to teach advanced undergraduates and graduate students the art of designing quantum devices. This year we have a 4-day hands-on workshop on how to effectively design, simulate and work with superconducting qubits.
-                We will cover theory and simulation techniques, best practices, and general constraints for designing superconducting devices. We offered an introductory track and an advanced track so that people of all different skill levels could gain something from this event.
-                We offer in-person lectures, workshops, and panel sessions. This year we will also offer a Poster session, a design project and a career perspective session, Attendants can also register for an online-only session for the lectures and workshop sessions.
+                Quantum Device Design Workshop
+              </h1>
+              <p className="text-xl sm:text-2xl font-semibold text-purple-300 mb-1 drop-shadow-lg">
+                June 15–18, 2026
               </p>
-            </motion.div>
-
-            {/* Right side - Chip image in dark card */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="w-full lg:w-1/2 flex justify-center lg:justify-end"
-            >
-              <div className="bg-gray-900 rounded-2xl p-8 shadow-2xl">
-                <div className="relative w-[250px] h-[250px] sm:w-[300px] sm:h-[300px]">
-                  <Image
-                    src="/images/quantum_device_chip.png"
-                    alt="Quantum Device Chip"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
+              <p className="text-lg sm:text-xl text-white/90 mb-8 drop-shadow-lg">
+                Cohen Room and Mong Auditorium, Engineering VI Building at UCLA
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-end">
+                <Link
+                  href="/qdw/2026/registration"
+                  className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-full px-8 py-4 text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl border-2 border-transparent hover:border-purple-300"
+                >
+                  Register Now
+                </Link>
+                <Link
+                  href="/design-tools"
+                  className="inline-block bg-white/10 hover:bg-white/20 text-white font-semibold rounded-full px-8 py-4 text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl border-2 border-white/30 hover:border-white/50 backdrop-blur-sm"
+                >
+                  Design Tools
+                </Link>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Location Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      {/* About Section - White background, no chip image, content moved up */}
+      <section className="py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white lg:min-h-[75vh] flex flex-col justify-center">
+        <div className="max-w-7xl mx-auto w-full">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 md:p-12 border border-white/10"
+            className="max-w-4xl"
           >
-            <h2 className="text-3xl font-bold text-white mb-8">Location</h2>
-            
-            <div className="flex flex-col md:flex-row gap-8 items-start">
-              <div className="flex-1">
-                <p className="text-gray-300 text-lg leading-relaxed mb-4">
-                  The Quantum Device Workshop will be hosted in person at the <strong className="text-white">Cohen Room and Mong auditorium in the Engineering VI Building at UCLA</strong>, 404 Westwood Plaza, Los Angeles, CA 90095
-                </p>
-                <p className="text-gray-400">
-                  Online sessions will also available via Zoom for remote participants.
-                </p>
-              </div>
-              <div className="w-full md:w-1/2">
-                <a 
-                  href="https://www.google.com/maps/place/Engineering+VI/@34.0688315,-118.4444759,19.04z/data=!4m6!3m5!1s0x80c2bc88bcefb20f:0xc622b89fcd2f5d21!8m2!3d34.0694996!4d-118.4445256!16s%2Fg%2F11b6_cxjxf?entry=ttu&g_ep=EgoyMDI2MDEyMS4wIKXMDSoKLDEwMDc5MjA3M0gBUAM%3D"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block rounded-xl overflow-hidden hover:ring-2 hover:ring-purple-500 transition-all duration-300 hover:scale-[1.02]"
-                >
-                  <div className="relative w-full h-48 md:h-64">
-                    <iframe
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3305.0126853671!2d-118.4449077!3d34.0689755!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc8612eeab0d%3A0x5c3a3bb8a9b7c8e6!2sEngineering%20VI%2C%20Los%20Angeles%2C%20CA%2090095!5e0!3m2!1sen!2sus!4v1706000000000!5m2!1sen!2sus"
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      className="pointer-events-none"
-                    ></iframe>
-                  </div>
-                  <div className="bg-indigo-500/30 px-4 py-3 flex items-center justify-between">
-                    <div>
-                      <p className="text-white font-semibold">UCLA Engineering VI</p>
-                      <p className="text-gray-300 text-sm">Click to open in Google Maps</p>
-                    </div>
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </div>
-                </a>
-              </div>
-            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+              About Quantum Device Workshop
+            </h2>
+            <p className="text-gray-900 text-lg leading-relaxed">
+              The Quantum Device Workshop is designed to teach advanced undergraduates and graduate students the art of designing quantum devices. QDW 2026 features a 4-day hands-on workshop on how to effectively design, simulate and work with superconducting qubits.
+              We will cover theory and simulation techniques, best practices, and general constraints for designing superconducting devices. We offer an introductory track and an advanced track so that people of all skill levels can gain something from this event.
+              We offer in-person lectures, workshops, and panel sessions. In 2026 we will also offer a Poster session, a design project and a career perspective session. Attendees can register for an online-only option for the lectures and workshop sessions.
+            </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Track Schedules */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      {/* Location & Date Section — side-by-side on desktop, 2026 info */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 lg:min-h-[75vh] flex flex-col justify-center">
+        <div className="max-w-7xl mx-auto w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start"
+          >
+            {/* Location — left on desktop */}
+            <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 md:p-10 border border-white/10">
+              <h2 className="text-3xl font-bold text-white mb-6">Location</h2>
+              <p className="text-gray-300 text-lg leading-relaxed mb-4">
+                QDW 2026 will be hosted in person at the <strong className="text-white">Cohen Room and Mong Auditorium in the Engineering VI Building at UCLA</strong>, 404 Westwood Plaza, Los Angeles, CA 90095.
+              </p>
+              <p className="text-gray-400">
+                Online sessions will also be available via Zoom for remote participants.
+              </p>
+              <a 
+                href="https://www.google.com/maps/place/Engineering+VI,+404+Westwood+Plaza,+Los+Angeles,+CA+90095"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-purple-300 hover:text-purple-200 font-medium mt-4"
+              >
+                Open in Google Maps
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            </div>
+
+            {/* Date & time — right on desktop */}
+            <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 md:p-10 border border-white/10">
+              <h2 className="text-3xl font-bold text-white mb-6">Date & time</h2>
+              <p className="text-gray-300 text-lg leading-relaxed mb-2">
+                <strong className="text-white">June 15–18, 2026</strong>
+              </p>
+              <p className="text-gray-400">
+                In-person and online options. Schedule details for QDW 2026 will be posted closer to the event.
+              </p>
+            </div>
+          </motion.div>
+          {/* Map — full width below on mobile, or inline on desktop if preferred */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mt-8"
+          >
+            <div className="rounded-xl overflow-hidden border border-white/10 h-48 md:h-56 lg:h-64">
+              <iframe
+                title="UCLA Engineering VI"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3305.0126853671!2d-118.4449077!3d34.0689755!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc88bcefb20f%3A0xc622b89fcd2f5d21!2sEngineering%20VI%2C%20Los%20Angeles%2C%20CA%2090095!5e0!3m2!1sen!2sus!4v1706000000000!5m2!1sen!2sus"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="pointer-events-none"
+              />
+            </div>
+            <p className="text-gray-500 text-sm mt-2">UCLA Engineering VI — QDW 2026</p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Track Schedules — QDW 2026 */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 lg:min-h-[75vh] flex flex-col justify-center">
+        <div className="max-w-7xl mx-auto w-full">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl font-bold text-white mb-12 text-center">Workshop Tracks</h2>
+            <h2 className="text-3xl font-bold text-white mb-2 text-center">Workshop Tracks</h2>
+            <p className="text-gray-400 text-center mb-12">QDW 2026</p>
             
             <div className="grid lg:grid-cols-2 gap-8">
-              {/* Beginner Track */}
+              {/* Training Track */}
               <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
@@ -327,7 +321,7 @@ export default function QDW2026Info() {
                   <div className="border-l-2 border-green-500/50 pl-4">
                     <h4 className="text-lg font-semibold text-green-400 mb-2">Day 1: Foundation</h4>
                     <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• Review of Device Design and Simulation Toolss</li>
+                      <li>• Review of Device Design and Simulation Tools</li>
                       <li>• Initialization, Gates & Readout</li>
                       <li>• Workshop on Design&Layout</li>
                     </ul>
@@ -360,7 +354,7 @@ export default function QDW2026Info() {
                 </div>
               </div>
 
-              {/* Advanced Track */}
+              {/* Advanced Track — QDW 2026 */}
               <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
@@ -368,7 +362,7 @@ export default function QDW2026Info() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-white">Professional Track</h3>
+                  <h3 className="text-2xl font-bold text-white">Advanced Track</h3>
                 </div>
                 
                 <div className="space-y-6">
@@ -408,8 +402,8 @@ export default function QDW2026Info() {
         </div>
       </section>
 
-      {/* Workshop Activities Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
+      {/* Workshop Activities Section — 3/4 rule on desktop */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 lg:min-h-[75vh] flex flex-col justify-center">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -476,8 +470,8 @@ export default function QDW2026Info() {
         </div>
       </section>
 
-      {/* Speakers Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
+      {/* Speakers Section — 3/4 rule on desktop */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 lg:min-h-[75vh] flex flex-col justify-center">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">
             QDW Speakers
@@ -557,13 +551,13 @@ export default function QDW2026Info() {
       </section>
 
       {/* Sponsors Section */}
-      <section className="py-16 bg-gray-50 border-t border-gray-200">
+      <section className="py-16 bg-gradient-to-br from-gray-50 to-gray-100 border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-4">
             Sponsors
           </h2>
           <p className="text-gray-500 text-center mb-8 text-sm">
-            {isSponsorsScrolling ? 'Click to stop' : 'Click to browse'}
+            {isSponsorsScrolling ? 'Click to stop scrolling' : 'Click to start scrolling'}
           </p>
         </div>
         <div className="w-full">
@@ -571,9 +565,9 @@ export default function QDW2026Info() {
             className="relative overflow-hidden cursor-pointer"
             onClick={() => setIsSponsorsScrolling(!isSponsorsScrolling)}
           >
-            {/* Gradient overlays */}
-            <div className="absolute left-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, #f9fafb, transparent)' }}></div>
-            <div className="absolute right-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(to left, #f9fafb, transparent)' }}></div>
+            {/* Enhanced gradient overlays */}
+            <div className="absolute left-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, rgb(249 250 251), transparent)' }}></div>
+            <div className="absolute right-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(to left, rgb(249 250 251), transparent)' }}></div>
             
             {/* Scrolling container */}
             <div className={`flex ${isSponsorsScrolling && !reducedMotion ? 'animate-scroll-left' : ''}`}>
@@ -581,14 +575,14 @@ export default function QDW2026Info() {
               {sponsors.map((sponsor, index) => (
                 <div
                   key={`first-${index}`}
-                  className="flex-shrink-0 mx-4 sm:mx-6 md:mx-8 flex items-center justify-center h-20 w-32 sm:h-24 sm:w-36 md:h-28 md:w-44 lg:h-32 lg:w-52 bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  className="flex-shrink-0 mx-4 sm:mx-6 flex items-center justify-center h-24 w-40 sm:h-28 sm:w-48 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-100 hover:border-purple-200 [&_img]:max-w-[85%] [&_img]:max-h-[85%] [&_img]:object-contain [&_img]:object-center"
                 >
                   <Image
                     src={sponsor.logo}
                     alt={sponsor.name}
-                    width={200}
-                    height={80}
-                    className="max-w-full max-h-full object-contain p-3"
+                    width={160}
+                    height={96}
+                    className="object-contain object-center p-3 bg-transparent"
                   />
                 </div>
               ))}
@@ -596,14 +590,14 @@ export default function QDW2026Info() {
               {sponsors.map((sponsor, index) => (
                 <div
                   key={`second-${index}`}
-                  className="flex-shrink-0 mx-4 sm:mx-6 md:mx-8 flex items-center justify-center h-20 w-32 sm:h-24 sm:w-36 md:h-28 md:w-44 lg:h-32 lg:w-52 bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  className="flex-shrink-0 mx-4 sm:mx-6 flex items-center justify-center h-24 w-40 sm:h-28 sm:w-48 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-100 hover:border-purple-200 [&_img]:max-w-[85%] [&_img]:max-h-[85%] [&_img]:object-contain [&_img]:object-center"
                 >
                   <Image
                     src={sponsor.logo}
                     alt=""
-                    width={200}
-                    height={80}
-                    className="max-w-full max-h-full object-contain p-3"
+                    width={160}
+                    height={96}
+                    className="object-contain object-center p-3 bg-transparent"
                   />
                 </div>
               ))}
@@ -613,13 +607,13 @@ export default function QDW2026Info() {
       </section>
 
       {/* Academic Groups Section */}
-      <section className="py-16 bg-white border-t border-gray-200">
+      <section className="py-16 bg-gradient-to-br from-white to-gray-50 border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-4">
             Academic Groups
           </h2>
           <p className="text-gray-500 text-center mb-8 text-sm">
-            {isAcademicScrolling ? 'Click to stop' : 'Click to browse'}
+            {isAcademicScrolling ? 'Click to stop scrolling' : 'Click to start scrolling'}
           </p>
         </div>
         <div className="w-full">
@@ -627,7 +621,7 @@ export default function QDW2026Info() {
             className="relative overflow-hidden cursor-pointer"
             onClick={() => setIsAcademicScrolling(!isAcademicScrolling)}
           >
-            {/* Gradient overlays */}
+            {/* Enhanced gradient overlays */}
             <div className="absolute left-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, #ffffff, transparent)' }}></div>
             <div className="absolute right-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(to left, #ffffff, transparent)' }}></div>
             
@@ -637,14 +631,14 @@ export default function QDW2026Info() {
               {academicGroups.map((group, index) => (
                 <div
                   key={`first-${index}`}
-                  className="flex-shrink-0 mx-4 sm:mx-6 md:mx-8 flex items-center justify-center h-20 w-32 sm:h-24 sm:w-36 md:h-28 md:w-44 lg:h-32 lg:w-52 bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  className="flex-shrink-0 mx-4 sm:mx-6 flex items-center justify-center h-24 w-40 sm:h-28 sm:w-48 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-100 hover:border-indigo-200 [&_img]:max-w-[85%] [&_img]:max-h-[85%] [&_img]:object-contain [&_img]:object-center"
                 >
                   <Image
                     src={group.logo}
                     alt={group.name}
-                    width={200}
-                    height={80}
-                    className="max-w-full max-h-full object-contain p-3"
+                    width={160}
+                    height={96}
+                    className="object-contain object-center p-3 bg-transparent"
                   />
                 </div>
               ))}
@@ -652,14 +646,14 @@ export default function QDW2026Info() {
               {academicGroups.map((group, index) => (
                 <div
                   key={`second-${index}`}
-                  className="flex-shrink-0 mx-4 sm:mx-6 md:mx-8 flex items-center justify-center h-20 w-32 sm:h-24 sm:w-36 md:h-28 md:w-44 lg:h-32 lg:w-52 bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  className="flex-shrink-0 mx-4 sm:mx-6 flex items-center justify-center h-24 w-40 sm:h-28 sm:w-48 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-100 hover:border-indigo-200 [&_img]:max-w-[85%] [&_img]:max-h-[85%] [&_img]:object-contain [&_img]:object-center"
                 >
                   <Image
                     src={group.logo}
                     alt=""
-                    width={200}
-                    height={80}
-                    className="max-w-full max-h-full object-contain p-3"
+                    width={160}
+                    height={96}
+                    className="object-contain object-center p-3 bg-transparent"
                   />
                 </div>
               ))}
@@ -676,10 +670,10 @@ export default function QDW2026Info() {
             <div className="flex items-center gap-6">
               {/* GitHub */}
               <a
-                href="https://github.com"
+                href="https://github.com/qcsa-at-ucla"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white/70 hover:text-white transition-colors"
+                className="text-white/70 hover:text-white transition-all duration-300 hover:scale-110 p-2 rounded-lg hover:bg-white/10"
                 aria-label="GitHub"
               >
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
@@ -688,10 +682,10 @@ export default function QDW2026Info() {
               </a>
               {/* Discord */}
               <a
-                href="https://discord.com"
+                href="https://discord.gg/qcsa"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white/70 hover:text-white transition-colors"
+                className="text-white/70 hover:text-white transition-all duration-300 hover:scale-110 p-2 rounded-lg hover:bg-white/10"
                 aria-label="Discord"
               >
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
