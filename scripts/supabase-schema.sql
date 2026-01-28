@@ -168,3 +168,59 @@ BEGIN
   RETURN deleted_count;
 END;
 $$ LANGUAGE plpgsql;
+
+-- =============================================
+-- News Cache Table
+-- =============================================
+
+-- Create the news cache table to store fetched news
+CREATE TABLE IF NOT EXISTS quantum_news_cache (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  news_data JSONB NOT NULL,
+  fetched_at TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Only keep the most recent cache entry
+CREATE INDEX IF NOT EXISTS idx_news_cache_fetched ON quantum_news_cache(fetched_at DESC);
+
+-- Enable Row Level Security
+ALTER TABLE quantum_news_cache ENABLE ROW LEVEL SECURITY;
+
+-- Create policy for service role (full access)
+CREATE POLICY "Service role has full access to news cache" ON quantum_news_cache
+  FOR ALL
+  USING (auth.role() = 'service_role');
+
+-- Function to get cached news (returns most recent)
+CREATE OR REPLACE FUNCTION get_cached_news()
+RETURNS TABLE(
+  news_data JSONB,
+  fetched_at TIMESTAMPTZ
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT qnc.news_data, qnc.fetched_at
+  FROM quantum_news_cache qnc
+  ORDER BY qnc.fetched_at DESC
+  LIMIT 1;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to save news to cache (keeps only last 10 entries)
+CREATE OR REPLACE FUNCTION save_news_cache(p_news_data JSONB)
+RETURNS VOID AS $$
+BEGIN
+  -- Insert new cache entry
+  INSERT INTO quantum_news_cache (news_data, fetched_at)
+  VALUES (p_news_data, NOW());
+  
+  -- Clean up old entries, keep only the 10 most recent
+  DELETE FROM quantum_news_cache
+  WHERE id NOT IN (
+    SELECT id FROM quantum_news_cache
+    ORDER BY fetched_at DESC
+    LIMIT 10
+  );
+END;
+$$ LANGUAGE plpgsql;

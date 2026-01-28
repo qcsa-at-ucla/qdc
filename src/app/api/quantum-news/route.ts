@@ -23,6 +23,64 @@ interface RateLimitResult {
   reset_at: string;
 }
 
+interface CachedNewsResult {
+  news_data: NewsItem[];
+  fetched_at: string;
+}
+
+async function getCachedNews(
+  supabaseUrl: string,
+  supabaseKey: string
+): Promise<{ news: NewsItem[]; fetchedAt: string } | null> {
+  try {
+    const response = await fetch(`${supabaseUrl}/rest/v1/rpc/get_cached_news`, {
+      method: 'POST',
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.error('Failed to get cached news:', await response.text());
+      return null;
+    }
+
+    const results: CachedNewsResult[] = await response.json();
+    if (results.length > 0) {
+      return {
+        news: results[0].news_data,
+        fetchedAt: results[0].fetched_at,
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting cached news:', error);
+    return null;
+  }
+}
+
+async function saveNewsToCache(
+  news: NewsItem[],
+  supabaseUrl: string,
+  supabaseKey: string
+): Promise<void> {
+  try {
+    await fetch(`${supabaseUrl}/rest/v1/rpc/save_news_cache`, {
+      method: 'POST',
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ p_news_data: news }),
+    });
+  } catch (error) {
+    console.error('Error saving news to cache:', error);
+  }
+}
+
 async function checkRateLimitWithSupabase(
   ip: string,
   supabaseUrl: string,
@@ -118,6 +176,29 @@ export async function GET(request: NextRequest) {
       rateLimit = await checkRateLimitWithSupabase(clientIP, supabaseUrl, supabaseKey);
       
       if (!rateLimit.allowed) {
+        // Rate limited - return cached news instead of error
+        const cachedNews = await getCachedNews(supabaseUrl, supabaseKey);
+        
+        if (cachedNews) {
+          return NextResponse.json(
+            { 
+              news: cachedNews.news, 
+              fetchedAt: cachedNews.fetchedAt,
+              cached: true 
+            },
+            {
+              headers: {
+                'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
+                'X-RateLimit-Limit': RATE_LIMIT_PER_IP.toString(),
+                'X-RateLimit-Remaining': '0',
+                'X-RateLimit-Reset': rateLimit.resetAt.toString(),
+                'X-News-Source': 'cache',
+              },
+            }
+          );
+        }
+        
+        // No cached news available, return rate limit error
         return NextResponse.json(
           { error: 'Rate limit exceeded. Please try again later.' },
           { 
@@ -231,15 +312,21 @@ IMPORTANT: Return ONLY the JSON array, no other text or markdown formatting.`;
       );
     }
 
+    // Save news to cache in Supabase (non-blocking)
+    if (supabaseUrl && supabaseKey) {
+      saveNewsToCache(newsItems, supabaseUrl, supabaseKey);
+    }
+
     // Return the news items with cache headers (cache for 1 hour) and rate limit info
     return NextResponse.json(
-      { news: newsItems, fetchedAt: new Date().toISOString() },
+      { news: newsItems, fetchedAt: new Date().toISOString(), cached: false },
       {
         headers: {
           'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
           'X-RateLimit-Limit': RATE_LIMIT_PER_IP.toString(),
           'X-RateLimit-Remaining': rateLimit.remaining.toString(),
           'X-RateLimit-Reset': rateLimit.resetAt.toString(),
+          'X-News-Source': 'live',
         },
       }
     );
