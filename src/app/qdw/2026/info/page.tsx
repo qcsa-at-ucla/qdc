@@ -187,7 +187,7 @@ export default function QDW2026Info() {
     <>
       <main className="min-h-screen">
       {/* Quick Navigation Bar */}
-      <section className="bg-black/90 backdrop-blur-md border-b border-white/10 pt-16">
+      <section className="sticky top-16 z-40 bg-black/90 backdrop-blur-md border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
             <Link
