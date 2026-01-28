@@ -549,11 +549,11 @@ export default function QDW2026Info() {
           </h2>
           
           {/* Speakers list with navigation */}
-          <div className="relative flex items-center">
+          <div className="relative flex items-start">
             {/* Left Arrow */}
             <button
               onClick={() => setSpeakerPage((prev) => (prev === 0 ? Math.ceil(speakers.length / 4) - 1 : prev - 1))}
-              className="flex-shrink-0 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-600/30 border border-purple-500/50 flex items-center justify-center hover:bg-purple-600/50 transition-all duration-300"
+              className="flex-shrink-0 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-600/30 border border-purple-500/50 flex items-center justify-center hover:bg-purple-600/50 transition-all duration-300 mt-12 md:mt-16"
               aria-label="Previous speakers"
             >
               <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -604,7 +604,7 @@ export default function QDW2026Info() {
             {/* Right Arrow */}
             <button
               onClick={() => setSpeakerPage((prev) => (prev === Math.ceil(speakers.length / 4) - 1 ? 0 : prev + 1))}
-              className="flex-shrink-0 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-600/30 border border-purple-500/50 flex items-center justify-center hover:bg-purple-600/50 transition-all duration-300"
+              className="flex-shrink-0 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-600/30 border border-purple-500/50 flex items-center justify-center hover:bg-purple-600/50 transition-all duration-300 mt-12 md:mt-16"
               aria-label="Next speakers"
             >
               <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

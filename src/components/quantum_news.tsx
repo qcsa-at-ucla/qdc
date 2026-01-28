@@ -79,6 +79,17 @@ function NewsCard({ item, index }: { item: NewsItem; index: number }) {
 
   const formatDate = (dateStr: string) => {
     try {
+      // Parse as local date to avoid timezone shift issues
+      // Input format: YYYY-MM-DD
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // Months are 0-indexed
+        const day = parseInt(parts[2], 10);
+        const date = new Date(year, month, day);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+      // Fallback for other formats
       const date = new Date(dateStr);
       return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     } catch {
