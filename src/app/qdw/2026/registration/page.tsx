@@ -125,48 +125,35 @@ export default function QDW2026Registration() {
       return;
     }
 
-    const googleFormUrl = process.env.NEXT_PUBLIC_GOOGLE_FORM_URL || '';
-
     try {
       // 1) Upload poster (optional) and get URL
       const posterUrl = await uploadPosterIfNeeded();
 
-      // 2) Submit to Google Forms
-      const formDataToSubmit = new FormData();
-
-      // Existing fields
-      formDataToSubmit.append(process.env.NEXT_PUBLIC_ENTRY_FIRST_NAME || '', formData.firstName);
-      formDataToSubmit.append(process.env.NEXT_PUBLIC_ENTRY_LAST_NAME || '', formData.lastName);
-      formDataToSubmit.append(process.env.NEXT_PUBLIC_ENTRY_EMAIL || '', formData.email);
-      formDataToSubmit.append(process.env.NEXT_PUBLIC_ENTRY_DESIGNATION || '', formData.designation);
-      formDataToSubmit.append(process.env.NEXT_PUBLIC_ENTRY_LOCATION || '', formData.location);
-
-      // New fields (set these entry IDs in env)
-      formDataToSubmit.append(
-        process.env.NEXT_PUBLIC_ENTRY_REGISTRATION_TYPE || '',
-        humanizeRegistrationType(formData.registrationType)
-      );
-      formDataToSubmit.append(process.env.NEXT_PUBLIC_ENTRY_PROJECT_TITLE || '', formData.projectTitle);
-      formDataToSubmit.append(
-        process.env.NEXT_PUBLIC_ENTRY_PROJECT_DESCRIPTION || '',
-        formData.projectDescription
-      );
-      formDataToSubmit.append(
-        process.env.NEXT_PUBLIC_ENTRY_QDC_MEMBERSHIP || '',
-        formData.wantsQdcMembership ? 'Yes' : 'No'
-      );
-      formDataToSubmit.append(
-        process.env.NEXT_PUBLIC_ENTRY_TERMS_AGREED || '',
-        formData.agreeToTerms ? 'Yes' : 'No'
-      );
-      formDataToSubmit.append(process.env.NEXT_PUBLIC_ENTRY_POSTER_URL || '', posterUrl);
-
-      // Google Forms POST
-      await fetch(googleFormUrl, {
+      // 2) Save to our database via API
+      const registrationResponse = await fetch('/api/register', {
         method: 'POST',
-        body: formDataToSubmit,
-        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          designation: formData.designation,
+          location: formData.location,
+          registrationType: humanizeRegistrationType(formData.registrationType),
+          projectTitle: formData.projectTitle,
+          projectDescription: formData.projectDescription,
+          posterUrl: posterUrl,
+          wantsQdcMembership: formData.wantsQdcMembership,
+          agreeToTerms: formData.agreeToTerms,
+        }),
       });
+
+      if (!registrationResponse.ok) {
+        const errorData = await registrationResponse.json();
+        throw new Error(errorData.error || 'Registration failed');
+      }
 
       setIsSubmitted(true);
 
