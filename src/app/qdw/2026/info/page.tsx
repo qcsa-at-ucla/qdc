@@ -177,7 +177,7 @@ export default function QDW2026Info() {
     {
       name: "Murat Can Sarihan",
       affiliation: 'Google',
-      image: '/images/Murat_Can_Sarihan.jpg',
+      image: '/images/Murat_Can_Sarihan.jpeg',
       bio: 'Murat Can Sarihan is a research scientist at Google Quantum AI, focusing on superconducting qubit design and quantum error correction.',
 
     },
