@@ -85,29 +85,94 @@ export default function QDW2026Info() {
   // Speakers
   const speakers = [
     {
+      name: 'Daniel Sank',
+      affiliation: 'Google',
+      image: '/images/Daniel_Sank.png',
+      bio: 'Daniel Sank is a research scientist at Google Quantum AI, working on superconducting qubit systems and quantum error correction.',
+    },
+    {
+      name: 'Jeffrey Grover',
+      affiliation: 'MIT',
+      image: '/images/Jeffrey_Grover.jpg',
+      bio: 'Jeffrey Grover is a researcher at MIT focusing on quantum devices and superconducting qubit technologies.',
+    },
+    {
+      name: 'Jens Koch',
+      affiliation: 'Northwestern',
+      image: '/images/Jens_Koch.jpeg',
+      bio: 'Jens Koch is a professor at Northwestern University, known for his foundational work on transmon qubits and circuit quantum electrodynamics.',
+    },
+    {
       name: 'Andrew Bestwick',
+      affiliation: 'Rigetti',
       image: '/images/andrew_bestwick.jpg',
       bio: 'Andrew Bestwick is a leading researcher in superconducting quantum computing, focusing on qubit design and scalable quantum architectures.',
     },
     {
       name: 'Anna Grassellino',
+      affiliation: 'Fermilab',
       image: '/images/Anna_Grassellino.jpg',
       bio: 'Anna Grassellino is a physicist at Fermilab, pioneering advances in superconducting radio-frequency cavities and quantum information science.',
     },
     {
       name: 'Eli Levenson-Falk',
+      affiliation: 'USC',
       image: '/images/ELILF.jpeg',
       bio: 'Eli Levenson-Falk is an expert in quantum device fabrication and materials science for superconducting quantum systems.',
     },
     {
       name: 'Yvonne Gao',
+      affiliation: 'NUS',
       image: '/images/yvoneegao.jpg',
       bio: 'Yvonne Gao is a quantum physicist specializing in bosonic quantum error correction and novel qubit architectures.',
     },
     {
       name: 'Zlatko Minev',
+      affiliation: 'Google',
       image: '/images/ZMinev.jpeg',
       bio: 'Zlatko Minev is a research scientist known for his work on quantum jumps, qubit design, and the development of Qiskit Metal.',
+    },
+    {
+      name: 'Mollie Schwartz',
+      affiliation: 'MIT LL',
+      image: '/images/Mollie_Schwartz.jpg',
+      bio: 'Mollie Schwartz is a researcher at MIT Lincoln Laboratory working on superconducting quantum devices and systems.',
+    },
+    {
+      name: 'Aziza Almanakly',
+      affiliation: 'NYU',
+      image: '/images/Aziza_Almanakly.jpg',
+      bio: 'Aziza Almanakly is a researcher at NYU specializing in quantum computing and superconducting qubit design.',
+    },
+    {
+      name: 'Taylor Patti',
+      affiliation: 'Nvidia',
+      image: '/images/Taylor_Patti.jpg',
+      bio: 'Taylor Patti is a researcher at Nvidia working on quantum computing algorithms and hardware-software co-design.',
+    },
+    {
+      name: 'Silvia Zorzetti',
+      affiliation: 'Fermilab',
+      image: '/images/Silvia_Zorzetti.jpg',
+      bio: 'Silvia Zorzetti is a scientist at Fermilab focusing on quantum information science and superconducting technologies.',
+    },
+    {
+      name: 'Sara Sussman',
+      affiliation: 'MIT LL',
+      image: '/images/Sara_Sussman.png',
+      bio: 'Sara Sussman is a researcher at MIT Lincoln Laboratory specializing in quantum device design and fabrication.',
+    },
+    {
+      name: 'Kyle Serniak',
+      affiliation: 'Nvidia',
+      image: '/images/Kyle_Sernia.jpeg',
+      bio: 'Kyle Serniak is a researcher at Nvidia working on superconducting qubit technologies and quantum systems.',
+    },
+    {
+      name: 'Nicolas Pancotti',
+      affiliation: '',
+      image: '/images/Nico_Pancotti.jpeg',
+      bio: 'Nicolas Pancotti is a quantum computing researcher working on quantum algorithms and quantum machine learning.',
     },
   ];
 
@@ -477,11 +542,11 @@ export default function QDW2026Info() {
           </h2>
           
           {/* Speakers list with navigation */}
-          <div className="relative">
+          <div className="relative flex items-center">
             {/* Left Arrow */}
             <button
               onClick={() => setSpeakerPage((prev) => (prev === 0 ? Math.ceil(speakers.length / 4) - 1 : prev - 1))}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-600/30 border border-purple-500/50 flex items-center justify-center hover:bg-purple-600/50 transition-all duration-300"
+              className="flex-shrink-0 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-600/30 border border-purple-500/50 flex items-center justify-center hover:bg-purple-600/50 transition-all duration-300"
               aria-label="Previous speakers"
             >
               <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -490,7 +555,7 @@ export default function QDW2026Info() {
             </button>
             
             {/* Speakers Grid */}
-            <div className="overflow-x-hidden overflow-y-visible mx-8 md:mx-12">
+            <div className="overflow-x-hidden overflow-y-visible flex-1 mx-4 md:mx-8">
               <div 
                 className="flex transition-transform duration-500 ease-in-out"
                 style={{ transform: `translateX(-${speakerPage * 100}%)` }}
@@ -510,9 +575,15 @@ export default function QDW2026Info() {
                             />
                           </div>
                           <p className="text-white font-semibold mt-3 text-center text-sm sm:text-base">{speaker.name}</p>
+                          {speaker.affiliation && (
+                            <p className="text-purple-300 text-xs sm:text-sm text-center">{speaker.affiliation}</p>
+                          )}
                           {/* Hover tooltip */}
                           <div className={`absolute top-full mt-2 w-56 sm:w-64 p-3 sm:p-4 bg-gray-900 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50 border border-purple-500/30 ${index % 2 === 0 ? 'left-0 sm:left-1/2 sm:-translate-x-1/2' : 'right-0 sm:left-1/2 sm:-translate-x-1/2'}`}>
                             <p className="text-white font-semibold mb-1 text-sm sm:text-base">{speaker.name}</p>
+                            {speaker.affiliation && (
+                              <p className="text-purple-300 text-xs mb-1">{speaker.affiliation}</p>
+                            )}
                             <p className="text-gray-300 text-xs sm:text-sm">{speaker.bio}</p>
                           </div>
                         </div>
@@ -526,7 +597,7 @@ export default function QDW2026Info() {
             {/* Right Arrow */}
             <button
               onClick={() => setSpeakerPage((prev) => (prev === Math.ceil(speakers.length / 4) - 1 ? 0 : prev + 1))}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-600/30 border border-purple-500/50 flex items-center justify-center hover:bg-purple-600/50 transition-all duration-300"
+              className="flex-shrink-0 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-600/30 border border-purple-500/50 flex items-center justify-center hover:bg-purple-600/50 transition-all duration-300"
               aria-label="Next speakers"
             >
               <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
