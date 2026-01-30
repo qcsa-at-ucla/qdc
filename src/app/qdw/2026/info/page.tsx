@@ -455,13 +455,13 @@ export default function QDW2026Info() {
                   <div className="border-l-2 border-purple-500/50 pl-4">
                     <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 3: Quantum Error Correction</h4>
                     <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• Quantum error correction implementation for device design and simulaton</li>
+                      <li>• Quantum error correction implementation for device design and simulation</li>
             
                     </ul>
                   </div>
                   
                   <div className="border-l-2 border-purple-500/50 pl-4">
-                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 4: Hybrid Systems and Novel Qubit Devices</h4>
+                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 4: Hybrid Systems and Novel Device Architectures</h4>
                     <ul className="text-gray-300 space-y-1 text-sm">
                       <li>• Hybrid Quantum Systems and novel device architectures</li>
                     </ul>
