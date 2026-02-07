@@ -2,8 +2,9 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Suspense } from "react";
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const sp = useSearchParams();
   const sessionId = sp.get("session_id");
 
@@ -37,5 +38,13 @@ export default function PaymentSuccessPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white pt-32 px-4"><div className="max-w-xl mx-auto">Loading...</div></div>}>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }

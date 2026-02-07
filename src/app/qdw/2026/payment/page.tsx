@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 type RegistrationType =
@@ -9,7 +9,7 @@ type RegistrationType =
   | "professional_in_person"
   | "professional_online";
 
-export default function QDW2026PaymentPage() {
+function QDW2026PaymentContent() {
   const sp = useSearchParams();
   const [error, setError] = useState<string | null>(null);
 
@@ -55,5 +55,13 @@ export default function QDW2026PaymentPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function QDW2026PaymentPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white pt-32 px-4"><div className="max-w-xl mx-auto">Loading...</div></div>}>
+      <QDW2026PaymentContent />
+    </Suspense>
   );
 }
