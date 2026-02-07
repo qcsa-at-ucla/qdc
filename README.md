@@ -1,6 +1,6 @@
 # Quantum Device Consortium Website
 
-The official website for the Quantum Device Consortium (QDC) - an open association for pioneers of the quantum device design and simulation community. This modern, responsive website showcases our tools, research partners, and provides ways for the community to connect and collaborate.
+The official website for the Quantum Device Consortium (QDC) - an open association for pioneers of the quantum device design and simulation community. This modern, responsive website showcases our tools, research partners, hosts the annual Quantum Device Workshop (QDW), and provides ways for the community to connect and collaborate.
 
 ## About QDC
 
@@ -8,11 +8,14 @@ The Quantum Device Consortium is a collaborative group of research scientists de
 
 ## Tech Stack
 
-- **Framework**: [Next.js](https://nextjs.org) 14.2.5 with App Router
+- **Framework**: [Next.js](https://nextjs.org) 14.2.35 with App Router
 - **Language**: TypeScript 5.x
 - **UI Library**: React 18.3.1
 - **Styling**: Tailwind CSS 3.4.4
 - **Animations**: Framer Motion 12.23.24
+- **Payments**: Stripe with Express Checkout Element (Apple Pay, Google Pay)
+- **Database**: Supabase (PostgreSQL)
+- **Storage**: Supabase Storage + Google Drive (poster uploads)
 - **Image Optimization**: Next.js Image Component
 - **Deployment**: Optimized for Vercel
 
@@ -23,35 +26,52 @@ qdc-website/
 ├── public/                          # Static assets
 │   └── images/
 │       ├── partners/                # Partner/organization logos
-│       │   ├── eli.png
-│       │   ├── Final_QCSA_Logo-15.png
-│       │   ├── google-quantum.png
-│       │   ├── koch.png
-│       │   ├── niels-bohr.png
-│       │   ├── northwestern.png
-│       │   ├── oregon.png
-│       │   ├── superqubit.png
-│       │   ├── ucla.png
-│       │   └── usc.png
-│       ├── tools/                   # Tool logos/screenshots
-│       │   ├── Palace.png
-│       │   ├── qiskit_quantum_device.png
-│       │   ├── scQubits.png
-│       │   └── SQuADDS.png
-│       ├── first_header_background.png
-│       ├── quantum_device_chip.png
-│       └── qdcLogo.png
+│       └── tools/                   # Tool logos/screenshots
+├── scripts/
+│   └── supabase-schema.sql          # Database schema for Supabase
 ├── src/
 │   ├── app/                         # Next.js App Router
 │   │   ├── api/
-│   │   │   └── submit-join/
-│   │   │       └── route.ts         # Form submission endpoint
+│   │   │   ├── quantum-news/        # Quantum news aggregation
+│   │   │   │   └── route.ts
+│   │   │   ├── register/            # QDW registration (deferred save)
+│   │   │   │   └── route.ts
+│   │   │   ├── stripe/
+│   │   │   │   ├── checkout/        # Create Stripe checkout session
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── create-payment-intent/  # For Express Checkout Element
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── webhook/         # Handle payment success events
+│   │   │   │       └── route.ts
+│   │   │   ├── submit-join/         # General join form submission
+│   │   │   │   └── route.ts
+│   │   │   └── upload-poster/       # Poster PDF upload to Supabase/Drive
+│   │   │       └── route.ts
 │   │   ├── contact/
 │   │   │   └── page.tsx             # Contact form page
 │   │   ├── design-tools/
 │   │   │   └── page.tsx             # Tools showcase page
 │   │   ├── join/
 │   │   │   └── page.tsx             # Membership options page
+│   │   ├── qdw/                     # Quantum Device Workshop
+│   │   │   ├── 2025/
+│   │   │   │   └── page.tsx         # QDW 2025 archive
+│   │   │   └── 2026/
+│   │   │       ├── layout.tsx       # QDW-specific layout (Stripe.js)
+│   │   │       ├── faq/
+│   │   │       │   └── page.tsx     # FAQ page
+│   │   │       ├── info/
+│   │   │       │   └── page.tsx     # Event information & interest form
+│   │   │       ├── payment/
+│   │   │       │   ├── page.tsx     # Payment with Express Checkout
+│   │   │       │   ├── success/     # Payment success page
+│   │   │       │   │   └── page.tsx
+│   │   │       │   └── cancel/      # Payment cancelled page
+│   │   │       │       └── page.tsx
+│   │   │       ├── registration/
+│   │   │       │   └── page.tsx     # Full registration form
+│   │   │       └── terms/
+│   │   │           └── page.tsx     # Terms & Conditions
 │   │   ├── globals.css              # Global styles & Tailwind
 │   │   ├── layout.tsx               # Root layout with metadata
 │   │   └── page.tsx                 # Homepage
@@ -62,14 +82,14 @@ qdc-website/
 │       ├── Header.tsx               # Hero section
 │       ├── InputField.tsx           # Reusable form input
 │       ├── Join.tsx                 # Join CTA component
+│       ├── MeetingCalendar.tsx      # Meeting schedule component
 │       ├── Navbar.tsx               # Navigation with dropdowns
 │       ├── Opportunity.tsx          # Opportunities section
+│       ├── quantum_news.tsx         # Quantum news feed
 │       └── research_partners.tsx    # Partner logos carousel
+├── .env.example                     # Environment variables template
 ├── eslint.config.mjs                # ESLint configuration
 ├── next.config.js                   # Next.js configuration
-├── next.config.ts                   # Next.js TypeScript config
-├── postcss.config.js                # PostCSS configuration
-├── postcss.config.mjs               # PostCSS ES module config
 ├── tailwind.config.ts               # Tailwind CSS configuration
 ├── tsconfig.json                    # TypeScript configuration
 ├── package.json                     # Dependencies & scripts
@@ -97,11 +117,107 @@ The website showcases essential quantum device design tools:
 - **SuperQubit** - Comprehensive quantum device design resources
 
 Each tool features:
-
 - Detailed descriptions and use cases
 - Direct links to GitHub repositories or websites
 - Alternating left-right layout for visual interest
 - Anchor links for easy navigation
+
+## **QDW 2026 Event Registration System**
+
+The website includes a full-featured event registration and payment system for the Quantum Device Workshop 2026.
+
+### **Key Features**
+
+#### **Multi-Tier Registration**
+- Student (In-Person / Online)
+- Professional (In-Person / Online)
+- Poster/project submissions (optional PDF upload)
+- QDC membership interest tracking
+
+#### **Stripe Payment Integration**
+- **Express Checkout Element**: Apple Pay, Google Pay, Link (instant checkout)
+- **Hosted Checkout**: Traditional card payment fallback
+- Real-time payment processing
+- Automatic receipt emails
+
+#### **Deferred Save Architecture**
+Registration data is **only saved to the database after successful payment**:
+1. User fills registration form → data stored in `sessionStorage`
+2. Redirects to payment page → data passed to Stripe metadata
+3. Payment processed → Stripe webhook fires
+4. Webhook saves registration to Supabase with `payment_status: 'paid'`
+5. **If payment is cancelled**: No data is saved to database
+
+This prevents abandoned registrations cluttering your database and ensures data integrity.
+
+#### **Poster Upload System**
+- PDF upload support (max 15MB)
+- Dual storage: Supabase Storage + Google Drive backup
+- File validation and error handling
+- Links stored with registration data
+
+#### **Admin Dashboard Ready**
+- Admin API endpoint: `GET /api/register` (requires `ADMIN_API_KEY`)
+- Filter by QDC membership interest
+- Export capabilities for registration management
+
+### **Payment Flow**
+
+```
+┌─────────────────┐
+│  Registration   │
+│  Form Filled    │
+└────────┬────────┘
+         │ sessionStorage
+         ▼
+┌─────────────────┐
+│  Payment Page   │  ◄── Express Checkout (Apple/Google Pay)
+│  (ECE mounted)  │  ◄── OR Hosted Checkout (traditional)
+└────────┬────────┘
+         │ Payment Intent/Session created
+         ▼
+┌─────────────────┐
+│  Stripe Popup   │
+│                 │
+└────────┬────────┘
+         │ Payment succeeds
+         ▼
+┌─────────────────┐
+│ Webhook Fires   │
+│ payment_intent. │
+│ succeeded  OR   │
+│ checkout.       │
+│ session.        │
+│ completed       │
+└────────┬────────┘
+         │ Extract metadata
+         ▼
+┌─────────────────┐
+│ INSERT to       │
+│ Supabase        │
+│ qdw_registra-   │
+│ tions table     │
+└─────────────────┘
+```
+
+### **Database Schema**
+
+The system uses Supabase (PostgreSQL) with the following key tables:
+
+**`qdw_registrations`**
+- User information (name, email, designation, location)
+- Registration type and pricing tier
+- Project/poster details
+- Payment tracking (status, Stripe IDs, timestamps)
+- QDC membership interest flag
+
+**`quantum_news_cache`**
+- Cached quantum physics news articles
+- Automated fetching and refresh
+
+**`api_rate_limits`**
+- API endpoint protection
+- IP-based request throttling
 
 ### **Research Partners**
 
@@ -210,6 +326,165 @@ npm run lint     # Run ESLint for code quality checks
 - Client-side validation
 - API integration for form submission
 - Success/error feedback
+
+## API Routes
+
+### **General Endpoints**
+
+#### `POST /api/submit-join`
+Submit membership interest form.
+
+**Request Body:**
+```json
+{
+  "firstName": "string",
+  "lastName": "string",
+  "email": "string",
+  "designation": "string",
+  "location": "string"
+}
+```
+
+**Response:**
+- `200 OK` - Form submitted successfully
+- `400 Bad Request` - Invalid form data
+- `500 Internal Server Error` - Server error
+
+#### `GET /api/quantum-news`
+Fetch latest quantum physics news articles (cached).
+
+**Response:**
+```json
+{
+  "articles": [
+    {
+      "title": "string",
+      "url": "string",
+      "source": "string",
+      "publishedAt": "string"
+    }
+  ]
+}
+```
+
+### **QDW 2026 Registration Endpoints**
+
+#### `POST /api/upload-poster`
+Upload poster PDF to Supabase Storage and Google Drive (soon).
+
+**Content-Type:** `multipart/form-data`
+
+**Form Data:**
+- `file`: PDF file (max 15MB)
+- `email`: User email for file naming
+
+**Response:**
+```json
+{
+  "url": "https://supabase-storage-url/path/to/file.pdf"
+}
+```
+
+**Requirements:**
+- Environment variables: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_STORAGE_BUCKET`
+- Optional: Google Drive OAuth credentials for backup
+
+#### `GET /api/register`
+**Admin only** - Retrieve registrations from database.
+
+**Headers:**
+```
+Authorization: Bearer {ADMIN_API_KEY}
+```
+
+**Query Parameters:**
+- `qdc_members=true` - Filter for QDC membership interest only
+
+**Response:**
+```json
+{
+  "registrations": [
+    {
+      "id": "uuid",
+      "first_name": "string",
+      "last_name": "string",
+      "email": "string",
+      "registration_type": "student_in_person|student_online|professional_in_person|professional_online",
+      "payment_status": "paid",
+      "created_at": "timestamp",
+      ...
+    }
+  ]
+}
+```
+
+### **Stripe Payment Endpoints**
+
+#### `POST /api/stripe/create-payment-intent`
+Create a PaymentIntent for Express Checkout Element (Apple Pay, Google Pay, etc.).
+
+**Request Body:**
+```json
+{
+  "registrationType": "student_in_person|student_online|professional_in_person|professional_online",
+  "email": "user@example.com",
+  "registrationData": {
+    "firstName": "string",
+    "lastName": "string",
+    "email": "string",
+    "designation": "string",
+    "location": "string",
+    "projectTitle": "string",
+    "projectDescription": "string",
+    "posterUrl": "string",
+    "wantsQdcMembership": boolean,
+    "agreeToTerms": boolean
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "clientSecret": "pi_xxx_secret_xxx"
+}
+```
+
+**Pricing:**
+- `student_in_person`: $30.00
+- `student_online`: $15.00
+- `professional_in_person`: $100.00
+- `professional_online`: $50.00
+
+#### `POST /api/stripe/checkout`
+Create a Stripe Checkout Session (hosted checkout fallback).
+
+**Request Body:** Same as create-payment-intent
+
+**Response:**
+```json
+{
+  "url": "https://checkout.stripe.com/c/pay/xxx"
+}
+```
+
+#### `POST /api/stripe/webhook`
+**Stripe webhook handler** - Must be configured in Stripe Dashboard.
+
+**Events Handled:**
+- `payment_intent.succeeded` - Express Checkout payment confirmed
+- `checkout.session.completed` - Hosted Checkout payment confirmed
+
+**Webhook Actions:**
+1. Extracts registration data from Stripe metadata
+2. INSERTs new row into `qdw_registrations` table
+3. Sets `payment_status: 'paid'` and records Stripe IDs
+4. Returns success response
+
+**Configuration:**
+- Set webhook endpoint in Stripe Dashboard: `https://yourdomain.com/api/stripe/webhook`
+- Select events: `payment_intent.succeeded`, `checkout.session.completed`
+- Copy webhook secret to `STRIPE_WEBHOOK_SECRET` environment variable
 
 ## 🔌 API Routes
 
