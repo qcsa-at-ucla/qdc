@@ -108,6 +108,18 @@ function QDW2026PaymentContent() {
           },
         });
 
+        // Listen for ready event
+        expressCheckout.on('ready', (event: any) => {
+          console.log('Express Checkout Element ready:', event);
+          setIsLoading(false);
+        });
+
+        // Listen for click event (when user clicks express button)
+        expressCheckout.on('click', (event: any) => {
+          console.log('Express Checkout clicked:', event);
+        });
+
+        // Mount the element
         if (expressCheckoutRef.current) {
           expressCheckout.mount(expressCheckoutRef.current);
         }
@@ -131,12 +143,11 @@ function QDW2026PaymentContent() {
           }
         });
 
-        // Show fallback after a delay if no express checkout methods available
+        // Fallback: Stop loading and show checkout button if ready event doesn't fire
         setTimeout(() => {
+          setIsLoading(false);
           setShowFallback(true);
-        }, 1500);
-
-        setIsLoading(false);
+        }, 2000);
       } catch (e: any) {
         console.error('Error initializing express checkout:', e);
         setError(e?.message || "Failed to initialize payment.");
