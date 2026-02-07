@@ -70,7 +70,7 @@ export default function MemberOnlyPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black">
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a1a] pt-20">
         <div className="text-white text-xl">Loading...</div>
       </div>
     );
@@ -80,8 +80,8 @@ export default function MemberOnlyPage() {
     // Show initial choice screen
     if (!showLoginForm) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black p-4">
-          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-2xl max-w-md w-full border border-white/20">
+        <div className="min-h-screen flex items-center justify-center bg-[#0a0a1a] p-4 pt-24">
+          <div className="bg-white/5 backdrop-blur-lg p-8 rounded-2xl shadow-2xl max-w-md w-full border border-white/10">
             <div className="text-center mb-8">
               <div className="text-6xl mb-4">🔒</div>
               <h1 className="text-3xl font-bold text-white mb-2">
@@ -95,7 +95,7 @@ export default function MemberOnlyPage() {
             <div className="space-y-4">
               <button
                 onClick={() => setShowLoginForm(true)}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold py-4 px-6 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+                className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold py-4 px-6 rounded-full transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
               >
              Already Registered & Paid? Click Here
               </button>
@@ -113,7 +113,7 @@ export default function MemberOnlyPage() {
 
               <a
                 href="/qdw/2026/registration"
-                className="block w-full bg-white/10 hover:bg-white/20 text-white font-bold py-4 px-6 rounded-lg transition-all text-center border border-white/30"
+                className="block w-full bg-white/5 hover:bg-white/10 text-white font-bold py-4 px-6 rounded-full transition-all text-center border border-white/20 hover:border-white/40 hover:scale-[1.02]"
               >
                 Register for QDW 2026
               </a>
@@ -131,8 +131,8 @@ export default function MemberOnlyPage() {
 
     // Show login/set password form
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black p-4">
-        <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-2xl max-w-md w-full border border-white/20">
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a1a] p-4 pt-24">
+        <div className="bg-white/5 backdrop-blur-lg p-8 rounded-2xl shadow-2xl max-w-md w-full border border-white/10">
           <button
             onClick={() => {
               setShowLoginForm(false);
@@ -170,7 +170,7 @@ export default function MemberOnlyPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-3 rounded-full bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="your@email.com"
                 required
               />
@@ -184,7 +184,7 @@ export default function MemberOnlyPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-3 rounded-full bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Enter your password"
                 required
                 minLength={8}
@@ -194,7 +194,7 @@ export default function MemberOnlyPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
             >
               {isLoading ? "Signing In..." : "Sign In"}
             </button>
@@ -206,9 +206,9 @@ export default function MemberOnlyPage() {
 
   // Authenticated member area
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black p-8">
+    <div className="min-h-screen bg-[#0a0a1a] px-4 sm:px-6 lg:px-8 pt-24 pb-12">
       <div className="max-w-6xl mx-auto">
-        <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-2xl border border-white/20">
+        <div className="bg-white/5 backdrop-blur-lg p-6 sm:p-8 rounded-2xl shadow-2xl border border-white/10">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-4xl font-bold text-white mb-2">
@@ -221,15 +221,15 @@ export default function MemberOnlyPage() {
                 sessionStorage.removeItem("qdw_member_email");
                 setIsAuthenticated(false);
               }}
-              className="bg-red-500/20 hover:bg-red-500/30 text-red-200 px-4 py-2 rounded-lg transition-all"
+              className="bg-white/5 hover:bg-white/10 text-white/80 hover:text-white px-4 py-2 rounded-full transition-all border border-white/20 hover:border-white/40"
             >
               Sign Out
             </button>
           </div>
 
           {/* Coming Soon Section */}
-          <div className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 border-2 border-purple-500/50 rounded-xl p-12 text-center">
-            <div className="text-6xl mb-4">🚀</div>
+          <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-purple-500/30 rounded-2xl p-8 sm:p-12 text-center">
+            <div className="text-6xl mb-4"></div>
             <h2 className="text-3xl font-bold text-white mb-4">
               Member Portal Coming Soon!
             </h2>
@@ -237,7 +237,7 @@ export default function MemberOnlyPage() {
               We're building something amazing for you. Soon you'll be able to:
             </p>
             <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto text-left">
-              <div className="bg-white/5 p-4 rounded-lg">
+              <div className="bg-white/5 p-5 rounded-xl border border-white/5 hover:border-white/10 transition-all">
                 <div className="text-2xl mb-2">📝</div>
                 <h3 className="text-white font-semibold mb-1">
                   Update Your Profile
@@ -246,7 +246,7 @@ export default function MemberOnlyPage() {
                   Edit your information anytime
                 </p>
               </div>
-              <div className="bg-white/5 p-4 rounded-lg">
+              <div className="bg-white/5 p-5 rounded-xl border border-white/5 hover:border-white/10 transition-all">
                 <div className="text-2xl mb-2">🖼️</div>
                 <h3 className="text-white font-semibold mb-1">
                   Manage Your Poster
@@ -255,7 +255,7 @@ export default function MemberOnlyPage() {
                   Upload or update your project poster
                 </p>
               </div>
-              <div className="bg-white/5 p-4 rounded-lg">
+              <div className="bg-white/5 p-5 rounded-xl border border-white/5 hover:border-white/10 transition-all">
                 <div className="text-2xl mb-2">🎫</div>
                 <h3 className="text-white font-semibold mb-1">
                   Event Access
@@ -264,7 +264,7 @@ export default function MemberOnlyPage() {
                   View your ticket and event details
                 </p>
               </div>
-              <div className="bg-white/5 p-4 rounded-lg">
+              <div className="bg-white/5 p-5 rounded-xl border border-white/5 hover:border-white/10 transition-all">
                 <div className="text-2xl mb-2">👥</div>
                 <h3 className="text-white font-semibold mb-1">
                   Network
@@ -277,7 +277,7 @@ export default function MemberOnlyPage() {
           </div>
 
           {/* User Info Preview */}
-          <div className="mt-8 bg-white/5 p-6 rounded-xl">
+          <div className="mt-8 bg-white/5 p-6 rounded-2xl border border-white/5">
             <h3 className="text-xl font-bold text-white mb-4">
               Your Registration Details
             </h3>
