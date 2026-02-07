@@ -38,15 +38,21 @@ export async function POST(req: Request) {
   // Only process successful checkout completion
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
+    const meta = session.metadata || {};
 
     console.log("session.id:", session.id);
 
-    const registrationId = session.metadata?.registrationId;
+    // Registration data is stored entirely in Stripe metadata.
+    // We INSERT a new row in Supabase only now (after successful payment).
+    const firstName = meta.firstName;
+    const email = meta.email;
+    const registrationType = meta.registrationType;
 
-    console.log("Payment confirmed:", registrationId);
-
-    if (!registrationId) {
-      console.warn("Missing metadata.registrationId — cannot update Supabase.");
+    if (!firstName || !email || !registrationType) {
+      console.warn(
+        "Missing registration data in session metadata — cannot save to Supabase.",
+        { firstName, email, registrationType }
+      );
       return NextResponse.json({ received: true });
     }
 
@@ -63,32 +69,34 @@ export async function POST(req: Request) {
     const paymentIntentId =
       typeof session.payment_intent === "string" ? session.payment_intent : null;
 
-    // Update row + return which ids were updated
+    // INSERT the registration row — data only reaches Supabase after payment
     const { data, error } = await supabase
-      .from("registrations")
-      .update({
+      .from("qdw_registrations")
+      .insert({
+        first_name: firstName,
+        last_name: meta.lastName || "",
+        email,
+        designation: meta.designation || "",
+        location: meta.location || "",
+        registration_type: registrationType,
+        project_title: meta.projectTitle || null,
+        project_description: meta.projectDescription || null,
+        poster_url: meta.posterUrl || null,
+        wants_qdc_membership: meta.wantsQdcMembership === "true",
+        agree_to_terms: meta.agreeToTerms === "true",
         payment_status: "paid",
         stripe_checkout_session_id: session.id,
         stripe_payment_intent_id: paymentIntentId,
         paid_at: new Date().toISOString(),
       })
-      .eq("id", registrationId)
       .select("id");
 
-    console.log("supabase update data:", data);
-
     if (error) {
-      console.error("Supabase update error:", error);
-      return NextResponse.json({ error: "DB update failed" }, { status: 500 });
+      console.error("Supabase insert error:", error);
+      return NextResponse.json({ error: "DB insert failed" }, { status: 500 });
     }
 
-    if (!data || data.length === 0) {
-      console.warn(
-        `Supabase update matched 0 rows. registrationId=${registrationId}`
-      );
-    } else {
-      console.log(`Marked registration paid: ${registrationId}`);
-    }
+    console.log(`Registration saved & marked paid: ${data?.[0]?.id}`);
   }
 
   return NextResponse.json({ received: true });

@@ -16,10 +16,27 @@ function QDW2026PaymentContent() {
   useEffect(() => {
     const registrationType = sp.get("type") as RegistrationType | null;
     const email = sp.get("email") || undefined;
-    const registrationId = sp.get("rid") || undefined;
 
     if (!registrationType) {
       setError("Missing registration type. Please go back and try again.");
+      return;
+    }
+
+    // Read full registration data from sessionStorage
+    // (stored by the registration form — not yet saved to Supabase)
+    const stored = sessionStorage.getItem("qdw_registration");
+    if (!stored) {
+      setError(
+        "Registration data not found. Please go back and fill out the form again."
+      );
+      return;
+    }
+
+    let registrationData: Record<string, any>;
+    try {
+      registrationData = JSON.parse(stored);
+    } catch {
+      setError("Invalid registration data. Please go back and try again.");
       return;
     }
 
@@ -28,7 +45,7 @@ function QDW2026PaymentContent() {
         const res = await fetch("/api/stripe/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ registrationType, email, registrationId }),
+          body: JSON.stringify({ registrationType, email, registrationData }),
         });
 
         const data = await res.json();

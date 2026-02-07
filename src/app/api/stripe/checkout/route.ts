@@ -25,10 +25,10 @@ function getPriceId(type: RegistrationType) {
 
 export async function POST(req: Request) {
   try {
-    const { registrationType, email, registrationId } = (await req.json()) as {
+    const { registrationType, email, registrationData } = (await req.json()) as {
       registrationType: RegistrationType;
       email?: string;
-      registrationId?: string;
+      registrationData?: Record<string, any>;
     };
 
     const priceId = getPriceId(registrationType);
@@ -47,14 +47,32 @@ export async function POST(req: Request) {
       );
     }
 
+    // Store ALL registration fields in Stripe session metadata so the
+    // webhook can INSERT the row into Supabase only after payment succeeds.
+    // Stripe metadata: max 50 keys, each value max 500 chars.
+    const metadata: Record<string, string> = {};
+
+    if (registrationData) {
+      metadata.firstName = String(registrationData.firstName || "").slice(0, 500);
+      metadata.lastName = String(registrationData.lastName || "").slice(0, 500);
+      metadata.email = String(registrationData.email || email || "").slice(0, 500);
+      metadata.designation = String(registrationData.designation || "").slice(0, 500);
+      metadata.location = String(registrationData.location || "").slice(0, 500);
+      metadata.registrationType = String(registrationData.registrationType || registrationType).slice(0, 500);
+      metadata.projectTitle = String(registrationData.projectTitle || "").slice(0, 500);
+      metadata.projectDescription = String(registrationData.projectDescription || "").slice(0, 500);
+      metadata.posterUrl = String(registrationData.posterUrl || "").slice(0, 500);
+      metadata.wantsQdcMembership = registrationData.wantsQdcMembership ? "true" : "false";
+      metadata.agreeToTerms = registrationData.agreeToTerms ? "true" : "false";
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [{ price: priceId, quantity: 1 }],
       customer_email: email,
       allow_promotion_codes: true,
 
-      // We'll use this later for webhook -> Supabase paid status update
-      metadata: registrationId ? { registrationId } : undefined,
+      metadata,
 
       success_url: `${baseUrl}/qdw/2026/payment/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/qdw/2026/payment/cancel`,

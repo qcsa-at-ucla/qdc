@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS qdw_registrations (
   wants_qdc_membership BOOLEAN DEFAULT FALSE,
   agree_to_terms BOOLEAN DEFAULT FALSE,
   payment_status TEXT DEFAULT 'pending',
+  stripe_checkout_session_id TEXT,
+  stripe_payment_intent_id TEXT,
+  paid_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

@@ -19,10 +19,10 @@ export default function PaymentCancelPage() {
             Back to Registration
           </Link>
           <Link
-            href="/qdw/2026/payment?type=student_in_person"
+            href="/qdw/2026/info"
             className="inline-block border border-gray-300 hover:bg-gray-50 text-gray-900 font-semibold rounded-full px-6 py-3"
           >
-            Try Payment Again
+            Event Info
           </Link>
         </div>
       </div>

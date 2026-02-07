@@ -111,46 +111,31 @@ export default function QDW2026Registration() {
       // 1) Upload poster (optional)
       const posterUrl = await uploadPosterIfNeeded();
 
-      // 2) Save registration to Supabase via API
-      const registrationResponse = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          designation: formData.designation,
-          location: formData.location,
+      // 2) Store registration data in sessionStorage (NOT saved to Supabase yet).
+      //    Data will only be persisted to Supabase after successful Stripe payment
+      //    via the webhook, so cancelling payment means nothing is saved.
+      const registrationPayload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        designation: formData.designation,
+        location: formData.location,
+        registrationType: formData.registrationType,
+        projectTitle: formData.projectTitle,
+        projectDescription: formData.projectDescription,
+        posterUrl,
+        wantsQdcMembership: formData.wantsQdcMembership,
+        agreeToTerms: formData.agreeToTerms,
+      };
 
-          // IMPORTANT: send the raw type so pricing + payment mapping stays consistent
-          registrationType: formData.registrationType,
-
-          projectTitle: formData.projectTitle,
-          projectDescription: formData.projectDescription,
-          posterUrl,
-          wantsQdcMembership: formData.wantsQdcMembership,
-          agreeToTerms: formData.agreeToTerms,
-        }),
-      });
-
-      const data = await registrationResponse.json().catch(() => ({} as any));
-
-      if (!registrationResponse.ok) {
-        throw new Error(data?.error || 'Registration failed');
-      }
-
-      const registrationId = data?.id as string | undefined;
-      if (!registrationId) {
-        throw new Error('Registration saved but missing registration id.');
-      }
+      sessionStorage.setItem('qdw_registration', JSON.stringify(registrationPayload));
 
       setIsSubmitted(true);
 
-      // 3) Redirect to internal payment page with rid/email/type
+      // 3) Redirect to internal payment page with type/email
       const params = new URLSearchParams();
       params.set('type', formData.registrationType);
       params.set('email', formData.email);
-      params.set('rid', registrationId);
 
       window.location.assign(`/qdw/2026/payment?${params.toString()}`);
     } catch (error) {
