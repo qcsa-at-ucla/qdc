@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS qdw_registrations (
   stripe_checkout_session_id TEXT,
   stripe_payment_intent_id TEXT,
   paid_at TIMESTAMPTZ,
+  password_hash TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

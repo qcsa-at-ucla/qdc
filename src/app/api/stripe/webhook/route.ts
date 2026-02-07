@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
+import bcrypt from "bcryptjs";
 export const runtime = "nodejs";
 
 // Helper function to save registration to Supabase
@@ -39,6 +40,14 @@ async function saveRegistration(
 
   const supabase = createClient(supabaseUrl, serviceKey);
 
+  // Hash password if provided
+  let passwordHash = null;
+  if (meta.password) {
+    const saltRounds = 10;
+    passwordHash = await bcrypt.hash(meta.password, saltRounds);
+    console.log("Password hashed successfully");
+  }
+
   const registrationData = {
     first_name: firstName,
     last_name: meta.lastName || "",
@@ -52,6 +61,7 @@ async function saveRegistration(
     wants_qdc_membership: meta.wantsQdcMembership === "true",
     agree_to_terms: meta.agreeToTerms === "true",
     payment_status: "paid",
+    password_hash: passwordHash,
     stripe_checkout_session_id: checkoutSessionId,
     stripe_payment_intent_id: paymentIntentId,
     paid_at: new Date().toISOString(),

@@ -56,6 +56,7 @@ export async function POST(req: Request) {
       metadata.firstName = String(registrationData.firstName || "").slice(0, 500);
       metadata.lastName = String(registrationData.lastName || "").slice(0, 500);
       metadata.email = String(registrationData.email || email || "").slice(0, 500);
+      metadata.password = String(registrationData.password || "").slice(0, 500);
       metadata.designation = String(registrationData.designation || "").slice(0, 500);
       metadata.location = String(registrationData.location || "").slice(0, 500);
       metadata.registrationType = String(registrationData.registrationType || registrationType).slice(0, 500);

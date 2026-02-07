@@ -15,6 +15,7 @@ export default function QDW2026Registration() {
     firstName: '',
     lastName: '',
     email: '',
+    password: '',
     designation: '',
     location: '',
 
@@ -118,6 +119,7 @@ export default function QDW2026Registration() {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
+        password: formData.password,
         designation: formData.designation,
         location: formData.location,
         registrationType: formData.registrationType,
@@ -268,6 +270,27 @@ export default function QDW2026Registration() {
                   />
                 </div>
 
+                {/* Password */}
+                <div>
+                  <label htmlFor="password" className="block text-sm font-bold text-gray-900 mb-1">
+                    Password <span className="font-normal text-gray-500">(required, min 8 characters)</span>
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    minLength={8}
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mt-2"
+                    placeholder="Create a password for member access"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    You'll use this password to access the member portal after payment
+                  </p>
+                </div>
+
                 {/* Designation */}
                 <div>
                   <label htmlFor="designation" className="block text-sm font-bold text-gray-900 mb-1">
@@ -285,7 +308,7 @@ export default function QDW2026Registration() {
                     className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mt-2"
                   />
                 </div>
-
+      
                 {/* Location */}
                 <div>
                   <label htmlFor="location" className="block text-sm font-bold text-gray-900 mb-1">
