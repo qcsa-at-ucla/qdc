@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Script from 'next/script';
 
 export default function QDW2026Layout({
   children,
@@ -23,6 +24,11 @@ export default function QDW2026Layout({
     };
   }, []);
 
-  return <>{children}</>;
+  return (
+    <>
+      <Script src="https://js.stripe.com/v3/" strategy="lazyOnload" />
+      {children}
+    </>
+  );
 }
 

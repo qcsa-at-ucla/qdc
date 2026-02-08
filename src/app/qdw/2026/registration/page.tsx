@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -15,6 +15,7 @@ export default function QDW2026Registration() {
     firstName: '',
     lastName: '',
     email: '',
+    password: '',
     designation: '',
     location: '',
 
@@ -32,20 +33,6 @@ export default function QDW2026Registration() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-
-  // Optional: map registration type => payment link (set these in env)
-  const paymentUrl = useMemo(() => {
-    const fallback = process.env.NEXT_PUBLIC_PAYMENT_URL || '/payment';
-
-    const map: Record<RegistrationType, string | undefined> = {
-      student_in_person: process.env.NEXT_PUBLIC_PAYMENT_URL_STUDENT_IN_PERSON,
-      student_online: process.env.NEXT_PUBLIC_PAYMENT_URL_STUDENT_ONLINE,
-      professional_in_person: process.env.NEXT_PUBLIC_PAYMENT_URL_PROFESSIONAL_IN_PERSON,
-      professional_online: process.env.NEXT_PUBLIC_PAYMENT_URL_PROFESSIONAL_ONLINE,
-    };
-
-    return map[formData.registrationType] || fallback;
-  }, [formData.registrationType]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -68,7 +55,7 @@ export default function QDW2026Registration() {
       return;
     }
 
-    // Basic validation: PDF only, max 15MB (adjust as you like)
+    // Basic validation: PDF only, max 15MB
     const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
     const maxBytes = 15 * 1024 * 1024;
 
@@ -87,11 +74,7 @@ export default function QDW2026Registration() {
     setFormData(prev => ({ ...prev, posterPdf: file }));
   };
 
-  /**
-   * Upload poster PDF to your server (recommended), return a URL string.
-   * Implement /api/upload-poster to store in S3/GCS/R2/etc and return { url }.
-   * If no file, return empty string.
-   */
+  // Upload poster PDF to /api/upload-poster (your existing route)
   const uploadPosterIfNeeded = async (): Promise<string> => {
     if (!formData.posterPdf) return '';
 
@@ -105,7 +88,8 @@ export default function QDW2026Registration() {
     });
 
     if (!res.ok) {
-      throw new Error('Poster upload failed.');
+      const txt = await res.text().catch(() => '');
+      throw new Error(`Poster upload failed. ${txt}`);
     }
 
     const data = (await res.json()) as { url?: string };
@@ -118,7 +102,6 @@ export default function QDW2026Registration() {
     setIsSubmitting(true);
     setSubmitError(null);
 
-    // Require terms agreement
     if (!formData.agreeToTerms) {
       setIsSubmitting(false);
       setSubmitError('You must agree to the Terms & Conditions to continue.');
@@ -126,46 +109,44 @@ export default function QDW2026Registration() {
     }
 
     try {
-      // 1) Upload poster (optional) and get URL
+      // 1) Upload poster (optional)
       const posterUrl = await uploadPosterIfNeeded();
 
-      // 2) Save to our database via API
-      const registrationResponse = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          designation: formData.designation,
-          location: formData.location,
-          registrationType: humanizeRegistrationType(formData.registrationType),
-          projectTitle: formData.projectTitle,
-          projectDescription: formData.projectDescription,
-          posterUrl: posterUrl,
-          wantsQdcMembership: formData.wantsQdcMembership,
-          agreeToTerms: formData.agreeToTerms,
-        }),
-      });
+      // 2) Store registration data in sessionStorage (NOT saved to Supabase yet).
+      //    Data will only be persisted to Supabase after successful Stripe payment
+      //    via the webhook, so cancelling payment means nothing is saved.
+      const registrationPayload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        designation: formData.designation,
+        location: formData.location,
+        registrationType: formData.registrationType,
+        projectTitle: formData.projectTitle,
+        projectDescription: formData.projectDescription,
+        posterUrl,
+        wantsQdcMembership: formData.wantsQdcMembership,
+        agreeToTerms: formData.agreeToTerms,
+      };
 
-      if (!registrationResponse.ok) {
-        const errorData = await registrationResponse.json();
-        throw new Error(errorData.error || 'Registration failed');
-      }
+      sessionStorage.setItem('qdw_registration', JSON.stringify(registrationPayload));
 
       setIsSubmitted(true);
 
-      // 3) Redirect to payment link
-      // Small delay so the UI can show success (optional)
-      window.location.assign(paymentUrl);
+      // 3) Redirect to internal payment page with type/email
+      const params = new URLSearchParams();
+      params.set('type', formData.registrationType);
+      params.set('email', formData.email);
+
+      window.location.assign(`/qdw/2026/payment?${params.toString()}`);
     } catch (error) {
       console.error('Form submission error:', error);
-
-      // If you still want to proceed to payment even on errors, you can redirect anyway.
-      // For now, show an error message and keep user on page.
-      setSubmitError('Something went wrong submitting your registration. Please try again.');
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : 'Something went wrong submitting your registration. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -181,9 +162,7 @@ export default function QDW2026Registration() {
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Registration Submitted!</h2>
-          <p className="text-gray-600 mb-8">
-            Redirecting you to payment…
-          </p>
+          <p className="text-gray-600 mb-8">Redirecting you to payment…</p>
           <Link
             href="/qdw/2026/info"
             className="inline-block bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-full px-8 py-3 transition-all duration-200 hover:scale-105"
@@ -203,7 +182,8 @@ export default function QDW2026Registration() {
             <div className="text-center mb-12">
               <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">Getting Involved</h1>
               <p className="text-lg text-gray-600">
-                The Quantum Device Workshop is designed to teach advanced undergraduates and graduate students the art of designing quantum devices.
+                The Quantum Device Workshop is designed to teach advanced undergraduates and graduate students the art
+                of designing quantum devices.
               </p>
             </div>
 
@@ -244,7 +224,9 @@ export default function QDW2026Registration() {
                   </label>
                   <div className="grid grid-cols-2 gap-4 mt-2">
                     <div>
-                      <label htmlFor="firstName" className="block text-xs text-gray-500 mb-1">First Name</label>
+                      <label htmlFor="firstName" className="block text-xs text-gray-500 mb-1">
+                        First Name
+                      </label>
                       <input
                         type="text"
                         id="firstName"
@@ -256,7 +238,9 @@ export default function QDW2026Registration() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="lastName" className="block text-xs text-gray-500 mb-1">Last Name</label>
+                      <label htmlFor="lastName" className="block text-xs text-gray-500 mb-1">
+                        Last Name
+                      </label>
                       <input
                         type="text"
                         id="lastName"
@@ -286,6 +270,27 @@ export default function QDW2026Registration() {
                   />
                 </div>
 
+                {/* Password */}
+                <div>
+                  <label htmlFor="password" className="block text-sm font-bold text-gray-900 mb-1">
+                    Password <span className="font-normal text-gray-500">(required, min 8 characters)</span>
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    minLength={8}
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mt-2"
+                    placeholder="Create a password for member access"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    You'll use this password to access the member portal after payment
+                  </p>
+                </div>
+
                 {/* Designation */}
                 <div>
                   <label htmlFor="designation" className="block text-sm font-bold text-gray-900 mb-1">
@@ -303,7 +308,7 @@ export default function QDW2026Registration() {
                     className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mt-2"
                   />
                 </div>
-
+      
                 {/* Location */}
                 <div>
                   <label htmlFor="location" className="block text-sm font-bold text-gray-900 mb-1">
@@ -372,9 +377,7 @@ export default function QDW2026Registration() {
                                    hover:file:bg-purple-200"
                       />
                       {formData.posterPdf && (
-                        <p className="text-xs text-gray-500 mt-2">
-                          Selected: {formData.posterPdf.name}
-                        </p>
+                        <p className="text-xs text-gray-500 mt-2">Selected: {formData.posterPdf.name}</p>
                       )}
                     </div>
                   </div>
@@ -409,7 +412,12 @@ export default function QDW2026Registration() {
                     />
                     <span className="text-sm text-gray-900">
                       I agree to the{' '}
-                      <a href="/qdw/2026/terms" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:text-purple-700 underline">
+                      <a
+                        href="/qdw/2026/terms"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-purple-600 hover:text-purple-700 underline"
+                      >
                         Terms & Conditions
                       </a>
                       <span className="text-gray-500"> (required)</span>
@@ -466,7 +474,7 @@ export default function QDW2026Registration() {
                 aria-label="Discord"
               >
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+                  <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.791 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
                 </svg>
               </a>
             </div>
@@ -491,19 +499,4 @@ export default function QDW2026Registration() {
       </footer>
     </>
   );
-}
-
-function humanizeRegistrationType(t: RegistrationType) {
-  switch (t) {
-    case 'student_in_person':
-      return 'Student — In Person';
-    case 'student_online':
-      return 'Student — Online';
-    case 'professional_in_person':
-      return 'Professional — In Person';
-    case 'professional_online':
-      return 'Professional — Online';
-    default:
-      return t;
-  }
 }

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 /**
  * Registration API - Saves user registration data to Supabase
@@ -30,39 +30,30 @@ export async function POST(request: NextRequest) {
     const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json(
-        { error: 'Database not configured' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Database not configured" }, { status: 500 });
     }
 
     const body = await request.json();
 
     // Validate required fields
-    const requiredFields = ['firstName', 'lastName', 'email', 'registrationType'];
+    const requiredFields = ["firstName", "lastName", "email", "registrationType"];
     for (const field of requiredFields) {
       if (!body[field]) {
-        return NextResponse.json(
-          { error: `Missing required field: ${field}` },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: `Missing required field: ${field}` }, { status: 400 });
       }
     }
 
     // Check terms agreement
     if (!body.agreeToTerms) {
-      return NextResponse.json(
-        { error: 'You must agree to the Terms & Conditions' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "You must agree to the Terms & Conditions" }, { status: 400 });
     }
 
     const registrationData: RegistrationData = {
       firstName: body.firstName,
       lastName: body.lastName,
       email: body.email,
-      designation: body.designation || '',
-      location: body.location || '',
+      designation: body.designation || "",
+      location: body.location || "",
       registrationType: body.registrationType,
       projectTitle: body.projectTitle,
       projectDescription: body.projectDescription,
@@ -72,14 +63,14 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString(),
     };
 
-    // Save to Supabase
+    // Insert into Supabase (return inserted row)
     const response = await fetch(`${supabaseUrl}/rest/v1/qdw_registrations`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         apikey: supabaseKey,
         Authorization: `Bearer ${supabaseKey}`,
-        Prefer: 'return=minimal',
+        Prefer: "return=representation",
       },
       body: JSON.stringify({
         first_name: registrationData.firstName,
@@ -99,18 +90,34 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Supabase error:', errorText);
-      throw new Error('Failed to save registration');
+      console.error("Supabase error:", errorText);
+      return NextResponse.json(
+        { error: "Failed to save registration" },
+        { status: 500 }
+      );
+    }
+
+    // Supabase returns an array of inserted rows
+    const inserted = await response.json();
+    const id = inserted?.[0]?.id;
+
+    if (!id) {
+      console.error("Inserted row missing id:", inserted);
+      return NextResponse.json(
+        { error: "Registration saved, but missing id" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Registration saved successfully',
+      message: "Registration saved successfully",
+      id,
     });
   } catch (error) {
-    console.error('Error saving registration:', error);
+    console.error("Error saving registration:", error);
     return NextResponse.json(
-      { error: 'Failed to save registration. Please try again.' },
+      { error: "Failed to save registration. Please try again." },
       { status: 500 }
     );
   }
@@ -124,24 +131,21 @@ export async function GET(request: NextRequest) {
     const adminKey = process.env.ADMIN_API_KEY;
 
     // Simple auth check
-    const authHeader = request.headers.get('Authorization');
+    const authHeader = request.headers.get("Authorization");
     if (!adminKey || authHeader !== `Bearer ${adminKey}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json(
-        { error: 'Database not configured' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Database not configured" }, { status: 500 });
     }
 
     const url = new URL(request.url);
-    const qdcOnly = url.searchParams.get('qdc_members') === 'true';
+    const qdcOnly = url.searchParams.get("qdc_members") === "true";
 
     let endpoint = `${supabaseUrl}/rest/v1/qdw_registrations?select=*&order=created_at.desc`;
     if (qdcOnly) {
-      endpoint += '&wants_qdc_membership=eq.true';
+      endpoint += "&wants_qdc_membership=eq.true";
     }
 
     const response = await fetch(endpoint, {
@@ -152,16 +156,15 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch registrations');
+      const errorText = await response.text();
+      console.error("Supabase fetch error:", errorText);
+      return NextResponse.json({ error: "Failed to fetch registrations" }, { status: 500 });
     }
 
     const data = await response.json();
     return NextResponse.json({ registrations: data });
   } catch (error) {
-    console.error('Error fetching registrations:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch registrations' },
-      { status: 500 }
-    );
+    console.error("Error fetching registrations:", error);
+    return NextResponse.json({ error: "Failed to fetch registrations" }, { status: 500 });
   }
 }
