@@ -688,3 +688,4 @@ QDC is supported by the Quantum Computing Student Association (QCSA) at UCLA and
 ---
 
 **Built with ❤️ by the Quantum Device Consortium**
+# trigger new commit with correct author
