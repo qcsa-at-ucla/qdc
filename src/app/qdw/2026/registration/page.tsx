@@ -339,6 +339,7 @@ export default function QDW2026Registration() {
                         name="projectTitle"
                         value={formData.projectTitle}
                         onChange={handleChange}
+                        maxLength={500}
                         className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mt-2"
                       />
                     </div>
@@ -353,9 +354,13 @@ export default function QDW2026Registration() {
                         value={formData.projectDescription}
                         onChange={handleChange}
                         rows={5}
+                        maxLength={500}
                         className="w-full px-4 py-3 border border-gray-300 rounded-2xl bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mt-2"
                         placeholder="Briefly describe your poster/project (goals, methods, results, what you want feedback on)."
                       />
+                      <p className="text-xs text-gray-500 mt-1 text-right">
+                        {formData.projectDescription.length}/500 characters
+                      </p>
                     </div>
 
                     <div>
