@@ -66,13 +66,30 @@ export default function QDW2026Info() {
     setIsSubmitting(false);
   };
 
-  // Sponsors - updated with new sponsor list
+  // Sponsors - updated with new sponsor list and tiers
   const sponsors = [
-    { name: 'Rigetti', logo: '/images/partners/rigetti.png' },
-    { name: 'Google Quantum', logo: '/images/partners/google-quantum.png' },
-    { name: 'QBlox', logo: '/images/partners/qblox.png' },
-    { name: 'Nvidia', logo: '/images/partners/nvidia.png' },
+    { name: 'Nvidia', logo: '/images/partners/nvidia.png', tier: 'platinum' },
+    { name: 'Rigetti', logo: '/images/partners/rigetti.png', tier: 'platinum' },
+    { name: 'Google Quantum', logo: '/images/partners/google-quantum.png', tier: 'gold' },
+    { name: 'QBlox', logo: '/images/partners/qblox.png', tier: 'gold' },
+    { name: 'Nanoacademic', logo: '/images/nanoacademic.png', tier: 'gold' },
+    { name: 'Quantum Machines', logo: '/images/quantum_machine.png', tier: 'silver' },
+    { name: 'Zurich Instruments', logo: '/images/zurich.png', tier: 'silver' },
   ];
+
+  // Helper function to get border color based on tier
+  const getTierBorderClass = (tier: string) => {
+    switch(tier) {
+      case 'platinum':
+        return 'border-cyan-400 shadow-cyan-400/50';
+      case 'gold':
+        return 'border-yellow-400 shadow-yellow-400/50';
+      case 'silver':
+        return 'border-gray-300 shadow-gray-300/50';
+      default:
+        return 'border-gray-100';
+    }
+  };
 
   // Academic Groups - using partner images as placeholders
   const academicGroups = [
@@ -652,7 +669,7 @@ export default function QDW2026Info() {
               {sponsors.map((sponsor, index) => (
                 <div
                   key={`first-${index}`}
-                  className="flex-shrink-0 mx-4 sm:mx-6 flex items-center justify-center h-24 w-40 sm:h-28 sm:w-48 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-100 hover:border-purple-200 [&_img]:max-w-[85%] [&_img]:max-h-[85%] [&_img]:object-contain [&_img]:object-center"
+                  className={`flex-shrink-0 mx-4 sm:mx-6 flex items-center justify-center h-24 w-40 sm:h-28 sm:w-48 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 ${getTierBorderClass(sponsor.tier)} [&_img]:max-w-[85%] [&_img]:max-h-[85%] [&_img]:object-contain [&_img]:object-center`}
                 >
                   <Image
                     src={sponsor.logo}
@@ -667,7 +684,7 @@ export default function QDW2026Info() {
               {sponsors.map((sponsor, index) => (
                 <div
                   key={`second-${index}`}
-                  className="flex-shrink-0 mx-4 sm:mx-6 flex items-center justify-center h-24 w-40 sm:h-28 sm:w-48 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-100 hover:border-purple-200 [&_img]:max-w-[85%] [&_img]:max-h-[85%] [&_img]:object-contain [&_img]:object-center"
+                  className={`flex-shrink-0 mx-4 sm:mx-6 flex items-center justify-center h-24 w-40 sm:h-28 sm:w-48 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 ${getTierBorderClass(sponsor.tier)} [&_img]:max-w-[85%] [&_img]:max-h-[85%] [&_img]:object-contain [&_img]:object-center`}
                 >
                   <Image
                     src={sponsor.logo}
