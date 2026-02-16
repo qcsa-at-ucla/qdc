@@ -261,11 +261,14 @@ export default function QDW2026Info() {
               className="text-center lg:text-right lg:ml-auto lg:max-w-2xl"
             >
               <h1 
-                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4"
+                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-2"
                 style={{ textShadow: '0 0 20px rgba(147, 51, 234, 0.4), 0 0 40px rgba(147, 51, 234, 0.2), 0 2px 4px rgba(0,0,0,0.5)' }}
               >
                 Quantum Device Design Workshop
               </h1>
+              <p className="text-lg sm:text-xl text-white/70 mb-4 drop-shadow-lg">
+                by Quantum Computing Science Association
+              </p>
               <p className="text-xl sm:text-2xl font-semibold text-purple-300 mb-1 drop-shadow-lg">
                 June 15–18, 2026
               </p>
