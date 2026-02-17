@@ -10,6 +10,29 @@ type RegistrationType =
   | 'professional_in_person'
   | 'professional_online';
 
+// Valid countries list (excluding restricted countries: Cuba, North Korea, Syria, Iraq, Iran, Somalia, South Sudan, Venezuela, Pakistan, China)
+const VALID_COUNTRIES = [
+  'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria',
+  'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
+  'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cambodia',
+  'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile', 'Colombia', 'Comoros', 'Congo', 'Costa Rica', 'Croatia',
+  'Cyprus', 'Czech Republic', 'Democratic Republic of the Congo', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador',
+  'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon', 'Gambia',
+  'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti',
+  'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Ireland', 'Israel', 'Italy', 'Jamaica', 'Japan',
+  'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kosovo', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon',
+  'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives',
+  'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia',
+  'Montenegro', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Zealand', 'Nicaragua',
+  'Niger', 'Nigeria', 'North Macedonia', 'Norway', 'Oman', 'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay',
+  'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda', 'Saint Kitts and Nevis', 'Saint Lucia',
+  'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore',
+  'Slovakia', 'Slovenia', 'Solomon Islands', 'South Africa', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'Sweden', 'Switzerland',
+  'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey',
+  'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vanuatu',
+  'Vatican City', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
+];
+
 export default function QDW2026Registration() {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -294,34 +317,44 @@ export default function QDW2026Registration() {
                 {/* Designation */}
                 <div>
                   <label htmlFor="designation" className="block text-sm font-bold text-gray-900 mb-1">
-                    Designation{' '}
-                    <span className="font-normal text-gray-500 text-xs">
-                      student (undergrad/grad), postdocs, professor, industry professional, other
-                    </span>
+                    Designation <span className="font-normal text-gray-500">(required)</span>
                   </label>
-                  <input
-                    type="text"
+                  <select
                     id="designation"
                     name="designation"
                     value={formData.designation}
                     onChange={handleChange}
                     className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mt-2"
-                  />
+                    required
+                  >
+                    <option value="">Select your designation</option>
+                    <option value="Undergraduate Student">Undergraduate Student</option>
+                    <option value="Graduate Student">Graduate Student</option>
+                    <option value="Postdoc">Postdoc</option>
+                    <option value="Professor">Professor</option>
+                    <option value="Industry Professional">Industry Professional</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
       
                 {/* Location */}
                 <div>
                   <label htmlFor="location" className="block text-sm font-bold text-gray-900 mb-1">
-                    Location
+                    Location (Country) <span className="font-normal text-gray-500">(required)</span>
                   </label>
-                  <input
-                    type="text"
+                  <select
                     id="location"
                     name="location"
                     value={formData.location}
                     onChange={handleChange}
                     className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mt-2"
-                  />
+                    required
+                  >
+                    <option value="">Select your country</option>
+                    {VALID_COUNTRIES.map(country => (
+                      <option key={country} value={country}>{country}</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Project info */}
