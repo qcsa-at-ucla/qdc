@@ -3,9 +3,14 @@ import Stripe from "stripe";
 
 export const runtime = "nodejs";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-01-28.clover" as any,
-});
+function getStripe() {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error("STRIPE_SECRET_KEY is not configured");
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2026-01-28.clover" as any,
+  });
+}
 
 type RegistrationType =
   | "student_in_person"
@@ -26,6 +31,8 @@ function getAmount(type: RegistrationType): number {
 
 export async function POST(req: Request) {
   try {
+    const stripe = getStripe();
+    
     const { registrationType, email, registrationData } = (await req.json()) as {
       registrationType: RegistrationType;
       email?: string;

@@ -5,13 +5,20 @@ import bcrypt from "bcryptjs";
 
 export const runtime = "nodejs";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-01-28.clover" as any,
-});
+function getStripe() {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error("STRIPE_SECRET_KEY is not configured");
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2026-01-28.clover" as any,
+  });
+}
 
 // Verify if registration was saved, and save it if missing (backup for webhook delays/failures)
 export async function POST(req: Request) {
   try {
+    const stripe = getStripe();
+    
     const { sessionId } = await req.json();
 
     if (!sessionId) {
