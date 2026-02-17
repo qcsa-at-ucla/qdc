@@ -13,30 +13,30 @@ interface FAQItem {
 const faqItems: FAQItem[] = [
   {
     question: "1) Will the workshops also be available for the online participants?",
-    answer: "Yes, we will do our best to make sure that the workshops are also available for the online participants, and make any code available to online participants for the duration of the week of the workshop. I think there was a past version of the website that stated that only lectures would be available to online participants, but we realized that there was more interest than we anticipated and our in-person venue probably did not have the space for everyone that wanted to fully participate in the event."
+    answer: "Yes, we will do our best to make sure that the workshops are also available for the online participants, and make any code available to online participants for the duration of the week of the workshop."
   },
   {
-    question: "2) Will the workshops and lectures be recorded? I might not be able to attend synchronously due to [other commitment/time zone difference]?",
-    answer: "The lectures will be recorded and be made available for all of the registrants of the workshop during and after the event. We can only promise that the hands-on workshops of the event will be fully functional for the duration of the workshop as we cannot make computational resources available indefinitely but it is likely we can provide code or notebooks that can be followed along asynchronously for those that may have other commitments or time zone differences. The exception to this will be the Nvidia workshop event, as the GPU hours they are providing might only be accessible during the time the workshop is being conducted. If anything changes about this, we will let you know. The panel and networking events will only be for in-person attendants, as those types of events are very difficult to execute in a satisfactory manner in an online setting in our opinion."
+    question: "2) Will there be multiple office hours for debugging and installation before the workshop?",
+    answer: "Yes, we will try to accommodate as many time zones as possible, but we recognize that it may not be realistic to accommodate all time zones equally. We will try to record the pre-workshop office hours for debugging and installation of the software packages as we may not have experts online to help host debugging office hours at all hours of the day. We will also try to respond to emails in a timely manner regarding installation of workshop packages."
   },
   {
-    question: "3) Can I switch tracks mid workshop? I know some of the stuff that is discussed the first day or two of the beginner track, but I am less familiar with the content towards the end.",
-    answer: "We will not be policing attendance of the workshop or force people to go to one track or another. If you believe it is more beneficial to switch to the beginner or advanced track for a particular talk or workshop, we will not stop you from doing so. However, we have tried to structure the workshop and coordinate between speakers so that each session can build upon the last. Thus, we believe that it is probably more beneficial for you to stick to one track. It is highly likely we will try to host a larger scale version of this event next year that can accommodate more people in person (and iron out any technical issues that may pop up for the virtual version of the workshop this year), so if you are only able to attend the beginner track this year, you can come back next year to attend the advanced track."
+    question: "3) Will the workshops and lectures be recorded? I might not be able to attend synchronously due to [other commitment/time zone difference]?",
+    answer: "The lectures will be recorded and be made available for all of the registrants of the workshop during and after the event. We can only promise that the hands-on workshops of the event will be fully functional for the duration of the workshop as we cannot make computational resources available indefinitely but it is likely we can provide code or notebooks that can be followed along asynchronously for those that may have other commitments or time zone differences. The exception to this will be the Nvidia workshop events, as the GPU hours they are providing might only be accessible during the time the workshop is being conducted. If anything changes about this, we will let you know. The panel and networking events will only guaranteed for in-person attendants, as those types of events are very difficult to execute in a satisfactory manner in an online setting."
   },
   {
-    question: "4) I noticed the in-person registration closed, can I still sign up in-person?",
-    answer: "We really appreciate your interest but unfortunately, our venue likely cannot support more people in-person without creating a fire hazard. If you registered for the virtual version and sent us an email to switch to the in-person version before May 2, and we missed your email by mistake, we will double check to see if there were any cancellations. It is highly likely we will try to host a larger scale version of this event next year that can accommodate more people in person (and iron out any technical issues that may pop up for the virtual version of the workshop this year). We apologize if this causes any inconvenience, but we hope we can make the virtual version of the workshop a super awesome experience for those that attend!"
-  },
-//   {
-//     question: "5) Squarespace still displays 'payment pending'. Did my payment go through? Am I registered for the workshop?",
-//     answer: "Yes, we have received your payment. Squarespace is just being strange. For some reason it displays this for everyone."
-//   },
-  {
-    question: "5) Will there be a certificate for completion of the workshop?",
-    answer: "We can provide a certificate of workshop attendance signed by the organizers upon reasonable request."
+    question: "4) Can I switch tracks mid workshop? I know some of the stuff that is discussed the first day or two of the training track, but I am less familiar with the content towards the end.",
+    answer: "We will not be policing attendance of the workshop or force people to go to one track or another. If you believe it is more beneficial to switch to the training or advanced techniques track for a particular talk or workshop, we will not stop you from doing so. However, we have tried to structure the workshop and coordinate between speakers so that each session can build upon the last. Thus, we believe that it is probably more beneficial for you to stick to one track. This is an annual workshop, so we highly encourage you to attend the training track first if you are unsure of which track you should attend."
   },
   {
-    question: "6) There are significant barriers that prevent me from paying for the workshop. Can I have a fee waiver?",
+    question: "5) The in-person registration has closed. Can I still sign up in-person?",
+    answer: "We really appreciate your interest but unfortunately, if we have closed our in-person registration, then it means that our venue cannot support more people in-person without creating a fire hazard. We apologize if this causes any inconvenience, but we hope we can make the virtual version of the workshop a super awesome experience for those that attend!"
+  },
+  {
+    question: "6) Will there be a certificate for completion of the workshop?",
+    answer: "Yes we will provide a certificate for completion of the workshop. We hope that you will not only gain a certificate by attending this workshop, but also a lifelong interest and passion for designing superconducting circuits!"
+  },
+  {
+    question: "7) There are significant barriers that prevent me from paying for the workshop. Can I have a fee waiver?",
     answer: "Email quantum.ucla@gmail.com with your resume/CV and provide the reason for why it is difficult for you to pay the workshop fee. We will get back to you as soon as we can."
   }
 ];
