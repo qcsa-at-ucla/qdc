@@ -129,6 +129,12 @@ export async function POST(req: Request) {
   if (event.type === "payment_intent.succeeded") {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
     console.log("PaymentIntent succeeded:", paymentIntent.id);
+    console.log("Amount:", paymentIntent.amount);
+    console.log("Status:", paymentIntent.status);
+
+    if (paymentIntent.amount === 0) {
+      console.log("✓ Processing $0 payment intent");
+    }
 
     const result = await saveRegistration(
       paymentIntent.metadata || {},
@@ -137,9 +143,11 @@ export async function POST(req: Request) {
     );
 
     if (!result.success && result.error) {
+      console.error("Failed to save registration:", result.error);
       return NextResponse.json({ error: result.error }, { status: 500 });
     }
 
+    console.log("✓ Registration saved successfully!");
     return NextResponse.json({ received: true });
   }
 
@@ -147,9 +155,18 @@ export async function POST(req: Request) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     console.log("Checkout session completed:", session.id);
+    console.log("Payment status:", session.payment_status);
+    console.log("Amount total:", session.amount_total);
+    console.log("Has payment_intent:", !!session.payment_intent);
 
     const paymentIntentId =
       typeof session.payment_intent === "string" ? session.payment_intent : null;
+
+    // For $0 payments (100% coupons), payment_intent might be null
+    // but payment_status will be 'paid' or 'no_payment_required'
+    if (session.amount_total === 0 || session.payment_status === "no_payment_required") {
+      console.log("✓ Processing $0 payment (100% coupon applied)");
+    }
 
     const result = await saveRegistration(
       session.metadata || {},
@@ -158,9 +175,11 @@ export async function POST(req: Request) {
     );
 
     if (!result.success && result.error) {
+      console.error("Failed to save registration:", result.error);
       return NextResponse.json({ error: result.error }, { status: 500 });
     }
 
+    console.log("✓ Registration saved successfully!");
     return NextResponse.json({ received: true });
   }
 
