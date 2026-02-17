@@ -12,6 +12,9 @@ export default function MemberOnlyPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [user, setUser] = useState<any>(null);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
 
   // Check if user is already logged in via session/cookie
   useEffect(() => {
@@ -63,6 +66,34 @@ export default function MemberOnlyPage() {
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+    setForgotPasswordSuccess(false);
+
+    try {
+      const response = await fetch("/api/qdw/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotPasswordEmail }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setForgotPasswordSuccess(true);
+      } else {
+        // Still show success message for security
+        setForgotPasswordSuccess(true);
+      }
+    } catch (err) {
+      setForgotPasswordSuccess(true);
     } finally {
       setIsLoading(false);
     }
@@ -136,9 +167,12 @@ export default function MemberOnlyPage() {
           <button
             onClick={() => {
               setShowLoginForm(false);
+              setShowForgotPassword(false);
               setEmail("");
               setPassword("");
               setError("");
+              setForgotPasswordEmail("");
+              setForgotPasswordSuccess(false);
             }}
             className="text-white/60 hover:text-white mb-4 flex items-center gap-2 text-sm"
           >
@@ -148,57 +182,128 @@ export default function MemberOnlyPage() {
             Back
           </button>
 
-          <h1 className="text-3xl font-bold text-white mb-2 text-center">
-            Member Login
-          </h1>
-          <p className="text-gray-300 text-center mb-6">
-            Sign in with your registered email and password
-          </p>
+          {!showForgotPassword ? (
+            <>
+              <h1 className="text-3xl font-bold text-white mb-2 text-center">
+                Member Login
+              </h1>
+              <p className="text-gray-300 text-center mb-6">
+                Sign in with your registered email and password
+              </p>
 
-          {error && (
-            <div className="bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 rounded mb-4">
-              {error}
-            </div>
+              {error && (
+                <div className="bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 rounded mb-4">
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleLogin}>
+                <div className="mb-4">
+                  <label className="block text-white mb-2 font-medium">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 rounded-full bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="your@email.com"
+                    required
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-white mb-2 font-medium">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-4 py-3 rounded-full bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter your password"
+                    required
+                    minLength={8}
+                  />
+                </div>
+
+                <div className="mb-6 text-right">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
+                >
+                  {isLoading ? "Signing In..." : "Sign In"}
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              <h1 className="text-3xl font-bold text-white mb-2 text-center">
+                Forgot Password
+              </h1>
+              <p className="text-gray-300 text-center mb-6">
+                Enter your email and we'll send you a reset link
+              </p>
+
+              {forgotPasswordSuccess ? (
+                <div className="bg-green-500/20 border border-green-500 text-green-200 px-4 py-3 rounded mb-4">
+                  <p className="mb-2">
+                    If an account exists with that email, a password reset link has been sent.
+                  </p>
+                  <p className="text-sm text-green-300">
+                    Please check your email (including spam folder).
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleForgotPassword}>
+                  <div className="mb-6">
+                    <label className="block text-white mb-2 font-medium">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={forgotPasswordEmail}
+                      onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                      className="w-full px-4 py-3 rounded-full bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder="your@email.com"
+                      required
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
+                  >
+                    {isLoading ? "Sending..." : "Send Reset Link"}
+                  </button>
+                </form>
+              )}
+
+              <div className="mt-4 text-center">
+                <button
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    setForgotPasswordSuccess(false);
+                    setForgotPasswordEmail("");
+                  }}
+                  className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
+                >
+                  Back to login
+                </button>
+              </div>
+            </>
           )}
-
-          <form onSubmit={handleLogin}>
-            <div className="mb-4">
-              <label className="block text-white mb-2 font-medium">
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-full bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-white mb-2 font-medium">
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-full bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="Enter your password"
-                required
-                minLength={8}
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
-            >
-              {isLoading ? "Signing In..." : "Sign In"}
-            </button>
-          </form>
         </div>
       </div>
     );
