@@ -73,12 +73,6 @@ function PaymentSuccessContent() {
           </div>
         )}
 
-        {sessionId && (
-          <p className="mt-3 text-xs text-gray-500">
-            Stripe session: <code>{sessionId}</code>
-          </p>
-        )}
-
         <div className="mt-8 flex gap-3">
           <Link
             href="/qdw/2026/info"
