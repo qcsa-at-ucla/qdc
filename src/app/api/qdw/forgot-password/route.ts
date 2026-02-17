@@ -68,7 +68,7 @@ export async function POST(req: Request) {
         
         try {
           await resend.emails.send({
-            from: process.env.RESEND_FROM_EMAIL || "QDW <onboarding@resend.dev>",
+            from: process.env.RESEND_FROM_EMAIL || "QDW 2026 <noreply@qdc-qcsa.org>",
             to: user.email,
             subject: "Reset Your QDW 2026 Password",
             html: `
