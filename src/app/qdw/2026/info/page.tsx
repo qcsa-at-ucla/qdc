@@ -102,6 +102,73 @@ export default function QDW2026Info() {
   // Speakers
   const speakers = [
     {
+      name: 'Andreas Walraff',
+      affiliation: 'ETH Zurich',
+      image: '/images/Andreas_Walraff.jpg',
+      bio: 'Andreas Wallraff is a professor at ETH Zurich who focuses on experimental quantum information science with superconducting circuits and hybrid quantum systems.'
+
+    },
+    {
+      name: 'Mark Gyure',
+      affiliation: 'UCLA',
+      image: '/images/Mark_Gyure.jpg',
+      bio: 'Mark Gyure is a professor at UCLA and the Executive Director of the UCLA CQSE, working on theory and simulation of solid-state quantum information devices.',
+    },
+    {
+      name: 'Felix Beaudoin',
+      affiliation: 'Nanoacademic',
+      image: '/images/Felix_Beaudoin.jpg',
+      bio: 'Félix Beaudoin is a physicist and CEO of Nanoacademic Technologies, leading development of quantum-technology modeling and design tools for simulating qubits and quantum devices.'
+    },
+    {
+      name: 'Kevin O’Brien',
+      affiliation: 'MIT',
+      image: '/images/Kevin_Brien.jpg',
+      bio: 'Kevin P. O’Brien is a professor at MIT engineering quantum light-matter interactions and superconducting circuits for quantum technologies' 
+    },
+    {
+      name: 'Alp Siphahigil',
+      affiliation: 'UC Berkeley',
+      image: '/images/Alp_Sipahigil.jpg',
+      bio: 'Alp Sipahigil is a professor at UC Berkeley developing solid-state quantum hardware using superconducting circuits and quantum photonics.'
+    },
+    {
+      name: 'Holly Stemp',
+      affiliation: 'MIT',
+      image: '/images/Holly_Stemp.jpg',
+      bio: 'Holly Stemp is a postdoctoral associate at MIT working on designing and implementing hybrid spin and superconducting qubit architectures for quantum computing.'
+    },
+    {
+      name: 'Lukas Pahl',
+      affiliation: 'MIT',
+      image: '/images/Lukas_Pahl.jpg',
+      bio: 'Lukas Pahl is a PhD student at MIT working on scalable superconducting quantum computing and improving qubit control and error correction.'
+    },
+    {
+      name: 'David Pahl',
+      affiliation: 'MIT',
+      image: '/images/David_Pahl.jpg',
+      bio: 'David Pahl is a PhD student at MIT researching superconducting qubits and scalable quantum error-correction architectures for quantum computing.'
+    },
+    {
+      name: 'Sadman Ahmed Shanto',
+      affiliation: 'USC',
+      image: '/images/Sadman_Shanto.jpeg',
+      bio: 'Sadman Ahmed Shanto is a USC physics PhD candidate working on superconducting quantum hardware design and simulation.'
+    },
+    {
+      name: 'Reza Molavi',
+      affiliation: 'Google Quantum AI',
+      image: '/images/Reza_Molavi.jpg',
+      bio: 'Reza Molavi is a research scientist at Google Quantum AI focusing on superconducting qubit design and quantum computing research.'
+    },
+    {
+      name: 'Shuhei Tamate',
+      affiliation: 'RIKEN',
+      image: '/images/Shuhei_Tamate.jpg',
+      bio: 'Shuhei Tamate is a research scientist at RIKEN specializing in superconducting quantum circuits and scalable quantum computing hardware.'
+    },
+    {
       name: 'Daniel Sank',
       affiliation: 'Google',
       image: '/images/Daniel_Sank.png',
