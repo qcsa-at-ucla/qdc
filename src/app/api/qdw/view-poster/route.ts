@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
 
     const posterUrl = userData.poster_url;
 
-    // Extract the file path from the full URL
-    // URL format: https://.../storage/v1/object/public/posters/filename.pdf
+    // Extract the file path from the storage reference
+    // Format: /storage/v1/object/posters/filename.pdf (just a reference, not a real URL)
     const match = posterUrl.match(/\/posters\/(.+)$/);
     if (!match) {
       return NextResponse.json({ error: "Invalid poster URL format" }, { status: 500 });
@@ -60,12 +60,14 @@ export async function GET(request: NextRequest) {
     // Convert blob to array buffer
     const fileBuffer = await fileData.arrayBuffer();
 
-    // Return the PDF with appropriate headers
+    // Return the PDF with appropriate headers (no cache to always show latest version)
     return new NextResponse(fileBuffer, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `inline; filename="poster.pdf"`,
-        "Cache-Control": "private, max-age=3600",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
       },
     });
   } catch (error) {

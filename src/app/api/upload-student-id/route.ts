@@ -155,11 +155,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get public URL from Supabase
-    const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${filename}`;
+    // Store a reference that our proxy can parse (not a real public URL)
+    const storageReference = `/storage/v1/object/student-ids/${filename}`;
 
     return NextResponse.json({
-      url: publicUrl,
+      url: storageReference,
       filename: filename,
       size: file.size,
       studentNumber: studentNumber,

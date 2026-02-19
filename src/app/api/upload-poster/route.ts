@@ -228,8 +228,9 @@ export async function POST(request: NextRequest) {
       throw new Error('Failed to upload file');
     }
 
-    // Get public URL from Supabase
-    const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${filename}`;
+    // Store a reference URL that our proxy can parse (not a real public URL)
+    // Format: /storage/v1/object/posters/filename (proxy will extract filename)
+    const storageReference = `/storage/v1/object/posters/${filename}`;
 
     // Also upload to Google Drive (non-blocking - don't fail registration if this fails)
     const googleDriveResult = await uploadToGoogleDrive(bytes, filename, 'application/pdf');
@@ -240,7 +241,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      url: publicUrl,
+      url: storageReference,
       filename: filename,
       size: file.size,
       googleDriveFileId: googleDriveResult.fileId,

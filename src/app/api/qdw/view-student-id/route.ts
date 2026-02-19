@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
 
     const studentIdPhotoUrl = userData.student_id_photo_url;
 
-    // Extract the file path from the full URL
-    // URL format: https://.../storage/v1/object/public/student-ids/filename.ext
+    // Extract the file path from the storage reference
+    // Format: /storage/v1/object/student-ids/filename.ext (just a reference, not a real URL)
     const match = studentIdPhotoUrl.match(/\/student-ids\/(.+)$/);
     if (!match) {
       return NextResponse.json({ error: "Invalid student ID photo URL format" }, { status: 500 });
@@ -68,12 +68,14 @@ export async function GET(request: NextRequest) {
     else if (extension === "gif") contentType = "image/gif";
     else if (extension === "webp") contentType = "image/webp";
 
-    // Return the image with appropriate headers
+    // Return the image with appropriate headers (no cache to always show latest version)
     return new NextResponse(fileBuffer, {
       headers: {
         "Content-Type": contentType,
         "Content-Disposition": `inline; filename="student-id.${extension}"`,
-        "Cache-Control": "private, max-age=3600",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
       },
     });
   } catch (error) {

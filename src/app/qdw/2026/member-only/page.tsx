@@ -157,7 +157,11 @@ export default function MemberOnlyPage() {
         });
         setPosterSuccess(true);
         setEditingPoster(false);
-        setPosterData({ ...posterData, posterPdf: null });
+        setPosterData({
+          projectTitle: posterData.projectTitle,
+          projectDescription: posterData.projectDescription,
+          posterPdf: null,
+        });
         setTimeout(() => setPosterSuccess(false), 3000);
       } else {
         setPosterError(data.error || "Failed to update poster");
@@ -609,7 +613,15 @@ export default function MemberOnlyPage() {
             <h2 className="text-2xl font-bold text-gray-900">Project & Poster</h2>
             {!editingPoster && (
               <button
-                onClick={() => setEditingPoster(true)}
+                onClick={() => {
+                  setEditingPoster(true);
+                  setPosterData({
+                    projectTitle: user.project_title || "",
+                    projectDescription: user.project_description || "",
+                    posterPdf: null,
+                  });
+                  setPosterError("");
+                }}
                 className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-full transition-all font-medium"
               >
                 Update Poster
@@ -671,6 +683,7 @@ export default function MemberOnlyPage() {
                   Leave empty to keep current file, or upload a new PDF to replace it
                 </p>
                 <input
+                  key={editingPoster ? 'poster-file-input' : 'poster-file-reset'}
                   type="file"
                   accept="application/pdf,.pdf"
                   onChange={handlePosterFileChange}
