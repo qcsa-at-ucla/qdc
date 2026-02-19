@@ -352,7 +352,9 @@ export default function AdminDashboard() {
                       )}
                       {applicant.studentIdPhotoUrl && (
                         <a
-                          href={applicant.studentIdPhotoUrl}
+                          href={`/api/qdw/view-student-id?email=${encodeURIComponent(
+                            applicant.email
+                          )}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block text-purple-600 hover:text-purple-700 text-sm font-medium"
