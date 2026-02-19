@@ -15,11 +15,12 @@ function getStripe() {
 }
 
 // Verify if registration was saved, and save it if missing (backup for webhook delays/failures)
+// Also updates the registration with file URLs uploaded after payment
 export async function POST(req: Request) {
   try {
     const stripe = getStripe();
     
-    const { sessionId } = await req.json();
+    const { sessionId, posterUrl, studentIdPhotoUrl } = await req.json();
 
     if (!sessionId) {
       return NextResponse.json({ error: "Missing session ID" }, { status: 400 });
@@ -43,6 +44,31 @@ export async function POST(req: Request) {
 
     if (existing) {
       console.log("✓ Registration already exists for session:", sessionId);
+      
+      // Update with file URLs if provided
+      if (posterUrl || studentIdPhotoUrl) {
+        const updateData: Record<string, string> = {};
+        if (posterUrl) updateData.poster_url = posterUrl;
+        if (studentIdPhotoUrl) updateData.student_id_photo_url = studentIdPhotoUrl;
+        
+        const { error: updateError } = await supabase
+          .from("qdw_registrations")
+          .update(updateData)
+          .eq("id", existing.id);
+        
+        if (updateError) {
+          console.error("Failed to update file URLs:", updateError);
+        } else {
+          console.log("✓ Updated file URLs for registration:", existing.id);
+        }
+        
+        return NextResponse.json({ 
+          status: "updated", 
+          message: "Registration updated with file URLs",
+          id: existing.id 
+        });
+      }
+      
       return NextResponse.json({ 
         status: "exists", 
         message: "Registration already saved",
@@ -96,7 +122,8 @@ export async function POST(req: Request) {
       registration_type: meta.registrationType,
       project_title: meta.projectTitle || null,
       project_description: meta.projectDescription || null,
-      poster_url: meta.posterUrl || null,
+      poster_url: posterUrl || null,
+      student_id_photo_url: studentIdPhotoUrl || null,
       wants_qdc_membership: meta.wantsQdcMembership === "true",
       agree_to_terms: meta.agreeToTerms === "true",
       payment_status: "paid",

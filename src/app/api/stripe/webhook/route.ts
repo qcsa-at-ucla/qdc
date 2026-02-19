@@ -57,7 +57,9 @@ async function saveRegistration(
     registration_type: registrationType,
     project_title: meta.projectTitle || null,
     project_description: meta.projectDescription || null,
-    poster_url: meta.posterUrl || null,
+    // poster_url and student_id_photo_url will be updated via verify-registration after payment success page uploads files
+    poster_url: null,
+    student_id_photo_url: null,
     wants_qdc_membership: meta.wantsQdcMembership === "true",
     agree_to_terms: meta.agreeToTerms === "true",
     payment_status: "paid",

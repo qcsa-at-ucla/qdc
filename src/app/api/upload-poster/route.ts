@@ -161,6 +161,8 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     const email = formData.get('email') as string | null;
+    const firstName = formData.get('firstName') as string | null;
+    const lastName = formData.get('lastName') as string | null;
 
     if (!file) {
       return NextResponse.json(
@@ -188,11 +190,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const sanitizedEmail = email?.replace(/[^a-zA-Z0-9]/g, '_') || 'unknown';
-    const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const filename = `${timestamp}_${sanitizedEmail}_${sanitizedOriginalName}`;
+    // Generate filename: [Last_name][First_name]CV.pdf if names provided, otherwise fallback to old format
+    let filename: string;
+    if (firstName && lastName) {
+      const sanitizedLastName = lastName.replace(/[^a-zA-Z0-9]/g, '');
+      const sanitizedFirstName = firstName.replace(/[^a-zA-Z0-9]/g, '');
+      const timestamp = Date.now();
+      filename = `${sanitizedLastName}${sanitizedFirstName}CV_${timestamp}.pdf`;
+    } else {
+      // Fallback to old naming convention
+      const timestamp = Date.now();
+      const sanitizedEmail = email?.replace(/[^a-zA-Z0-9]/g, '_') || 'unknown';
+      const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      filename = `${timestamp}_${sanitizedEmail}_${sanitizedOriginalName}`;
+    }
 
     // Convert file to buffer
     const bytes = await file.arrayBuffer();

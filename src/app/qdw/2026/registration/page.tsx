@@ -51,7 +51,12 @@ export default function QDW2026Registration() {
     agreeToTerms: false,
 
     posterPdf: null as File | null,
+    studentIdPhoto: null as File | null,
   });
+
+  // Helper to check if current registration type is student
+  const isStudentRegistration = formData.registrationType === 'student_in_person' || 
+                                 formData.registrationType === 'student_online';
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -97,27 +102,43 @@ export default function QDW2026Registration() {
     setFormData(prev => ({ ...prev, posterPdf: file }));
   };
 
-  // Upload poster PDF to /api/upload-poster (your existing route)
-  const uploadPosterIfNeeded = async (): Promise<string> => {
-    if (!formData.posterPdf) return '';
-
-    const body = new FormData();
-    body.append('file', formData.posterPdf);
-    body.append('email', formData.email);
-
-    const res = await fetch('/api/upload-poster', {
-      method: 'POST',
-      body,
-    });
-
-    if (!res.ok) {
-      const txt = await res.text().catch(() => '');
-      throw new Error(`Poster upload failed. ${txt}`);
+  const handleStudentIdFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (!file) {
+      setFormData(prev => ({ ...prev, studentIdPhoto: null }));
+      return;
     }
 
-    const data = (await res.json()) as { url?: string };
-    if (!data.url) throw new Error('Poster upload failed (no URL returned).');
-    return data.url;
+    // Basic validation: images only, max 5MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
+    const isImage = allowedTypes.includes(file.type) || 
+      allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+    const maxBytes = 5 * 1024 * 1024;
+
+    if (!isImage) {
+      setSubmitError('Student ID must be an image file (JPG, PNG, or WebP).');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > maxBytes) {
+      setSubmitError('Student ID photo is too large (max 5MB).');
+      e.target.value = '';
+      return;
+    }
+
+    setSubmitError(null);
+    setFormData(prev => ({ ...prev, studentIdPhoto: file }));
+  };
+
+  // Convert file to base64 for storing in sessionStorage
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -131,13 +152,34 @@ export default function QDW2026Registration() {
       return;
     }
 
-    try {
-      // 1) Upload poster (optional)
-      const posterUrl = await uploadPosterIfNeeded();
+    // Validate student ID photo is required for students
+    const isStudent = formData.registrationType === 'student_in_person' || 
+                      formData.registrationType === 'student_online';
+    if (isStudent && !formData.studentIdPhoto) {
+      setIsSubmitting(false);
+      setSubmitError('Student ID photo is required for student registration.');
+      return;
+    }
 
-      // 2) Store registration data in sessionStorage (NOT saved to Supabase yet).
-      //    Data will only be persisted to Supabase after successful Stripe payment
-      //    via the webhook, so cancelling payment means nothing is saved.
+    try {
+      // Convert files to base64 for temporary storage (files will be uploaded AFTER payment)
+      let posterBase64 = '';
+      let posterFileName = '';
+      let studentIdBase64 = '';
+      let studentIdFileName = '';
+
+      if (formData.posterPdf) {
+        posterBase64 = await fileToBase64(formData.posterPdf);
+        posterFileName = formData.posterPdf.name;
+      }
+
+      if (formData.studentIdPhoto) {
+        studentIdBase64 = await fileToBase64(formData.studentIdPhoto);
+        studentIdFileName = formData.studentIdPhoto.name;
+      }
+
+      // Store registration data in sessionStorage (NOT saved to Supabase yet).
+      // Files are stored as base64 and will only be uploaded after successful payment.
       const registrationPayload = {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -148,7 +190,11 @@ export default function QDW2026Registration() {
         registrationType: formData.registrationType,
         projectTitle: formData.projectTitle,
         projectDescription: formData.projectDescription,
-        posterUrl,
+        // Store files as base64 - will be uploaded after payment
+        posterBase64,
+        posterFileName,
+        studentIdBase64,
+        studentIdFileName,
         wantsQdcMembership: formData.wantsQdcMembership,
         agreeToTerms: formData.agreeToTerms,
       };
@@ -157,7 +203,7 @@ export default function QDW2026Registration() {
 
       setIsSubmitted(true);
 
-      // 3) Redirect to internal payment page with type/email
+      // Redirect to internal payment page with type/email
       const params = new URLSearchParams();
       params.set('type', formData.registrationType);
       params.set('email', formData.email);
@@ -313,6 +359,38 @@ export default function QDW2026Registration() {
                     You'll use this password to access the member portal after payment
                   </p>
                 </div>
+
+                {/* Student ID Photo - Required for student registration types */}
+                {isStudentRegistration && (
+                  <div>
+                    <label htmlFor="studentIdPhoto" className="block text-sm font-bold text-gray-900 mb-1">
+                      Student ID Photo <span className="font-normal text-gray-500">(required for students)</span>
+                    </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Please upload a clear photo of your valid student ID to verify your student status.
+                    </p>
+                    <input
+                      type="file"
+                      id="studentIdPhoto"
+                      name="studentIdPhoto"
+                      accept="image/jpeg,image/jpg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                      onChange={handleStudentIdFileChange}
+                      className="mt-2 block w-full text-sm text-gray-700
+                                 file:mr-4 file:py-2 file:px-4
+                                 file:rounded-full file:border-0
+                                 file:text-sm file:font-semibold
+                                 file:bg-purple-100 file:text-purple-700
+                                 hover:file:bg-purple-200"
+                      required
+                    />
+                    {formData.studentIdPhoto && (
+                      <p className="text-xs text-gray-500 mt-2">Selected: {formData.studentIdPhoto.name}</p>
+                    )}
+                    <p className="text-xs text-gray-400 mt-1">
+                      Accepted formats: JPG, PNG, WebP (max 5MB)
+                    </p>
+                  </div>
+                )}
 
                 {/* Designation */}
                 <div>
