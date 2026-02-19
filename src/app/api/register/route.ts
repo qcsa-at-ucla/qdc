@@ -16,8 +16,8 @@ export interface RegistrationData {
   designation: string;
   location: string;
   registrationType: string;
-  projectTitle?: string;
-  projectDescription?: string;
+  projectTitle: string;          // required
+  projectDescription: string;    // required
   posterUrl?: string;
   wantsQdcMembership: boolean;
   agreeToTerms: boolean;
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validate required fields
-    const requiredFields = ["firstName", "lastName", "email", "designation", "location", "registrationType"];
+    const requiredFields = ["firstName", "lastName", "email", "designation", "location", "registrationType", "projectTitle", "projectDescription"];
     for (const field of requiredFields) {
       if (!body[field]) {
         return NextResponse.json({ error: `Missing required field: ${field}` }, { status: 400 });

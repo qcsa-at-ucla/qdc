@@ -152,6 +152,26 @@ export default function QDW2026Registration() {
       return;
     }
 
+    // Validate CV/Poster PDF is required
+    if (!formData.posterPdf) {
+      setIsSubmitting(false);
+      setSubmitError('CV/Poster PDF is required.');
+      return;
+    }
+
+    // Validate project title and description are required
+    if (!formData.projectTitle || !formData.projectTitle.trim()) {
+      setIsSubmitting(false);
+      setSubmitError('Project title is required.');
+      return;
+    }
+
+    if (!formData.projectDescription || !formData.projectDescription.trim()) {
+      setIsSubmitting(false);
+      setSubmitError('Project description is required.');
+      return;
+    }
+
     // Validate student ID photo is required for students
     const isStudent = formData.registrationType === 'student_in_person' || 
                       formData.registrationType === 'student_online';
@@ -437,12 +457,12 @@ export default function QDW2026Registration() {
 
                 {/* Project info */}
                 <div className="pt-4">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Poster / Project (optional)</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Poster / Project <span className="font-normal text-gray-500">(required)</span></h3>
 
                   <div className="space-y-4">
                     <div>
                       <label htmlFor="projectTitle" className="block text-sm font-bold text-gray-900 mb-1">
-                        Project Title
+                        Project Title <span className="font-normal text-gray-500">(required)</span>
                       </label>
                       <input
                         type="text"
@@ -451,13 +471,14 @@ export default function QDW2026Registration() {
                         value={formData.projectTitle}
                         onChange={handleChange}
                         maxLength={500}
+                        required
                         className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mt-2"
                       />
                     </div>
 
                     <div>
                       <label htmlFor="projectDescription" className="block text-sm font-bold text-gray-900 mb-1">
-                        Project Description
+                        Project Description <span className="font-normal text-gray-500">(required)</span>
                       </label>
                       <textarea
                         id="projectDescription"
@@ -466,6 +487,7 @@ export default function QDW2026Registration() {
                         onChange={handleChange}
                         rows={5}
                         maxLength={500}
+                        required
                         className="w-full px-4 py-3 border border-gray-300 rounded-2xl bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mt-2"
                         placeholder="Briefly describe your poster/project (goals, methods, results, what you want feedback on)."
                       />
@@ -476,15 +498,16 @@ export default function QDW2026Registration() {
 
                     <div>
                       <label htmlFor="posterPdf" className="block text-sm font-bold text-gray-900 mb-1">
-                        Poster PDF Upload
-                        <span className="font-normal text-gray-500 text-xs"> (PDF, max 15MB)</span>
+                        CV/Poster PDF Upload <span className="font-normal text-gray-500">(required)</span>
                       </label>
+                      <p className="text-xs text-gray-500 mb-2">Upload your CV or project poster (PDF, max 15MB)</p>
                       <input
                         type="file"
                         id="posterPdf"
                         name="posterPdf"
                         accept="application/pdf,.pdf"
                         onChange={handleFileChange}
+                        required
                         className="mt-2 block w-full text-sm text-gray-700
                                    file:mr-4 file:py-2 file:px-4
                                    file:rounded-full file:border-0
