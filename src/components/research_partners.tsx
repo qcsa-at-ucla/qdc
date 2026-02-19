@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import AnimatedSection from './AnimatedSection';
+import { log } from 'console';
 
 export default function ResearchPartners({ direction = 'left' }: { direction?: 'left' | 'right' }) {
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -42,6 +43,12 @@ export default function ResearchPartners({ direction = 'left' }: { direction?: '
       logo: '/images/partners/google-quantum.png',
       width: 280,
       height: 100,
+    },
+    {
+        name: "NVIDIA",
+        logo: "/images/partners/nvidia.png",
+        width: 280,
+        height: 100,
     },
     {
       name: 'Niels Bohr Institute',
