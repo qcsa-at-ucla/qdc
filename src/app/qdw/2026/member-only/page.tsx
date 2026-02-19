@@ -16,6 +16,35 @@ export default function MemberOnlyPage() {
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
 
+  // Profile update states
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [profileData, setProfileData] = useState({ firstName: "", lastName: "" });
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileSuccess, setProfileSuccess] = useState(false);
+  const [profileError, setProfileError] = useState("");
+
+  // Poster update states
+  const [editingPoster, setEditingPoster] = useState(false);
+  const [posterData, setPosterData] = useState({ projectTitle: "", projectDescription: "", posterPdf: null as File | null });
+  const [posterLoading, setPosterLoading] = useState(false);
+  const [posterSuccess, setPosterSuccess] = useState(false);
+  const [posterError, setPosterError] = useState("");
+
+  // Initialize form data when user data loads
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        firstName: user.first_name || "",
+        lastName: user.last_name || "",
+      });
+      setPosterData({
+        projectTitle: user.project_title || "",
+        projectDescription: user.project_description || "",
+        posterPdf: null,
+      });
+    }
+  }, [user]);
+
   // Check if user is already logged in via session/cookie
   useEffect(() => {
     const checkAuth = async () => {
@@ -41,7 +70,129 @@ export default function MemberOnlyPage() {
 
     checkAuth();
   }, []);
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileLoading(true);
+    setProfileError("");
+    setProfileSuccess(false);
 
+    try {
+      const response = await fetch("/api/qdw/update-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: user.email,
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser({ ...user, first_name: profileData.firstName, last_name: profileData.lastName });
+        setProfileSuccess(true);
+        setEditingProfile(false);
+        setTimeout(() => setProfileSuccess(false), 3000);
+      } else {
+        setProfileError(data.error || "Failed to update profile");
+      }
+    } catch (err) {
+      setProfileError("An error occurred. Please try again.");
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  const handleUpdatePoster = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPosterLoading(true);
+    setPosterError("");
+    setPosterSuccess(false);
+
+    try {
+      let posterUrl = user.poster_url;
+
+      // Upload new PDF if provided
+      if (posterData.posterPdf) {
+        const formData = new FormData();
+        formData.append("file", posterData.posterPdf);
+        formData.append("email", user.email);
+        formData.append("firstName", user.first_name);
+        formData.append("lastName", user.last_name);
+
+        const uploadRes = await fetch("/api/upload-poster", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error("Failed to upload poster PDF");
+        }
+
+        const uploadData = await uploadRes.json();
+        posterUrl = uploadData.url;
+      }
+
+      // Update poster info in database
+      const response = await fetch("/api/qdw/update-poster", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: user.email,
+          projectTitle: posterData.projectTitle,
+          projectDescription: posterData.projectDescription,
+          posterUrl,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser({
+          ...user,
+          project_title: posterData.projectTitle,
+          project_description: posterData.projectDescription,
+          poster_url: posterUrl,
+        });
+        setPosterSuccess(true);
+        setEditingPoster(false);
+        setPosterData({ ...posterData, posterPdf: null });
+        setTimeout(() => setPosterSuccess(false), 3000);
+      } else {
+        setPosterError(data.error || "Failed to update poster");
+      }
+    } catch (err: any) {
+      setPosterError(err.message || "An error occurred. Please try again.");
+    } finally {
+      setPosterLoading(false);
+    }
+  };
+
+  const handlePosterFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (!file) {
+      setPosterData({ ...posterData, posterPdf: null });
+      return;
+    }
+
+    const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+    const maxBytes = 15 * 1024 * 1024;
+
+    if (!isPdf) {
+      setPosterError("File must be a PDF");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > maxBytes) {
+      setPosterError("File is too large (max 15MB)");
+      e.target.value = "";
+      return;
+    }
+
+    setPosterError("");
+    setPosterData({ ...posterData, posterPdf: file });
+  };
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -311,104 +462,295 @@ export default function MemberOnlyPage() {
 
   // Authenticated member area
   return (
-    <div className="min-h-screen bg-[#0a0a1a] px-4 sm:px-6 lg:px-8 pt-24 pb-12">
-      <div className="max-w-6xl mx-auto">
-        <div className="bg-white/5 backdrop-blur-lg p-6 sm:p-8 rounded-2xl shadow-2xl border border-white/10">
-          <div className="flex justify-between items-center mb-8">
+    <div className="min-h-screen bg-white px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
+          <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl font-bold text-white mb-2">
-                Welcome back, {user?.first_name}!
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+                Welcome, {user?.first_name}!
               </h1>
-              <p className="text-gray-300">QDW 2026 Member Portal</p>
+              <p className="text-gray-600">QDW 2026 Member Portal</p>
             </div>
             <button
               onClick={() => {
                 sessionStorage.removeItem("qdw_member_email");
                 setIsAuthenticated(false);
               }}
-              className="bg-white/5 hover:bg-white/10 text-white/80 hover:text-white px-4 py-2 rounded-full transition-all border border-white/20 hover:border-white/40"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full transition-all font-medium"
             >
               Sign Out
             </button>
           </div>
+        </div>
 
-          {/* Coming Soon Section */}
-          <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-purple-500/30 rounded-2xl p-8 sm:p-12 text-center">
-            <div className="text-6xl mb-4"></div>
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Member Portal Coming Soon!
-            </h2>
-            <p className="text-gray-300 text-lg mb-6">
-              We're building something amazing for you. Soon you'll be able to:
-            </p>
-            <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto text-left">
-              <div className="bg-white/5 p-5 rounded-xl border border-white/5 hover:border-white/10 transition-all">
-                <div className="text-2xl mb-2">📝</div>
-                <h3 className="text-white font-semibold mb-1">
-                  Update Your Profile
-                </h3>
-                <p className="text-gray-400 text-sm">
-                  Edit your information anytime
-                </p>
-              </div>
-              <div className="bg-white/5 p-5 rounded-xl border border-white/5 hover:border-white/10 transition-all">
-                <div className="text-2xl mb-2">🖼️</div>
-                <h3 className="text-white font-semibold mb-1">
-                  Manage Your Poster
-                </h3>
-                <p className="text-gray-400 text-sm">
-                  Upload or update your project poster
-                </p>
-              </div>
-              <div className="bg-white/5 p-5 rounded-xl border border-white/5 hover:border-white/10 transition-all">
-                <div className="text-2xl mb-2">🎫</div>
-                <h3 className="text-white font-semibold mb-1">
-                  Event Access
-                </h3>
-                <p className="text-gray-400 text-sm">
-                  View your ticket and event details
-                </p>
-              </div>
-              <div className="bg-white/5 p-5 rounded-xl border border-white/5 hover:border-white/10 transition-all">
-                <div className="text-2xl mb-2">👥</div>
-                <h3 className="text-white font-semibold mb-1">
-                  Network
-                </h3>
-                <p className="text-gray-400 text-sm">
-                  Connect with other attendees
-                </p>
-              </div>
+        {/* Registration Details Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Registration Details</h2>
+          <div className="grid md:grid-cols-2 gap-4 text-gray-700">
+            <div>
+              <span className="text-gray-500">Email:</span>{" "}
+              <span className="font-medium">{user?.email}</span>
+            </div>
+            <div>
+              <span className="text-gray-500">Registration Type:</span>{" "}
+              <span className="font-medium capitalize">
+                {user?.registration_type?.replace(/_/g, " ")}
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-500">Payment Status:</span>{" "}
+              <span className="text-green-600 font-semibold">✓ Paid</span>
+            </div>
+            <div>
+              <span className="text-gray-500">Registered:</span>{" "}
+              <span className="font-medium">
+                {user?.created_at ? new Date(user.created_at).toLocaleDateString() : "N/A"}
+              </span>
             </div>
           </div>
+        </div>
 
-          {/* User Info Preview */}
-          <div className="mt-8 bg-white/5 p-6 rounded-2xl border border-white/5">
-            <h3 className="text-xl font-bold text-white mb-4">
-              Your Registration Details
-            </h3>
-            <div className="grid md:grid-cols-2 gap-4 text-gray-300">
+        {/* Update Profile Section */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold text-gray-900">Profile Information</h2>
+            {!editingProfile && (
+              <button
+                onClick={() => setEditingProfile(true)}
+                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-full transition-all font-medium"
+              >
+                Edit Profile
+              </button>
+            )}
+          </div>
+
+          {profileSuccess && (
+            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700">
+              ✓ Profile updated successfully!
+            </div>
+          )}
+
+          {profileError && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+              {profileError}
+            </div>
+          )}
+
+          {editingProfile ? (
+            <form onSubmit={handleUpdateProfile} className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-900 mb-1">
+                    First Name
+                  </label>
+                  <input
+                    type="text"
+                    value={profileData.firstName}
+                    onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                    required
+                    className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-900 mb-1">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    value={profileData.lastName}
+                    onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                    required
+                    className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={profileLoading}
+                  className="bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-full px-8 py-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {profileLoading ? "Saving..." : "Save Changes"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingProfile(false);
+                    setProfileData({
+                      firstName: user.first_name || "",
+                      lastName: user.last_name || "",
+                    });
+                    setProfileError("");
+                  }}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-full px-8 py-3 transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="space-y-3">
               <div>
-                <span className="text-gray-400">Name:</span>{" "}
-                <span className="text-white">
+                <span className="text-gray-500">Full Name:</span>{" "}
+                <span className="font-medium text-gray-900">
                   {user?.first_name} {user?.last_name}
                 </span>
               </div>
-              <div>
-                <span className="text-gray-400">Email:</span>{" "}
-                <span className="text-white">{user?.email}</span>
-              </div>
-              <div>
-                <span className="text-gray-400">Registration Type:</span>{" "}
-                <span className="text-white capitalize">
-                  {user?.registration_type?.replace(/_/g, " ")}
-                </span>
-              </div>
-              <div>
-                <span className="text-gray-400">Payment Status:</span>{" "}
-                <span className="text-green-400 font-semibold">✓ Paid</span>
-              </div>
             </div>
+          )}
+        </div>
+
+        {/* Update Poster Section */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold text-gray-900">Project & Poster</h2>
+            {!editingPoster && (
+              <button
+                onClick={() => setEditingPoster(true)}
+                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-full transition-all font-medium"
+              >
+                Update Poster
+              </button>
+            )}
           </div>
+
+          {posterSuccess && (
+            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700">
+              ✓ Poster information updated successfully!
+            </div>
+          )}
+
+          {posterError && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+              {posterError}
+            </div>
+          )}
+
+          {editingPoster ? (
+            <form onSubmit={handleUpdatePoster} className="space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-900 mb-1">
+                  Project Title
+                </label>
+                <input
+                  type="text"
+                  value={posterData.projectTitle}
+                  onChange={(e) => setPosterData({ ...posterData, projectTitle: e.target.value })}
+                  required
+                  maxLength={500}
+                  className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-900 mb-1">
+                  Project Description
+                </label>
+                <textarea
+                  value={posterData.projectDescription}
+                  onChange={(e) => setPosterData({ ...posterData, projectDescription: e.target.value })}
+                  required
+                  rows={5}
+                  maxLength={500}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Describe your project (goals, methods, results, etc.)"
+                />
+                <p className="text-xs text-gray-500 mt-1 text-right">
+                  {posterData.projectDescription.length}/500 characters
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-900 mb-1">
+                  Update CV/Poster PDF <span className="font-normal text-gray-500">(optional)</span>
+                </label>
+                <p className="text-xs text-gray-500 mb-2">
+                  Leave empty to keep current file, or upload a new PDF to replace it
+                </p>
+                <input
+                  type="file"
+                  accept="application/pdf,.pdf"
+                  onChange={handlePosterFileChange}
+                  className="mt-2 block w-full text-sm text-gray-700
+                             file:mr-4 file:py-2 file:px-4
+                             file:rounded-full file:border-0
+                             file:text-sm file:font-semibold
+                             file:bg-purple-100 file:text-purple-700
+                             hover:file:bg-purple-200"
+                />
+                {posterData.posterPdf && (
+                  <p className="text-xs text-gray-500 mt-2">New file: {posterData.posterPdf.name}</p>
+                )}
+                {user?.poster_url && !posterData.posterPdf && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    Current file:{" "}
+                    <a
+                      href={`/api/qdw/view-poster?email=${encodeURIComponent(user.email)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-purple-600 hover:text-purple-700 underline"
+                    >
+                      View current poster
+                    </a>
+                  </p>
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={posterLoading}
+                  className="bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-full px-8 py-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {posterLoading ? "Updating..." : "Save Changes"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingPoster(false);
+                    setPosterData({
+                      projectTitle: user.project_title || "",
+                      projectDescription: user.project_description || "",
+                      posterPdf: null,
+                    });
+                    setPosterError("");
+                  }}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-full px-8 py-3 transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <span className="text-gray-500">Project Title:</span>{" "}
+                <span className="font-medium text-gray-900">{user?.project_title || "Not set"}</span>
+              </div>
+              <div>
+                <span className="text-gray-500">Description:</span>{" "}
+                <p className="font-medium text-gray-900 mt-1">
+                  {user?.project_description || "Not set"}
+                </p>
+              </div>
+              {user?.poster_url && (
+                <div>
+                  <span className="text-gray-500">Poster PDF:</span>{" "}
+                  <a
+                    href={`/api/qdw/view-poster?email=${encodeURIComponent(user.email)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-purple-600 hover:text-purple-700 underline font-medium"
+                  >
+                    View poster →
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
