@@ -80,6 +80,11 @@ export async function POST(req: Request) {
       customer_email: email,
       allow_promotion_codes: true,
       
+      // Automatically calculate and collect tax based on customer location
+      automatic_tax: {
+        enabled: true,
+      },
+      
       // Automatically send receipt email after successful payment
       payment_intent_data: {
         receipt_email: email,
