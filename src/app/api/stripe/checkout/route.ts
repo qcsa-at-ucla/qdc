@@ -79,6 +79,11 @@ export async function POST(req: Request) {
       line_items: [{ price: priceId, quantity: 1 }],
       customer_email: email,
       allow_promotion_codes: true,
+      
+      // Automatically send receipt email after successful payment
+      payment_intent_data: {
+        receipt_email: email,
+      },
 
       metadata,
 
