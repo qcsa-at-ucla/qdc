@@ -48,14 +48,28 @@ function PaymentSuccessContent() {
     const processPaymentSuccess = async () => {
       try {
         // Get registration data from sessionStorage
-        const stored = sessionStorage.getItem("qdw_registration");
-        if (!stored) {
+        // For approved students: check qdw_student_files (poster only, student ID already uploaded)
+        // For regular flow: check qdw_registration (all files)
+        const studentFiles = sessionStorage.getItem("qdw_student_files");
+        const regularData = sessionStorage.getItem("qdw_registration");
+        
+        if (!studentFiles && !regularData) {
           console.error("No registration data found in sessionStorage");
           setVerificationStatus("error");
           return;
         }
 
-        const registrationData = JSON.parse(stored);
+        let registrationData: any;
+        let isApprovedStudent = false;
+
+        if (studentFiles) {
+          // Approved student flow - only upload poster (student ID already uploaded during registration)
+          registrationData = JSON.parse(studentFiles);
+          isApprovedStudent = true;
+        } else {
+          // Regular flow - upload all files
+          registrationData = JSON.parse(regularData!);
+        }
         
         // Upload files NOW (after successful payment)
         setVerificationStatus("uploading");
@@ -69,8 +83,12 @@ function PaymentSuccessContent() {
           const posterFormData = new FormData();
           posterFormData.append("file", posterFile);
           posterFormData.append("email", registrationData.email);
-          posterFormData.append("firstName", registrationData.firstName);
-          posterFormData.append("lastName", registrationData.lastName);
+          
+          // firstName and lastName should be available in both flows now
+          if (registrationData.firstName && registrationData.lastName) {
+            posterFormData.append("firstName", registrationData.firstName);
+            posterFormData.append("lastName", registrationData.lastName);
+          }
 
           const posterRes = await fetch("/api/upload-poster", {
             method: "POST",
@@ -85,8 +103,8 @@ function PaymentSuccessContent() {
           }
         }
 
-        // Upload student ID photo if exists
-        if (registrationData.studentIdBase64 && registrationData.studentIdFileName) {
+        // Upload student ID photo if exists (regular flow only - approved students already uploaded)
+        if (!isApprovedStudent && registrationData.studentIdBase64 && registrationData.studentIdFileName) {
           setUploadMessage("Uploading Student ID...");
           const studentIdFile = base64ToFile(registrationData.studentIdBase64, registrationData.studentIdFileName);
           const studentIdFormData = new FormData();

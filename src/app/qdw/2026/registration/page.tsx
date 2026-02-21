@@ -167,25 +167,10 @@ export default function QDW2026Registration() {
                         formData.registrationType === 'student_online';
 
       if (isStudent) {
-        // STUDENT FLOW: Save to database immediately and go to waiting room
-        // Files will be uploaded after payment (which happens after admin approval)
+        // STUDENT FLOW: Save to database immediately and upload student ID for admin verification
+        // Student ID must be uploaded now so admin can review it
+        // Poster will be uploaded after payment
         
-        // Convert files to base64 for database storage
-        let posterBase64 = '';
-        let posterFileName = '';
-        let studentIdBase64 = '';
-        let studentIdFileName = '';
-
-        if (formData.posterPdf) {
-          posterBase64 = await fileToBase64(formData.posterPdf);
-          posterFileName = formData.posterPdf.name;
-        }
-
-        if (formData.studentIdPhoto) {
-          studentIdBase64 = await fileToBase64(formData.studentIdPhoto);
-          studentIdFileName = formData.studentIdPhoto.name;
-        }
-
         // Save to database with pending approval status
         const response = await fetch('/api/register', {
           method: 'POST',
@@ -213,15 +198,49 @@ export default function QDW2026Registration() {
           throw new Error(data.error || 'Failed to submit registration');
         }
 
-        // Store files temporarily in sessionStorage for after-payment upload
-        const filesPayload = {
-          posterBase64,
-          posterFileName,
-          studentIdBase64,
-          studentIdFileName,
-          email: formData.email,
-        };
-        sessionStorage.setItem('qdw_student_files', JSON.stringify(filesPayload));
+        const registrationId = data.id;
+
+        // Upload student ID photo immediately (admin needs to see it for approval)
+        if (formData.studentIdPhoto) {
+          const studentIdFormData = new FormData();
+          studentIdFormData.append('file', formData.studentIdPhoto);
+          studentIdFormData.append('firstName', formData.firstName);
+          studentIdFormData.append('lastName', formData.lastName);
+          studentIdFormData.append('email', formData.email);
+
+          const uploadResponse = await fetch('/api/upload-student-id', {
+            method: 'POST',
+            body: studentIdFormData,
+          });
+
+          if (uploadResponse.ok) {
+            const uploadData = await uploadResponse.json();
+            
+            // Update registration with student ID URL
+            await fetch('/api/qdw/update-student-id', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: formData.email,
+                studentIdPhotoUrl: uploadData.url,
+              }),
+            });
+          }
+        }
+
+        // Store poster info for after-payment upload (if provided)
+        if (formData.posterPdf) {
+          const posterBase64 = await fileToBase64(formData.posterPdf);
+          const filesPayload = {
+            posterBase64,
+            posterFileName: formData.posterPdf.name,
+            email: formData.email,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            registrationId,
+          };
+          sessionStorage.setItem('qdw_student_files', JSON.stringify(filesPayload));
+        }
 
         // Redirect to waiting room
         window.location.assign('/qdw/2026/waiting-approval');
