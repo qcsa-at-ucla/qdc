@@ -279,10 +279,10 @@ export default function QDW2026Registration() {
                     className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mt-2"
                     required
                   >
-                    <option value="student_in_person">Student — In Person</option>
-                    <option value="student_online">Student — Online</option>
-                    <option value="professional_in_person">Professional — In Person</option>
-                    <option value="professional_online">Professional — Online</option>
+                    <option value="student_in_person">Student — In Person ($60) </option>
+                    <option value="student_online">Student — Online ($30) </option>
+                    <option value="professional_in_person">Professional — In Person ($300) </option>
+                    <option value="professional_online">Professional — Online ($150) </option>
                   </select>
                 </div>
 
