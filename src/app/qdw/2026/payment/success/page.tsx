@@ -192,14 +192,14 @@ function PaymentSuccessContent() {
           </div>
         )}
 
-        {verificationStatus === "error" && (
+        {/* {verificationStatus === "error" && (
           <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-sm text-yellow-700">
               ⚠ Payment succeeded but registration verification pending. 
               If you don't receive confirmation within 5 minutes, please contact support.
             </p>
           </div>
-        )}
+        )} */}
 
         {/* Only show navigation links when not processing */}
         {!isProcessing && (

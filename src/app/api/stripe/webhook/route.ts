@@ -18,6 +18,13 @@ async function saveRegistration(
   const firstName = meta.firstName;
   const email = meta.email;
   const registrationType = meta.registrationType;
+  const isApprovedStudent = meta.isApprovedStudent === "true";
+  const registrationId = meta.registrationId;
+
+  console.log("=== Webhook Processing ===");
+  console.log("isApprovedStudent:", isApprovedStudent);
+  console.log("registrationId:", registrationId);
+  console.log("email:", email);
 
   if (!firstName || !email || !registrationType) {
     console.warn(
@@ -35,11 +42,104 @@ async function saveRegistration(
     return { success: false, error: "Supabase not configured" };
   }
 
-  // console.log("Supabase URL:", supabaseUrl);
-  // console.log("Creating Supabase client...");
-
   const supabase = createClient(supabaseUrl, serviceKey);
 
+  // If this is an approved student, UPDATE the existing record
+  if (isApprovedStudent) {
+    console.log(`🔵 APPROVED STUDENT PAYMENT DETECTED`);
+    
+    // Try to find and update the approved student record
+    // Use both registrationId and email as lookup to be safe
+    let updateQuery;
+    
+    if (registrationId && registrationId.trim() !== "") {
+      console.log(`Updating by ID: ${registrationId}`);
+      updateQuery = supabase
+        .from("qdw_registrations")
+        .update({
+          payment_status: "paid",
+          stripe_checkout_session_id: checkoutSessionId,
+          stripe_payment_intent_id: paymentIntentId,
+          paid_at: new Date().toISOString(),
+        })
+        .eq("id", registrationId);
+    } else {
+      // Fallback: find by email and approval_status='approved'
+      console.warn(`⚠️ No registrationId provided, using email lookup fallback`);
+      updateQuery = supabase
+        .from("qdw_registrations")
+        .update({
+          payment_status: "paid",
+          stripe_checkout_session_id: checkoutSessionId,
+          stripe_payment_intent_id: paymentIntentId,
+          paid_at: new Date().toISOString(),
+        })
+        .eq("email", email.toLowerCase())
+        .eq("approval_status", "approved")
+        .is("stripe_payment_intent_id", null); // Only update if not already paid
+    }
+
+    const { data, error } = await updateQuery.select();
+
+    if (error) {
+      console.error("❌ Supabase update error:", JSON.stringify(error, null, 2));
+      return { success: false, error: "DB update failed" };
+    }
+
+    if (!data || data.length === 0) {
+      console.error(`❌ No approved registration found for email: ${email}, ID: ${registrationId}`);
+      console.error(`This would create a duplicate! Blocking insertion.`);
+      return { success: false, error: "Approved registration not found - preventing duplicate" };
+    }
+
+    console.log(`✅ Approved student registration updated and marked paid: ${data[0].id}`);
+    return { success: true, id: data[0].id };
+  }
+
+  // Otherwise, INSERT a new record (regular flow for non-students)
+  console.log(`📝 Processing regular (non-approved) registration for ${email}`);
+
+  // SAFETY CHECK: Before inserting, check if there's an approved student record for this email
+  // This prevents duplicates if the isApprovedStudent flag was somehow lost
+  const isStudent = registrationType === 'student_in_person' || registrationType === 'student_online';
+  
+  if (isStudent) {
+    console.log(`🔍 Checking for existing approved student record for ${email}`);
+    const { data: existingApproved, error: checkError } = await supabase
+      .from("qdw_registrations")
+      .select("id, approval_status, payment_status")
+      .eq("email", email.toLowerCase())
+      .eq("approval_status", "approved")
+      .single();
+
+    if (!checkError && existingApproved) {
+      console.warn(`⚠️ DUPLICATE PREVENTION: Found approved student record for ${email}`);
+      console.warn(`⚠️ This payment was for registration ID: ${existingApproved.id}`);
+      console.warn(`⚠️ Updating existing record instead of creating duplicate!`);
+
+      // Update the existing approved record
+      const { data: updatedData, error: updateError } = await supabase
+        .from("qdw_registrations")
+        .update({
+          payment_status: "paid",
+          stripe_checkout_session_id: checkoutSessionId,
+          stripe_payment_intent_id: paymentIntentId,
+          paid_at: new Date().toISOString(),
+        })
+        .eq("id", existingApproved.id)
+        .select();
+
+      if (updateError) {
+        console.error("❌ Failed to update existing approved record:", updateError);
+        return { success: false, error: "Failed to update approved record" };
+      }
+
+      console.log(`✅ DUPLICATE PREVENTED! Updated existing approved record: ${existingApproved.id}`);
+      return { success: true, id: existingApproved.id };
+    }
+  }
+
+  // No existing approved record found, safe to insert new record
   // Hash password if provided
   let passwordHash = null;
   if (meta.password) {
@@ -84,7 +184,7 @@ async function saveRegistration(
 
   // console.log("Registration saved successfully!");
   // console.log("Inserted data:", JSON.stringify(data, null, 2));
-  // console.log(`Registration saved & marked paid: ${data?.[0]?.id}`);
+  console.log(`✅ New registration created & marked paid: ${data?.[0]?.id}`);
   return { success: true, id: data?.[0]?.id };
 }
 

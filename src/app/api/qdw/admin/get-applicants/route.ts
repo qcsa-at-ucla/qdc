@@ -29,11 +29,13 @@ export async function POST(request: NextRequest) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all paid registrations
+    // Fetch all registrations (paid and pending approval)
+    // For students: includes pending, approved, and paid
+    // For non-students: only paid (they don't have approval_status)
     const { data: applicants, error } = await supabase
       .from("qdw_registrations")
       .select("*")
-      .eq("payment_status", "paid")
+      .or("payment_status.eq.paid,approval_status.eq.pending,approval_status.eq.approved")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -55,6 +57,8 @@ export async function POST(request: NextRequest) {
       posterUrl: applicant.poster_url,
       studentIdPhotoUrl: applicant.student_id_photo_url,
       paymentStatus: applicant.payment_status,
+      approvalStatus: applicant.approval_status,
+      approvedAt: applicant.approved_at,
       stripeSessionId: applicant.stripe_session_id,
       createdAt: applicant.created_at,
     })) || [];

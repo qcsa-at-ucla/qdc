@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 /**
  * Registration API - Saves user registration data to Supabase
@@ -63,6 +65,27 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString(),
     };
 
+    // Check if this is a student registration
+    const isStudent = 
+      body.registrationType === 'student_in_person' || 
+      body.registrationType === 'student_online';
+
+    // Hash password if provided
+    let passwordHash = null;
+    if (body.password) {
+      const saltRounds = 10;
+      passwordHash = await bcrypt.hash(body.password, saltRounds);
+    }
+
+    // Generate approval token for students
+    let approvalToken = null;
+    let approvalStatus = null;
+    
+    if (isStudent) {
+      approvalToken = crypto.randomBytes(32).toString('hex');
+      approvalStatus = 'pending';
+    }
+
     // Insert into Supabase (return inserted row)
     const response = await fetch(`${supabaseUrl}/rest/v1/qdw_registrations`, {
       method: "POST",
@@ -76,14 +99,19 @@ export async function POST(request: NextRequest) {
         first_name: registrationData.firstName,
         last_name: registrationData.lastName,
         email: registrationData.email,
+        password_hash: passwordHash,
         designation: registrationData.designation,
         location: registrationData.location,
         registration_type: registrationData.registrationType,
         project_title: registrationData.projectTitle || null,
         project_description: registrationData.projectDescription || null,
         poster_url: registrationData.posterUrl || null,
+        student_id_photo_url: null,
         wants_qdc_membership: registrationData.wantsQdcMembership,
         agree_to_terms: registrationData.agreeToTerms,
+        approval_status: approvalStatus,
+        approval_token: approvalToken,
+        payment_status: isStudent ? 'pending' : 'pending',
         created_at: registrationData.createdAt,
       }),
     });

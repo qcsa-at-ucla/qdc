@@ -162,53 +162,119 @@ export default function QDW2026Registration() {
     }
 
     try {
-      // Convert files to base64 for temporary storage (files will be uploaded AFTER payment)
-      let posterBase64 = '';
-      let posterFileName = '';
-      let studentIdBase64 = '';
-      let studentIdFileName = '';
+      // Check if this is a student registration
+      const isStudent = formData.registrationType === 'student_in_person' || 
+                        formData.registrationType === 'student_online';
 
-      if (formData.posterPdf) {
-        posterBase64 = await fileToBase64(formData.posterPdf);
-        posterFileName = formData.posterPdf.name;
+      if (isStudent) {
+        // STUDENT FLOW: Save to database immediately and go to waiting room
+        // Files will be uploaded after payment (which happens after admin approval)
+        
+        // Convert files to base64 for database storage
+        let posterBase64 = '';
+        let posterFileName = '';
+        let studentIdBase64 = '';
+        let studentIdFileName = '';
+
+        if (formData.posterPdf) {
+          posterBase64 = await fileToBase64(formData.posterPdf);
+          posterFileName = formData.posterPdf.name;
+        }
+
+        if (formData.studentIdPhoto) {
+          studentIdBase64 = await fileToBase64(formData.studentIdPhoto);
+          studentIdFileName = formData.studentIdPhoto.name;
+        }
+
+        // Save to database with pending approval status
+        const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            password: formData.password,
+            designation: formData.designation,
+            location: formData.location,
+            registrationType: formData.registrationType,
+            projectTitle: formData.projectTitle,
+            projectDescription: formData.projectDescription,
+            wantsQdcMembership: formData.wantsQdcMembership,
+            agreeToTerms: formData.agreeToTerms,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to submit registration');
+        }
+
+        // Store files temporarily in sessionStorage for after-payment upload
+        const filesPayload = {
+          posterBase64,
+          posterFileName,
+          studentIdBase64,
+          studentIdFileName,
+          email: formData.email,
+        };
+        sessionStorage.setItem('qdw_student_files', JSON.stringify(filesPayload));
+
+        // Redirect to waiting room
+        window.location.assign('/qdw/2026/waiting-approval');
+      } else {
+        // NON-STUDENT FLOW: Store in sessionStorage and proceed to payment
+        // Convert files to base64 for temporary storage (files will be uploaded AFTER payment)
+        let posterBase64 = '';
+        let posterFileName = '';
+        let studentIdBase64 = '';
+        let studentIdFileName = '';
+
+        if (formData.posterPdf) {
+          posterBase64 = await fileToBase64(formData.posterPdf);
+          posterFileName = formData.posterPdf.name;
+        }
+
+        if (formData.studentIdPhoto) {
+          studentIdBase64 = await fileToBase64(formData.studentIdPhoto);
+          studentIdFileName = formData.studentIdPhoto.name;
+        }
+
+        // Store registration data in sessionStorage (NOT saved to Supabase yet).
+        // Files are stored as base64 and will only be uploaded after successful payment.
+        const registrationPayload = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          designation: formData.designation,
+          location: formData.location,
+          registrationType: formData.registrationType,
+          projectTitle: formData.projectTitle,
+          projectDescription: formData.projectDescription,
+          // Store files as base64 - will be uploaded after payment
+          posterBase64,
+          posterFileName,
+          studentIdBase64,
+          studentIdFileName,
+          wantsQdcMembership: formData.wantsQdcMembership,
+          agreeToTerms: formData.agreeToTerms,
+        };
+
+        sessionStorage.setItem('qdw_registration', JSON.stringify(registrationPayload));
+
+        setIsSubmitted(true);
+
+        // Redirect to internal payment page with type/email
+        const params = new URLSearchParams();
+        params.set('type', formData.registrationType);
+        params.set('email', formData.email);
+
+        window.location.assign(`/qdw/2026/payment?${params.toString()}`);
       }
-
-      if (formData.studentIdPhoto) {
-        studentIdBase64 = await fileToBase64(formData.studentIdPhoto);
-        studentIdFileName = formData.studentIdPhoto.name;
-      }
-
-      // Store registration data in sessionStorage (NOT saved to Supabase yet).
-      // Files are stored as base64 and will only be uploaded after successful payment.
-      const registrationPayload = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password,
-        designation: formData.designation,
-        location: formData.location,
-        registrationType: formData.registrationType,
-        projectTitle: formData.projectTitle,
-        projectDescription: formData.projectDescription,
-        // Store files as base64 - will be uploaded after payment
-        posterBase64,
-        posterFileName,
-        studentIdBase64,
-        studentIdFileName,
-        wantsQdcMembership: formData.wantsQdcMembership,
-        agreeToTerms: formData.agreeToTerms,
-      };
-
-      sessionStorage.setItem('qdw_registration', JSON.stringify(registrationPayload));
-
-      setIsSubmitted(true);
-
-      // Redirect to internal payment page with type/email
-      const params = new URLSearchParams();
-      params.set('type', formData.registrationType);
-      params.set('email', formData.email);
-
-      window.location.assign(`/qdw/2026/payment?${params.toString()}`);
     } catch (error) {
       console.error('Form submission error:', error);
       setSubmitError(

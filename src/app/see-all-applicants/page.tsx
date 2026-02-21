@@ -16,6 +16,8 @@ interface Applicant {
   posterUrl: string | null;
   studentIdPhotoUrl: string | null;
   paymentStatus: string;
+  approvalStatus: string | null;
+  approvedAt: string | null;
   stripeSessionId: string;
   createdAt: string;
 }
@@ -28,6 +30,8 @@ export default function AdminDashboard() {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all"); // all, pending, approved, paid
+  const [approvingId, setApprovingId] = useState<string | null>(null);
 
   // Check if already authenticated
   useEffect(() => {
@@ -81,6 +85,45 @@ export default function AdminDashboard() {
     sessionStorage.removeItem("admin_api_key");
   };
 
+  const handleApprove = async (registrationId: string) => {
+    if (!confirm("Are you sure you want to approve this student registration? They will receive an email with a payment link.")) {
+      return;
+    }
+
+    setApprovingId(registrationId);
+    setError("");
+
+    try {
+      const response = await fetch("/api/qdw/admin/approve-student", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          apiKey,
+          registrationId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to approve registration");
+      }
+
+      // Show success message
+      alert(data.message || "Registration approved and email sent!");
+
+      // Refresh applicants list
+      await fetchApplicants(apiKey);
+    } catch (err: any) {
+      alert("Error: " + err.message);
+      setError(err.message);
+    } finally {
+      setApprovingId(null);
+    }
+  };
+
   const exportToCSV = () => {
     const headers = [
       "First Name",
@@ -131,8 +174,20 @@ export default function AdminDashboard() {
     const matchesFilter =
       filterType === "all" || app.registrationType === filterType;
 
-    return matchesSearch && matchesFilter;
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "pending" && app.approvalStatus === "pending") ||
+      (statusFilter === "approved" && app.approvalStatus === "approved" && app.paymentStatus === "pending") ||
+      (statusFilter === "paid" && app.paymentStatus === "paid");
+
+    return matchesSearch && matchesFilter && matchesStatus;
   });
+
+  // Count statistics
+  const pendingCount = applicants.filter(a => a.approvalStatus === "pending").length;
+  const approvedCount = applicants.filter(a => a.approvalStatus === "approved" && a.paymentStatus === "pending").length;
+  const paidCount = applicants.filter(a => a.paymentStatus === "paid").length;
+
 
   // Login form
   if (!authenticated) {
@@ -201,7 +256,7 @@ export default function AdminDashboard() {
                 QDW 2026 Admin Dashboard
               </h1>
               <p className="text-sm text-gray-600 mt-1">
-                {applicants.length} paid registrations
+                {paidCount} paid • {approvedCount} approved (awaiting payment) • {pendingCount} pending approval
               </p>
             </div>
             <div className="flex gap-3">
@@ -225,7 +280,7 @@ export default function AdminDashboard() {
       {/* Filters */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium font-medium text-purple-600 capitalize mb-2">
                 Search
@@ -237,6 +292,21 @@ export default function AdminDashboard() {
                 placeholder="Search by name, email, or project..."
                 className="w-full px-4 py-2 border border-gray-300 rounded-xl font-medium text-purple-600 capitalize  focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium font-medium text-purple-600 capitalize mb-2">
+                Filter by Status
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl font-medium text-purple-600 capitalize  focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending Approval ({pendingCount})</option>
+                <option value="approved">Approved - Awaiting Payment ({approvedCount})</option>
+                <option value="paid">Paid ({paidCount})</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium font-medium text-purple-600 capitalize mb-2">
@@ -366,11 +436,38 @@ export default function AdminDashboard() {
                         <p className="text-gray-500 text-sm">No files uploaded</p>
                       )}
                     </div>
+                    
+                    {/* Status Badge */}
                     <div className="mt-4 pt-4 border-t border-gray-200">
-                      <span className="inline-block bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-                        ✓ {applicant.paymentStatus.toUpperCase()}
-                      </span>
+                      {applicant.approvalStatus === "pending" && (
+                        <span className="inline-block bg-yellow-100 text-yellow-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">
+                          ⏳ PENDING APPROVAL
+                        </span>
+                      )}
+                      {applicant.approvalStatus === "approved" && applicant.paymentStatus === "pending" && (
+                        <span className="inline-block bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">
+                          ✓ APPROVED (Awaiting Payment)
+                        </span>
+                      )}
+                      {applicant.paymentStatus === "paid" && (
+                        <span className="inline-block bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">
+                          ✓ PAID
+                        </span>
+                      )}
                     </div>
+
+                    {/* Approve Button (for pending students) */}
+                    {applicant.approvalStatus === "pending" && (
+                      <div className="mt-3">
+                        <button
+                          onClick={() => handleApprove(applicant.id)}
+                          disabled={approvingId === applicant.id}
+                          className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-full px-4 py-2 text-sm transition-all"
+                        >
+                          {approvingId === applicant.id ? "Approving..." : "✓ Approve Student"}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

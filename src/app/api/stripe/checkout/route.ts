@@ -32,10 +32,11 @@ export async function POST(req: Request) {
   try {
     const stripe = getStripe();
     
-    const { registrationType, email, registrationData } = (await req.json()) as {
+    const { registrationType, email, registrationData, isApproved } = (await req.json()) as {
       registrationType: RegistrationType;
       email?: string;
       registrationData?: Record<string, any>;
+      isApproved?: boolean;
     };
 
     const priceId = getPriceId(registrationType);
@@ -56,6 +57,7 @@ export async function POST(req: Request) {
 
     // Store ALL registration fields in Stripe session metadata so the
     // webhook can INSERT the row into Supabase only after payment succeeds.
+    // For approved students, the webhook will UPDATE the existing row instead.
     // Stripe metadata: max 50 keys, each value max 500 chars.
     const metadata: Record<string, string> = {};
 
@@ -72,6 +74,24 @@ export async function POST(req: Request) {
       // Note: posterUrl and studentIdPhotoUrl are uploaded AFTER payment on success page
       metadata.wantsQdcMembership = registrationData.wantsQdcMembership ? "true" : "false";
       metadata.agreeToTerms = registrationData.agreeToTerms ? "true" : "false";
+      
+      // Flag for approved students (webhook will update existing record instead of inserting)
+      if (isApproved) {
+        console.log("🔵 Creating checkout for APPROVED student");
+        console.log("Registration ID:", registrationData.id);
+        console.log("Email:", registrationData.email);
+        
+        if (!registrationData.id) {
+          console.error("❌ Missing registration ID for approved student", registrationData);
+          return NextResponse.json(
+            { error: "Invalid approval data. Please try again or contact support." },
+            { status: 400 }
+          );
+        }
+        metadata.isApprovedStudent = "true";
+        metadata.registrationId = String(registrationData.id);
+        console.log("✅ Metadata set - isApprovedStudent: true, registrationId:", metadata.registrationId);
+      }
     }
 
     const session = await stripe.checkout.sessions.create({
