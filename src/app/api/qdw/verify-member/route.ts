@@ -50,6 +50,7 @@ export async function POST(req: Request) {
           project_title: user.project_title,
           project_description: user.project_description,
           poster_url: user.poster_url,
+          created_at: user.created_at,
         },
       },
       { status: 200 }
