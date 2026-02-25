@@ -30,6 +30,13 @@ export default function MemberOnlyPage() {
   const [posterSuccess, setPosterSuccess] = useState(false);
   const [posterError, setPosterError] = useState("");
 
+  // Student ID update states
+  const [editingStudentId, setEditingStudentId] = useState(false);
+  const [studentIdFile, setStudentIdFile] = useState<File | null>(null);
+  const [studentIdLoading, setStudentIdLoading] = useState(false);
+  const [studentIdSuccess, setStudentIdSuccess] = useState(false);
+  const [studentIdError, setStudentIdError] = useState("");
+
   // Initialize form data when user data loads
   useEffect(() => {
     if (user) {
@@ -196,6 +203,98 @@ export default function MemberOnlyPage() {
 
     setPosterError("");
     setPosterData({ ...posterData, posterPdf: file });
+  };
+
+  const handleStudentIdFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (!file) {
+      setStudentIdFile(null);
+      return;
+    }
+
+    const isImage = file.type.startsWith("image/") || 
+      [".jpg", ".jpeg", ".png", ".webp"].some(ext => file.name.toLowerCase().endsWith(ext));
+    const maxBytes = 5 * 1024 * 1024;
+
+    if (!isImage) {
+      setStudentIdError("File must be an image (JPG, PNG, WebP)");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > maxBytes) {
+      setStudentIdError("File is too large (max 5MB)");
+      e.target.value = "";
+      return;
+    }
+
+    setStudentIdError("");
+    setStudentIdFile(file);
+  };
+
+  const handleUpdateStudentId = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!studentIdFile) {
+      setStudentIdError("Please select a student ID photo to upload");
+      return;
+    }
+
+    setStudentIdLoading(true);
+    setStudentIdError("");
+    setStudentIdSuccess(false);
+
+    try {
+      // Upload student ID photo
+      const formData = new FormData();
+      formData.append("file", studentIdFile);
+      formData.append("firstName", user.first_name);
+      formData.append("lastName", user.last_name);
+
+      const uploadRes = await fetch("/api/upload-student-id", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        const errorData = await uploadRes.json();
+        throw new Error(errorData.error || "Failed to upload student ID photo");
+      }
+
+      const uploadData = await uploadRes.json();
+
+      // Update database with student ID URL
+      const updateRes = await fetch("/api/qdw/update-student-id", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: user.email,
+          studentIdPhotoUrl: uploadData.url,
+        }),
+      });
+
+      if (!updateRes.ok) {
+        throw new Error("Failed to update registration with student ID");
+      }
+
+      const updateData = await updateRes.json();
+
+      // Update local user state
+      setUser({
+        ...user,
+        student_id_photo_url: uploadData.url,
+        approval_status: "pending",
+      });
+
+      setStudentIdSuccess(true);
+      setEditingStudentId(false);
+      setStudentIdFile(null);
+      
+      setTimeout(() => setStudentIdSuccess(false), 5000);
+    } catch (err: any) {
+      setStudentIdError(err.message || "An error occurred. Please try again.");
+    } finally {
+      setStudentIdLoading(false);
+    }
   };
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -606,6 +705,157 @@ export default function MemberOnlyPage() {
             </div>
           )}
         </div>
+
+        {/* Student ID Section (for student registrations only) */}
+        {(user?.registration_type === 'student_in_person' || user?.registration_type === 'student_online') && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">Student ID Verification</h2>
+              {!editingStudentId && user?.approval_status === "rejected" && (
+                <button
+                  onClick={() => {
+                    setEditingStudentId(true);
+                    setStudentIdError("");
+                  }}
+                  className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-full transition-all font-medium"
+                >
+                  Upload New ID
+                </button>
+              )}
+            </div>
+
+            {/* Approval Status Banner */}
+            {user?.approval_status === "pending" && (
+              <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800">
+                <div className="flex items-start">
+                  <span className="text-2xl mr-3">⏳</span>
+                  <div>
+                    <p className="font-semibold mb-1">Pending Admin Review</p>
+                    <p className="text-sm">Your student ID is being reviewed by our admin team. You'll receive an email once it's approved.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {user?.approval_status === "approved" && (
+              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800">
+                <div className="flex items-start">
+                  <span className="text-2xl mr-3">✓</span>
+                  <div>
+                    <p className="font-semibold mb-1">Student ID Approved!</p>
+                    <p className="text-sm">Your student status has been verified. You can now proceed to payment if you haven't already.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {user?.approval_status === "rejected" && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-800">
+                <div className="flex items-start">
+                  <span className="text-2xl mr-3">✗</span>
+                  <div>
+                    <p className="font-semibold mb-1">Student ID Needs Attention</p>
+                    <p className="text-sm mb-3">Your student ID photo could not be verified. Please upload a new, clear photo of your valid student ID.</p>
+                    <ul className="text-sm space-y-1 list-disc list-inside">
+                      <li>Ensure the ID shows your name clearly</li>
+                      <li>Include your university/institution name</li>
+                      <li>Photo should be well-lit and in focus</li>
+                      <li>ID must be current (not expired)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {studentIdSuccess && (
+              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700">
+                ✓ Student ID uploaded successfully! Your submission is now pending admin review.
+              </div>
+            )}
+
+            {studentIdError && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+                {studentIdError}
+              </div>
+            )}
+
+            {editingStudentId ? (
+              <form onSubmit={handleUpdateStudentId} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-bold text-gray-900 mb-2">
+                    Upload Student ID Photo
+                  </label>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Please upload a clear photo of your valid student ID card. Accepted formats: JPG, PNG, WebP (max 5MB)
+                  </p>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                    onChange={handleStudentIdFileChange}
+                    required
+                    className="mt-2 block w-full text-sm text-gray-700
+                               file:mr-4 file:py-2 file:px-4
+                               file:rounded-full file:border-0
+                               file:text-sm file:font-semibold
+                               file:bg-purple-100 file:text-purple-700
+                               hover:file:bg-purple-200"
+                  />
+                  {studentIdFile && (
+                    <p className="text-sm text-gray-600 mt-2">
+                      Selected: {studentIdFile.name} ({(studentIdFile.size / 1024 / 1024).toFixed(2)} MB)
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    disabled={studentIdLoading || !studentIdFile}
+                    className="bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-full px-8 py-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {studentIdLoading ? "Uploading..." : "Submit Student ID"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingStudentId(false);
+                      setStudentIdFile(null);
+                      setStudentIdError("");
+                    }}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-full px-8 py-3 transition-all"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <span className="text-gray-500">Status:</span>{" "}
+                  <span className="font-medium text-gray-900 capitalize">
+                    {user?.approval_status === "pending" && "⏳ Pending Review"}
+                    {user?.approval_status === "approved" && "✓ Approved"}
+                    {user?.approval_status === "rejected" && "✗ Rejected - Action Required"}
+                    {!user?.approval_status && "Not Submitted"}
+                  </span>
+                </div>
+                {user?.student_id_photo_url && (
+                  <div>
+                    <span className="text-gray-500">Student ID:</span>{" "}
+                    <a
+                      href={`/api/qdw/view-student-id?email=${encodeURIComponent(user.email)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-purple-600 hover:text-purple-700 underline font-medium"
+                    >
+                      View submitted ID →
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Update Poster Section */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">

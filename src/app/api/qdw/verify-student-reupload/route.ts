@@ -4,6 +4,11 @@ import bcrypt from "bcryptjs";
 
 export const runtime = "nodejs";
 
+/**
+ * Verify student credentials for ID reupload
+ * This allows students with pending or rejected status to authenticate
+ * (before payment) to update their student ID
+ */
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
@@ -27,17 +32,17 @@ export async function POST(req: Request) {
 
     const supabase = createClient(supabaseUrl, serviceKey);
 
-    // Check if user exists and has paid
+    // Check if user exists (student registration with pending or rejected status)
     const { data: user, error } = await supabase
       .from("qdw_registrations")
       .select("*")
       .eq("email", email.toLowerCase())
-      .eq("payment_status", "paid")
+      .in("registration_type", ["student_in_person", "student_online"])
       .single();
 
     if (error || !user) {
       return NextResponse.json(
-        { error: "Invalid credentials or payment not found" },
+        { error: "Invalid credentials. Please check your email and password." },
         { status: 401 }
       );
     }
@@ -60,6 +65,16 @@ export async function POST(req: Request) {
       );
     }
 
+    // Check if user actually needs to reupload (pending or rejected)
+    if (user.approval_status !== "pending" && user.approval_status !== "rejected") {
+      if (user.payment_status === "paid") {
+        return NextResponse.json(
+          { error: "Your registration is already complete. Please visit the member-only page." },
+          { status: 400 }
+        );
+      }
+    }
+
     // Successful login
     return NextResponse.json(
       {
@@ -70,20 +85,18 @@ export async function POST(req: Request) {
           last_name: user.last_name,
           email: user.email,
           registration_type: user.registration_type,
-          project_title: user.project_title,
-          project_description: user.project_description,
-          poster_url: user.poster_url,
-          student_id_photo_url: user.student_id_photo_url,
           approval_status: user.approval_status,
+          payment_status: user.payment_status,
+          student_id_photo_url: user.student_id_photo_url,
           created_at: user.created_at,
         },
       },
       { status: 200 }
     );
   } catch (err) {
-    console.error("Login error:", err);
+    console.error("Student reupload verification error:", err);
     return NextResponse.json(
-      { error: "An error occurred during login" },
+      { error: "An error occurred during authentication" },
       { status: 500 }
     );
   }

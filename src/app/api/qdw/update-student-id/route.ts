@@ -32,10 +32,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Update the registration record with student ID photo URL
+    // If approval_status is "rejected", reset it to "pending" for re-review
     const { data, error } = await supabase
       .from('qdw_registrations')
       .update({
         student_id_photo_url: studentIdPhotoUrl,
+        approval_status: 'pending',
+        approved_at: null,
+        approved_by: null,
       })
       .eq('email', email.toLowerCase())
       .select()

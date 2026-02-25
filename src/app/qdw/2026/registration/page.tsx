@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 
 type RegistrationType =
   | 'student_in_person'
@@ -34,6 +35,10 @@ const VALID_COUNTRIES = [
 ];
 
 export default function QDW2026Registration() {
+  const searchParams = useSearchParams();
+  const reuploadMode = searchParams.get('reupload') === 'true';
+  const emailParam = searchParams.get('email');
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -61,6 +66,27 @@ export default function QDW2026Registration() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Student ID reupload states
+  const [showReuploadLogin, setShowReuploadLogin] = useState(false);
+  const [reuploadEmail, setReuploadEmail] = useState('');
+  const [reuploadPassword, setReuploadPassword] = useState('');
+  const [reuploadAuthenticated, setReuploadAuthenticated] = useState(false);
+  const [reuploadUser, setReuploadUser] = useState<any>(null);
+  const [reuploadError, setReuploadError] = useState('');
+  const [reuploadLoading, setReuploadLoading] = useState(false);
+  const [newStudentIdFile, setNewStudentIdFile] = useState<File | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+
+  // Check if we're in reupload mode on mount
+  useEffect(() => {
+    if (reuploadMode) {
+      setShowReuploadLogin(true);
+      if (emailParam) {
+        setReuploadEmail(emailParam);
+      }
+    }
+  }, [reuploadMode, emailParam]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -129,6 +155,117 @@ export default function QDW2026Registration() {
 
     setSubmitError(null);
     setFormData(prev => ({ ...prev, studentIdPhoto: file }));
+  };
+
+  // Handler for student ID reupload file change
+  const handleReuploadFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (!file) {
+      setNewStudentIdFile(null);
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
+    const isImage = allowedTypes.includes(file.type) || 
+      allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+    const maxBytes = 5 * 1024 * 1024;
+
+    if (!isImage) {
+      setReuploadError('Student ID must be an image file (JPG, PNG, or WebP).');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > maxBytes) {
+      setReuploadError('Student ID photo is too large (max 5MB).');
+      e.target.value = '';
+      return;
+    }
+
+    setReuploadError('');
+    setNewStudentIdFile(file);
+  };
+
+  // Handle reupload login
+  const handleReuploadLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setReuploadLoading(true);
+    setReuploadError('');
+
+    try {
+      const response = await fetch('/api/qdw/verify-student-reupload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: reuploadEmail, password: reuploadPassword }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setReuploadAuthenticated(true);
+        setReuploadUser(data.user);
+      } else {
+        setReuploadError(data.error || 'Login failed. Please check your email and password.');
+      }
+    } catch (err) {
+      setReuploadError('An error occurred. Please try again.');
+    } finally {
+      setReuploadLoading(false);
+    }
+  };
+
+  // Handle student ID reupload submission
+  const handleReuploadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newStudentIdFile) {
+      setReuploadError('Please select a student ID photo to upload.');
+      return;
+    }
+
+    setReuploadLoading(true);
+    setReuploadError('');
+
+    try {
+      // Upload student ID photo
+      const formData = new FormData();
+      formData.append('file', newStudentIdFile);
+      formData.append('firstName', reuploadUser.first_name);
+      formData.append('lastName', reuploadUser.last_name);
+
+      const uploadRes = await fetch('/api/upload-student-id', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        const errorData = await uploadRes.json();
+        throw new Error(errorData.error || 'Failed to upload student ID photo');
+      }
+
+      const uploadData = await uploadRes.json();
+
+      // Update database with student ID URL
+      const updateRes = await fetch('/api/qdw/update-student-id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: reuploadUser.email,
+          studentIdPhotoUrl: uploadData.url,
+        }),
+      });
+
+      if (!updateRes.ok) {
+        throw new Error('Failed to update registration with student ID');
+      }
+
+      setUploadSuccess(true);
+      setNewStudentIdFile(null);
+    } catch (err: any) {
+      setReuploadError(err.message || 'An error occurred. Please try again.');
+    } finally {
+      setReuploadLoading(false);
+    }
   };
 
   // Convert file to base64 for storing in sessionStorage
@@ -328,6 +465,187 @@ export default function QDW2026Registration() {
     );
   }
 
+  // Show student ID reupload interface
+  if (showReuploadLogin) {
+    return (
+      <main className="min-h-screen bg-white">
+        <section className="py-20 px-4 sm:px-6 lg:px-8 pt-32">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                Student ID Reupload
+              </h1>
+              <p className="text-gray-600">
+                {reuploadAuthenticated 
+                  ? 'Upload your new student ID for verification'
+                  : 'Login to update your student ID'}
+              </p>
+            </div>
+
+            {!reuploadAuthenticated ? (
+              // Login form
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-6">Sign In</h2>
+
+                {reuploadError && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+                    {reuploadError}
+                  </div>
+                )}
+
+                <form onSubmit={handleReuploadLogin} className="space-y-6">
+                  <div>
+                    <label htmlFor="reuploadEmail" className="block text-sm font-bold text-gray-900 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      id="reuploadEmail"
+                      value={reuploadEmail}
+                      onChange={(e) => setReuploadEmail(e.target.value)}
+                      className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="your@email.com"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="reuploadPassword" className="block text-sm font-bold text-gray-900 mb-2">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      id="reuploadPassword"
+                      value={reuploadPassword}
+                      onChange={(e) => setReuploadPassword(e.target.value)}
+                      className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="Enter your password"
+                      required
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={reuploadLoading}
+                    className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-full px-8 py-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {reuploadLoading ? 'Signing In...' : 'Sign In'}
+                  </button>
+                </form>
+
+                <div className="mt-6 text-center">
+                  <button
+                    onClick={() => setShowReuploadLogin(false)}
+                    className="text-purple-600 hover:text-purple-700 text-sm font-medium"
+                  >
+                    ← Back to Registration
+                  </button>
+                </div>
+              </div>
+            ) : (
+              // Upload form
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                <div className="mb-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-2">
+                    Welcome back, {reuploadUser.first_name}!
+                  </h2>
+                  <p className="text-gray-600">
+                    Status: <span className={`font-semibold ${reuploadUser.approval_status === 'rejected' ? 'text-red-600' : 'text-yellow-600'}`}>
+                      {reuploadUser.approval_status === 'rejected' ? '✗ Rejected' : '⏳ Pending Review'}
+                    </span>
+                  </p>
+                </div>
+
+                {uploadSuccess ? (
+                  <div className="p-8 text-center">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">Student ID Uploaded!</h3>
+                    <p className="text-gray-600 mb-6">
+                      Your new student ID has been submitted for review. You'll receive an email once it's approved with your payment link.
+                    </p>
+                    <Link
+                      href="/qdw/2026/info"
+                      className="inline-block bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-full px-8 py-3 transition-all"
+                    >
+                      Back to Event Info
+                    </Link>
+                  </div>
+                ) : (
+                  <>
+                    {reuploadUser.approval_status === 'rejected' && (
+                      <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800">
+                        <p className="font-semibold mb-2">⚠️ Your previous student ID was not approved</p>
+                        <p className="text-sm">
+                          Please upload a new, clear photo of your valid student ID. Make sure it shows your name, institution, and is not expired.
+                        </p>
+                      </div>
+                    )}
+
+                    {reuploadError && (
+                      <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+                        {reuploadError}
+                      </div>
+                    )}
+
+                    <form onSubmit={handleReuploadSubmit} className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-bold text-gray-900 mb-2">
+                          New Student ID Photo
+                        </label>
+                        <p className="text-sm text-gray-600 mb-3">
+                          Upload a clear photo of your valid student ID card. Accepted formats: JPG, PNG, WebP (max 5MB)
+                        </p>
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                          onChange={handleReuploadFileChange}
+                          required
+                          className="mt-2 block w-full text-sm text-gray-700
+                                     file:mr-4 file:py-2 file:px-4
+                                     file:rounded-full file:border-0
+                                     file:text-sm file:font-semibold
+                                     file:bg-purple-100 file:text-purple-700
+                                     hover:file:bg-purple-200"
+                        />
+                        {newStudentIdFile && (
+                          <p className="text-sm text-gray-600 mt-2">
+                            Selected: {newStudentIdFile.name} ({(newStudentIdFile.size / 1024 / 1024).toFixed(2)} MB)
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                        <p className="text-sm text-blue-800 mb-2"><strong>💡 Tips for a good photo:</strong></p>
+                        <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                          <li>Use good lighting - avoid shadows</li>
+                          <li>Ensure all text is readable</li>
+                          <li>Take photo straight-on (not at an angle)</li>
+                          <li>ID must be current (not expired)</li>
+                        </ul>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={reuploadLoading || !newStudentIdFile}
+                        className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-full px-8 py-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {reuploadLoading ? 'Uploading...' : 'Submit New Student ID'}
+                      </button>
+                    </form>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <>
       <main className="min-h-screen bg-white">
@@ -342,6 +660,19 @@ export default function QDW2026Registration() {
             </div>
 
             <div className="bg-white rounded-xl p-8">
+              {/* Link for students who need to reupload ID */}
+              <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-xl">
+                <p className="text-sm text-purple-800 text-center">
+                  <strong>Already registered as a student but got rejected for invalid student ID?</strong>{' '}
+                  <button
+                    onClick={() => setShowReuploadLogin(true)}
+                    className="text-purple-600 hover:text-purple-700 underline font-semibold"
+                  >
+                    Click here to update your student ID
+                  </button>
+                </p>
+              </div>
+
               <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Join Now</h2>
 
               {submitError && (

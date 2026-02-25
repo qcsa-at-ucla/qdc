@@ -32,6 +32,10 @@ export default function AdminDashboard() {
   const [filterType, setFilterType] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all"); // all, pending, approved, paid
   const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [registrationToReject, setRegistrationToReject] = useState<string | null>(null);
 
   // Check if already authenticated
   useEffect(() => {
@@ -83,6 +87,54 @@ export default function AdminDashboard() {
     setApiKey("");
     setApplicants([]);
     sessionStorage.removeItem("admin_api_key");
+  };
+
+  const handleReject = async (registrationId: string) => {
+    setRegistrationToReject(registrationId);
+    setShowRejectModal(true);
+  };
+
+  const confirmReject = async () => {
+    if (!registrationToReject) return;
+
+    setRejectingId(registrationToReject);
+    setError("");
+    setShowRejectModal(false);
+
+    try {
+      const response = await fetch("/api/qdw/admin/reject-student", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          apiKey,
+          registrationId: registrationToReject,
+          reason: rejectReason || undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to reject registration");
+      }
+
+      // Show success message
+      alert(data.message || "Registration rejected and email sent!");
+
+      // Reset state
+      setRejectReason("");
+      setRegistrationToReject(null);
+
+      // Refresh applicants list
+      await fetchApplicants(apiKey);
+    } catch (err: any) {
+      alert("Error: " + err.message);
+      setError(err.message);
+    } finally {
+      setRejectingId(null);
+    }
   };
 
   const handleApprove = async (registrationId: string) => {
@@ -178,6 +230,7 @@ export default function AdminDashboard() {
       statusFilter === "all" ||
       (statusFilter === "pending" && app.approvalStatus === "pending") ||
       (statusFilter === "approved" && app.approvalStatus === "approved" && app.paymentStatus === "pending") ||
+      (statusFilter === "rejected" && app.approvalStatus === "rejected") ||
       (statusFilter === "paid" && app.paymentStatus === "paid");
 
     return matchesSearch && matchesFilter && matchesStatus;
@@ -186,6 +239,7 @@ export default function AdminDashboard() {
   // Count statistics
   const pendingCount = applicants.filter(a => a.approvalStatus === "pending").length;
   const approvedCount = applicants.filter(a => a.approvalStatus === "approved" && a.paymentStatus === "pending").length;
+  const rejectedCount = applicants.filter(a => a.approvalStatus === "rejected").length;
   const paidCount = applicants.filter(a => a.paymentStatus === "paid").length;
 
 
@@ -256,7 +310,7 @@ export default function AdminDashboard() {
                 QDW 2026 Admin Dashboard
               </h1>
               <p className="text-sm text-gray-600 mt-1">
-                {paidCount} paid • {approvedCount} approved (awaiting payment) • {pendingCount} pending approval
+                {paidCount} paid • {approvedCount} approved (awaiting payment) • {pendingCount} pending approval • {rejectedCount} rejected
               </p>
             </div>
             <div className="flex gap-3">
@@ -305,6 +359,7 @@ export default function AdminDashboard() {
                 <option value="all">All Statuses</option>
                 <option value="pending">Pending Approval ({pendingCount})</option>
                 <option value="approved">Approved - Awaiting Payment ({approvedCount})</option>
+                <option value="rejected">Rejected ({rejectedCount})</option>
                 <option value="paid">Paid ({paidCount})</option>
               </select>
             </div>
@@ -449,6 +504,11 @@ export default function AdminDashboard() {
                           ✓ APPROVED (Awaiting Payment)
                         </span>
                       )}
+                      {applicant.approvalStatus === "rejected" && (
+                        <span className="inline-block bg-red-100 text-red-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">
+                          ✗ REJECTED (ID Resubmission Required)
+                        </span>
+                      )}
                       {applicant.paymentStatus === "paid" && (
                         <span className="inline-block bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">
                           ✓ PAID
@@ -456,18 +516,73 @@ export default function AdminDashboard() {
                       )}
                     </div>
 
-                    {/* Approve Button (for pending students) */}
+                    {/* Approve/Reject Buttons (for pending students) */}
                     {applicant.approvalStatus === "pending" && (
-                      <div className="mt-3">
+                      <div className="mt-3 space-y-2">
                         <button
                           onClick={() => handleApprove(applicant.id)}
-                          disabled={approvingId === applicant.id}
+                          disabled={approvingId === applicant.id || rejectingId === applicant.id}
                           className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-full px-4 py-2 text-sm transition-all"
                         >
                           {approvingId === applicant.id ? "Approving..." : "✓ Approve Student"}
                         </button>
+                        <button
+                          onClick={() => handleReject(applicant.id)}
+                          disabled={approvingId === applicant.id || rejectingId === applicant.id}
+                          className="w-full bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-full px-4 py-2 text-sm transition-all"
+                        >
+                          {rejectingId === applicant.id ? "Rejecting..." : "✗ Reject ID"}
+                        </button>
                       </div>
                     )}
+
+      {/* Reject Confirmation Modal */}
+      {showRejectModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Reject Student Registration
+            </h3>
+            <p className="text-gray-600 mb-4">
+              The student will receive an email asking them to resubmit their student ID. You can optionally provide a reason for rejection.
+            </p>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Reason for Rejection (Optional)
+              </label>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="e.g., 'The ID photo was not clear' or 'The ID appears to be expired'"
+                className="w-full px-4 py-3 border text-gray-900 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[100px]"
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                If left blank, a default message will be used.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setRejectReason("");
+                  setRegistrationToReject(null);
+                }}
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-full px-4 py-2 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmReject}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-full px-4 py-2 transition-all"
+              >
+                Reject & Send Email
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
                   </div>
                 </div>
               </div>

@@ -29,13 +29,13 @@ export async function POST(request: NextRequest) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all registrations (paid and pending approval)
-    // For students: includes pending, approved, and paid
+    // Fetch all registrations (paid, pending approval, approved, and rejected)
+    // For students: includes pending, approved, rejected, and paid
     // For non-students: only paid (they don't have approval_status)
     const { data: applicants, error } = await supabase
       .from("qdw_registrations")
       .select("*")
-      .or("payment_status.eq.paid,approval_status.eq.pending,approval_status.eq.approved")
+      .or("payment_status.eq.paid,approval_status.eq.pending,approval_status.eq.approved,approval_status.eq.rejected")
       .order("created_at", { ascending: false });
 
     if (error) {
