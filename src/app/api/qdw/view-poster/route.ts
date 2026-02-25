@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 // Mark route as dynamic to prevent static generation
 export const dynamic = 'force-dynamic';
+export const revalidate = 0; // Never cache API responses
 
 /**
  * Poster Proxy API - Securely serves poster PDFs without exposing Supabase URL

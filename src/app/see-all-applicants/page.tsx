@@ -57,6 +57,7 @@ export default function AdminDashboard() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ apiKey: key }),
+        cache: "no-store", // Prevent caching of applicant data
       });
 
       const data = await response.json();
@@ -467,7 +468,7 @@ export default function AdminDashboard() {
                         <a
                           href={`/api/qdw/view-poster?email=${encodeURIComponent(
                             applicant.email
-                          )}&t=${encodeURIComponent(applicant.posterUrl)}`}
+                          )}&t=${Date.now()}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block text-purple-600 hover:text-purple-700 text-sm font-medium"
@@ -479,7 +480,7 @@ export default function AdminDashboard() {
                         <a
                           href={`/api/qdw/view-student-id?email=${encodeURIComponent(
                             applicant.email
-                          )}&t=${encodeURIComponent(applicant.studentIdPhotoUrl)}`}
+                          )}&t=${Date.now()}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block text-purple-600 hover:text-purple-700 text-sm font-medium"

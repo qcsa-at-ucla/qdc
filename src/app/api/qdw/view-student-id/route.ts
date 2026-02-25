@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 // Mark route as dynamic to prevent static generation
 export const dynamic = 'force-dynamic';
+export const revalidate = 0; // Never cache API responses
 
 /**
  * Student ID Photo Proxy API - Securely serves student ID photos without exposing Supabase URL
