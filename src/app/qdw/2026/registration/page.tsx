@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
@@ -34,7 +34,8 @@ const VALID_COUNTRIES = [
   'Vatican City', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
 ];
 
-export default function QDW2026Registration() {
+// Inner component that uses useSearchParams
+function RegistrationContent() {
   const searchParams = useSearchParams();
   const reuploadMode = searchParams.get('reupload') === 'true';
   const emailParam = searchParams.get('email');
@@ -661,7 +662,7 @@ export default function QDW2026Registration() {
 
             <div className="bg-white rounded-xl p-8">
               {/* Link for students who need to reupload ID */}
-              <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-xl">
+              {/* <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-xl">
                 <p className="text-sm text-purple-800 text-center">
                   <strong>Already registered as a student but got rejected for invalid student ID?</strong>{' '}
                   <button
@@ -671,7 +672,7 @@ export default function QDW2026Registration() {
                     Click here to update your student ID
                   </button>
                 </p>
-              </div>
+              </div> */}
 
               <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Join Now</h2>
 
@@ -1030,5 +1031,18 @@ export default function QDW2026Registration() {
         </div>
       </footer>
     </>
+  );
+}
+
+// Main component with Suspense boundary
+export default function QDW2026Registration() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+        <div className="text-white text-xl">Loading registration form...</div>
+      </div>
+    }>
+      <RegistrationContent />
+    </Suspense>
   );
 }

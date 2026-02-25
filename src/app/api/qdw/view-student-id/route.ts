@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+// Mark route as dynamic to prevent static generation
+export const dynamic = 'force-dynamic';
+
 /**
  * Student ID Photo Proxy API - Securely serves student ID photos without exposing Supabase URL
  */

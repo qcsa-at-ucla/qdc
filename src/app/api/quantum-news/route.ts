@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Mark route as dynamic to prevent static generation
+export const dynamic = 'force-dynamic';
+
 /**
  * Quantum News API - Uses OpenAI Responses API with web search to fetch latest quantum computing news
  * 
