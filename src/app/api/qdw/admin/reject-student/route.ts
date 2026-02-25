@@ -13,6 +13,7 @@ export const runtime = "nodejs";
  *   - ADMIN_API_KEY
  *   - RESEND_API_KEY
  *   - RESEND_FROM_EMAIL
+ *   - RESEND_REPLY_TO_EMAIL (optional)
  *   - NEXT_PUBLIC_SITE_URL
  */
 
@@ -40,6 +41,7 @@ export async function POST(req: Request) {
     const serviceKey = process.env.SUPABASE_SERVICE_KEY;
     const resendApiKey = process.env.RESEND_API_KEY;
     const fromEmail = process.env.RESEND_FROM_EMAIL;
+    const replyToEmail = process.env.RESEND_REPLY_TO_EMAIL;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
     if (!supabaseUrl || !serviceKey || !resendApiKey || !fromEmail || !siteUrl) {
@@ -121,8 +123,9 @@ export async function POST(req: Request) {
     // Send rejection email with resubmission instructions
     try {
       await resend.emails.send({
-        from: fromEmail || "QDW 2026 <noreply@qdc-qcsa.org>",
+        from: fromEmail || "QDW 2026 <qdw2026@qdc-qcsa.org>",
         to: registration.email,
+        replyTo: replyToEmail || "quantum.ucla@gmail.com",
         subject: "Action Required: Please Resubmit Your Student ID - QDW 2026",
         html: `
           <!DOCTYPE html>
