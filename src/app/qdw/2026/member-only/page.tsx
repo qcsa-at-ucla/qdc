@@ -743,7 +743,7 @@ export default function MemberOnlyPage() {
                   <span className="text-2xl mr-3">✓</span>
                   <div>
                     <p className="font-semibold mb-1">Student ID Approved!</p>
-                    <p className="text-sm">Your student status has been verified. You can now proceed to payment if you haven't already.</p>
+                    <p className="text-sm">Your student status has been verified.</p>
                   </div>
                 </div>
               </div>
@@ -843,7 +843,7 @@ export default function MemberOnlyPage() {
                   <div>
                     <span className="text-gray-500">Student ID:</span>{" "}
                     <a
-                      href={`/api/qdw/view-student-id?email=${encodeURIComponent(user.email)}`}
+                      href={`/api/qdw/view-student-id?email=${encodeURIComponent(user.email)}&t=${encodeURIComponent(user.student_id_photo_url)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-purple-600 hover:text-purple-700 underline font-medium"
@@ -951,7 +951,7 @@ export default function MemberOnlyPage() {
                   <p className="text-xs text-gray-500 mt-2">
                     Current file:{" "}
                     <a
-                      href={`/api/qdw/view-poster?email=${encodeURIComponent(user.email)}`}
+                      href={`/api/qdw/view-poster?email=${encodeURIComponent(user.email)}&t=${encodeURIComponent(user.poster_url)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-purple-600 hover:text-purple-700 underline"
@@ -1003,7 +1003,7 @@ export default function MemberOnlyPage() {
                 <div>
                   <span className="text-gray-500">Poster PDF:</span>{" "}
                   <a
-                    href={`/api/qdw/view-poster?email=${encodeURIComponent(user.email)}`}
+                    href={`/api/qdw/view-poster?email=${encodeURIComponent(user.email)}&t=${encodeURIComponent(user.poster_url)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-purple-600 hover:text-purple-700 underline font-medium"

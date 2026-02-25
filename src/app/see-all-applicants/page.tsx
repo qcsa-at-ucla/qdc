@@ -467,7 +467,7 @@ export default function AdminDashboard() {
                         <a
                           href={`/api/qdw/view-poster?email=${encodeURIComponent(
                             applicant.email
-                          )}`}
+                          )}&t=${encodeURIComponent(applicant.posterUrl)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block text-purple-600 hover:text-purple-700 text-sm font-medium"
@@ -479,7 +479,7 @@ export default function AdminDashboard() {
                         <a
                           href={`/api/qdw/view-student-id?email=${encodeURIComponent(
                             applicant.email
-                          )}`}
+                          )}&t=${encodeURIComponent(applicant.studentIdPhotoUrl)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block text-purple-600 hover:text-purple-700 text-sm font-medium"
