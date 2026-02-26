@@ -6,7 +6,7 @@ interface MeetingCalendarProps {
   calendarUrl?: string;
 }
 
-const DEFAULT_CALENDAR_URL = 'https://calendar.google.com/calendar/embed?src=70e5c433011f8f8b954b98c30728ec1833d5e56a7fb0602ad097bf39a302f695%40group.calendar.google.com&ctz=Europe%2FBerlin';
+const DEFAULT_CALENDAR_URL = 'https://calendar.google.com/calendar/embed?src=70e5c433011f8f8b954b98c30728ec1833d5e56a7fb0602ad097bf39a302f695%40group.calendar.google.com&ctz=America%2FLos_Angeles';
 
 export default function MeetingCalendar({ 
   calendarUrl 
