@@ -8,6 +8,8 @@ export default function Navbar() {
   const [isContactDropdownOpen, setIsContactDropdownOpen] = useState(false);
   const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
   const [isResourcesDropdownOpen, setIsResourcesDropdownOpen] = useState(false);
+  const [isJobsDropdownOpen, setIsJobsDropdownOpen] = useState(false);
+  const jobsDropdownRef = useRef<HTMLDivElement>(null);
   const [isQdwDropdownOpen, setIsQdwDropdownOpen] = useState(false);
   const [isQdw2026SubOpen, setIsQdw2026SubOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -37,6 +39,9 @@ export default function Navbar() {
         setIsQdwDropdownOpen(false);
         setIsQdw2026SubOpen(false);
       }
+      if (jobsDropdownRef.current && !jobsDropdownRef.current.contains(event.target as Node)) {
+          setIsJobsDropdownOpen(false);
+      }
       // Check if click is outside both the menu and the button
       if (
         mobileMenuRef.current && 
@@ -62,6 +67,7 @@ export default function Navbar() {
         setIsQdwDropdownOpen(false);
         setIsQdw2026SubOpen(false);
         setIsMobileMenuOpen(false);
+        setIsJobsDropdownOpen(false);
       }
     };
 
@@ -81,6 +87,14 @@ export default function Navbar() {
       external: false,
     },
   ];
+
+  const jobsLinks = [
+  {
+    name: 'Quantum Device Jobs',
+    href: '/jobs',
+    external: false,
+  },
+];
 
   const toolsLinks = [
     { name: 'Qiskit Metal', href: '/design-tools#qiskit-metal' },
@@ -359,7 +373,44 @@ export default function Navbar() {
                 </div>
               )}
             </div>
-
+              {/* Jobs Opportunities Dropdown */}
+<div className="relative" ref={jobsDropdownRef}>
+  <button
+    onClick={() => {
+      setIsJobsDropdownOpen(!isJobsDropdownOpen);
+      setIsContactDropdownOpen(false);
+      setIsToolsDropdownOpen(false);
+      setIsResourcesDropdownOpen(false);
+      setIsQdwDropdownOpen(false);
+      setIsQdw2026SubOpen(false);
+    }}
+    className="flex items-center gap-1 text-white/80 hover:text-white transition-colors duration-200 text-sm font-medium focus:outline-none"
+  >
+    Jobs Opportunities
+    <svg
+      className={`w-4 h-4 transition-transform duration-200 ${isJobsDropdownOpen ? 'rotate-180' : ''}`}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+{isJobsDropdownOpen && (
+            <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 animate-fade-in">
+              {jobsLinks.map((link, index) => (
+                <Link
+                  key={index}
+                  href={link.href}
+                  className="block px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 text-sm"
+                  onClick={() => setIsJobsDropdownOpen(false)}
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+          )}
+            </div>
             {/* Contact Dropdown */}
             <div className="relative" ref={contactDropdownRef}>
               <button
