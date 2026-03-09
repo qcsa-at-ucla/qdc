@@ -122,7 +122,7 @@ Ensure all links are real job postings (URLs that work). Do not include any extr
 
 export async function GET(req: NextRequest) {
   try {
-    const regenerate = req.nextUrl.searchParams.get('regenerate') === 'true';
+    const regenerate = true;
     const supabaseUrl = process.env.SUPABASE_URL!;
     const supabaseKey = process.env.SUPABASE_SERVICE_KEY!;
 
