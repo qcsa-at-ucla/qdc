@@ -33,6 +33,7 @@ export default function AdminDashboard() {
   const [statusFilter, setStatusFilter] = useState("all"); // all, pending, approved, paid
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [resendingId, setResendingId] = useState<string | null>(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [registrationToReject, setRegistrationToReject] = useState<string | null>(null);
@@ -174,6 +175,45 @@ export default function AdminDashboard() {
       setError(err.message);
     } finally {
       setApprovingId(null);
+    }
+  };
+
+  const handleResendApproval = async (registrationId: string) => {
+    if (!confirm("Resend the approval notification with payment link to this student?")) {
+      return;
+    }
+
+    setResendingId(registrationId);
+    setError("");
+
+    try {
+      const response = await fetch("/api/qdw/admin/resend-approval", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          apiKey,
+          registrationId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to resend approval notification");
+      }
+
+      // Show success message
+      alert(data.message || "Approval notification resent successfully!");
+
+      // Refresh applicants list
+      await fetchApplicants(apiKey);
+    } catch (err: any) {
+      alert("Error: " + err.message);
+      setError(err.message);
+    } finally {
+      setResendingId(null);
     }
   };
 
@@ -533,6 +573,19 @@ export default function AdminDashboard() {
                           className="w-full bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-full px-4 py-2 text-sm transition-all"
                         >
                           {rejectingId === applicant.id ? "Rejecting..." : "✗ Reject ID"}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Resend Notification Button (for approved students who haven't paid) */}
+                    {applicant.approvalStatus === "approved" && applicant.paymentStatus !== "paid" && (
+                      <div className="mt-3">
+                        <button
+                          onClick={() => handleResendApproval(applicant.id)}
+                          disabled={resendingId === applicant.id}
+                          className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-full px-4 py-2 text-sm transition-all"
+                        >
+                          {resendingId === applicant.id ? "Sending..." : "📧 Resend Payment Link"}
                         </button>
                       </div>
                     )}
