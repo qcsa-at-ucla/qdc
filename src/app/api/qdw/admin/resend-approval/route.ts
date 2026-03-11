@@ -149,6 +149,9 @@ export async function POST(req: Request) {
                   </a>
                 </div>
 
+                <p style="margin: 0 0 10px; font-size: 14px; color: #666;">Or copy and paste this link into your browser:</p>
+                <p style="font-size: 13px; color: #4F46E5; word-break: break-all; margin: 0 0 20px;">${paymentUrl}</p>
+
                 <div style="background: #fef3c7; border: 1px solid #fbbf24; padding: 15px; border-radius: 8px; margin: 20px 0;">
                   <p style="margin: 0 0 10px;"><strong>⚠️ Important:</strong></p>
                   <ul style="margin: 0; padding-left: 20px;">
