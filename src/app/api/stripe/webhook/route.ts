@@ -20,11 +20,48 @@ async function saveRegistration(
   const registrationType = meta.registrationType;
   const isApprovedStudent = meta.isApprovedStudent === "true";
   const registrationId = meta.registrationId;
+  const isUpgrade = meta.isUpgrade === "true";
 
   console.log("=== Webhook Processing ===");
+  console.log("isUpgrade:", isUpgrade);
   console.log("isApprovedStudent:", isApprovedStudent);
   console.log("registrationId:", registrationId);
   console.log("email:", email);
+
+  // Handle registration type upgrade (online → in-person)
+  if (isUpgrade) {
+    const newRegistrationType = meta.newRegistrationType;
+    console.log(`🔵 UPGRADE PAYMENT DETECTED: ${registrationId} → ${newRegistrationType}`);
+
+    if (!registrationId || !newRegistrationType) {
+      console.warn("⚠️ Upgrade missing registrationId or newRegistrationType");
+      return { success: false };
+    }
+
+    const upgradeSupabaseUrl = process.env.SUPABASE_URL;
+    const upgradeServiceKey = process.env.SUPABASE_SERVICE_KEY;
+
+    if (!upgradeSupabaseUrl || !upgradeServiceKey) {
+      console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_KEY");
+      return { success: false, error: "Supabase not configured" };
+    }
+
+    const upgradeSupabase = createClient(upgradeSupabaseUrl, upgradeServiceKey);
+
+    const { data, error } = await upgradeSupabase
+      .from("qdw_registrations")
+      .update({ registration_type: newRegistrationType })
+      .eq("id", registrationId)
+      .select("id");
+
+    if (error) {
+      console.error("❌ Failed to upgrade registration:", error);
+      return { success: false, error: "DB upgrade failed" };
+    }
+
+    console.log(`✅ Registration upgraded to ${newRegistrationType}: ${data?.[0]?.id}`);
+    return { success: true, id: data?.[0]?.id };
+  }
 
   if (!firstName || !email || !registrationType) {
     console.warn(

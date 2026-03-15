@@ -37,6 +37,10 @@ export default function MemberOnlyPage() {
   const [studentIdSuccess, setStudentIdSuccess] = useState(false);
   const [studentIdError, setStudentIdError] = useState("");
 
+  // Upgrade states
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
+  const [upgradeError, setUpgradeError] = useState("");
+
   // Initialize form data when user data loads
   useEffect(() => {
     if (user) {
@@ -296,6 +300,24 @@ export default function MemberOnlyPage() {
       setStudentIdLoading(false);
     }
   };
+  const handleUpgrade = async () => {
+    setUpgradeLoading(true);
+    setUpgradeError("");
+    try {
+      const res = await fetch("/api/stripe/upgrade-registration", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to create upgrade session");
+      window.location.assign(data.url);
+    } catch (err: any) {
+      setUpgradeError(err.message || "An error occurred. Please try again.");
+      setUpgradeLoading(false);
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -614,6 +636,53 @@ export default function MemberOnlyPage() {
             </div>
           </div>
         </div>
+
+        {/* Upgrade to In-Person */}
+        {(user?.registration_type === "student_online" || user?.registration_type === "professional_online") && (
+          <div className="bg-white rounded-2xl shadow-sm border border-blue-200 p-6 sm:p-8 mb-6">
+            <div className="flex items-start gap-4">
+              <div className="text-3xl">🎟️</div>
+              <div className="flex-1">
+                <h2 className="text-xl font-bold text-gray-900 mb-1">Upgrade to In-Person Attendance</h2>
+                <p className="text-gray-600 text-sm mb-4">
+                  You're currently registered for{" "}
+                  <span className="font-semibold capitalize">
+                    {user.registration_type?.replace(/_/g, " ")}
+                  </span>
+                  . Upgrade to attend QDW 2026 in person and present your poster live!
+                </p>
+
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-4 inline-block">
+                  <p className="text-sm text-gray-600">
+                    Upgrade fee{" "}
+                    <span className="text-xs text-gray-500">
+                      (difference from your current plan)
+                    </span>
+                  </p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {user.registration_type === "student_online" ? "$30" : "$150"}
+                  </p>
+                </div>
+
+                {upgradeError && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                    {upgradeError}
+                  </div>
+                )}
+
+                <div>
+                  <button
+                    onClick={handleUpgrade}
+                    disabled={upgradeLoading}
+                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-full transition-all"
+                  >
+                    {upgradeLoading ? "Redirecting to payment…" : "Upgrade to In-Person →"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Update Profile Section */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
