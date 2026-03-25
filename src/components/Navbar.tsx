@@ -102,6 +102,7 @@ export default function Navbar() {
     { name: 'SQUAADS', href: '/design-tools#squaads' },
     { name: 'scqubits', href: '/design-tools#scqubits' },
     { name: 'qultra', href: '/design-tools#qultra' },
+    { name: 'QTCAD', href: '/design-tools#qtcad' },
     { name: 'View All Tools', href: '/design-tools' },
   ];
 

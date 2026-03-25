@@ -43,6 +43,14 @@ const tools = [
       "Qultra is a comprehensive resource for quantum device design and simulation, providing valuable insights and tools for the quantum computing community. This platform offers practical implementations, research contributions, and design methodologies that support the development of superconducting quantum circuits. It serves as a bridge between theoretical concepts and practical applications, helping researchers and engineers advance their quantum device designs through proven techniques and innovative approaches.",
     github: "https://superqubit.wordpress.com/2025/08/19/qultra-quantum-hybrid-lumped-andtransmission-lines-circuits-analyzer/",
   },
+  {
+    name: "QTCAD",
+    id: "qtcad",
+    image: "/images/qtcad.jpg",
+    description:
+      "QTCAD® is a unique solid‑state qubit modeling solution that integrates advanced multiscale solvers to predict quantum‑device performance before prototyping and manufacturing. Developed with experimentalists, it supports semiconductor spin‑qubit and superconducting‑circuit modeling through atomistic and finite‑element methods. Professionally maintained and continually improved, QTCAD® includes strong customer support, an expert user community, and an educational version (QTCAD® EDU) for training future quantum‑industry professionals.",
+    github: "https://www.nanoacademic.com/solutions/qtcad/",
+  },
 ];
 
 export default function DesignToolsPage() {
