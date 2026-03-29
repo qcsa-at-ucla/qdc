@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
+import crypto from "crypto";
 
 export const runtime = "nodejs";
 
@@ -96,8 +97,18 @@ export async function POST(req: Request) {
       );
     }
 
-    // Build payment link with approval token (same as original)
-    const paymentUrl = `${siteUrl}/qdw/2026/payment?approved=true&email=${encodeURIComponent(registration.email)}&token=${registration.approval_token}`;
+    // Ensure approval token exists (may be null for students registered before the approval workflow was added)
+    let approvalToken = registration.approval_token;
+    if (!approvalToken) {
+      approvalToken = crypto.randomBytes(32).toString("hex");
+      await supabase
+        .from("qdw_registrations")
+        .update({ approval_token: approvalToken })
+        .eq("id", registrationId);
+    }
+
+    // Build payment link with approval token
+    const paymentUrl = `${siteUrl}/qdw/2026/payment?approved=true&email=${encodeURIComponent(registration.email)}&token=${approvalToken}`;
 
     // Get registration type display name
     const registrationTypeDisplay = 
