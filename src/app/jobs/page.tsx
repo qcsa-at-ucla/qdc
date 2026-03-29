@@ -9,6 +9,7 @@ type Job = {
   type: string;
   description: string;
   link: string;
+  pinned?: boolean;
 };
 
 export default function JobsPage() {
@@ -22,11 +23,14 @@ export default function JobsPage() {
     try {
       regenerate ? setRefreshing(true) : setLoading(true);
 
-      const url = regenerate ? "/api/jobs?regenerate=true" : "/api/jobs";
-      const res = await fetch(url);
+      const url = regenerate ? "/api/jobs?regen=true" : "/api/jobs";
+      const res = await fetch(url, { cache: "no-store" });
       const data = await res.json();
 
-      const newJobs = (data.jobs || []).slice(0, 7);
+      const allJobs: Job[] = data.jobs || [];
+      const pinned = allJobs.filter((j) => j.pinned);
+      const ai = allJobs.filter((j) => !j.pinned).slice(0, 7);
+      const newJobs = [...pinned, ...ai];
 
       setJobs(newJobs);
       setFilteredJobs(newJobs);
@@ -104,10 +108,19 @@ export default function JobsPage() {
           {filteredJobs.map((job, idx) => (
             <div
               key={idx}
-              className="bg-gray-50 border border-gray-200 rounded-xl p-6 hover:bg-gray-100 transition"
+              className={`border rounded-xl p-6 transition ${
+                job.pinned
+                  ? "bg-indigo-50 border-indigo-300 hover:bg-indigo-100"
+                  : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+              }`}
             >
               <div className="flex flex-col md:flex-row justify-between gap-3">
                 <div className="space-y-1">
+                  {job.pinned && (
+                    <span className="inline-block text-xs font-semibold bg-indigo-600 text-white px-2 py-0.5 rounded-full mb-1">
+                     Featured
+                    </span>
+                  )}
                   <h2 className="text-xl font-semibold">{job.title}</h2>
                   <p className="text-indigo-600 font-medium">{job.company}</p>
                   <p className="text-gray-500 text-sm">

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +12,7 @@ interface JobItem {
   type: string;
   description: string;
   link: string;
+  pinned?: boolean;
 }
 
 interface CachedJobsResult {
@@ -120,31 +122,65 @@ Ensure all links are real job postings (URLs that work). Do not include any extr
 }
 
 
+async function getManualJobs(supabaseUrl: string, supabaseKey: string): Promise<JobItem[]> {
+  try {
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { data, error } = await supabase
+      .from('manual_job_listings')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Failed to fetch manual jobs:', error);
+      return [];
+    }
+
+    return (data || []).map((row) => ({
+      title: row.title,
+      company: row.company,
+      location: row.location,
+      type: row.type,
+      description: row.description,
+      link: row.link,
+      pinned: true,
+    }));
+  } catch (err) {
+    console.error('Failed to fetch manual jobs:', err);
+    return [];
+  }
+}
+
+const NO_CACHE_HEADERS = { 'Cache-Control': 'no-store, no-cache, must-revalidate' };
+
 export async function GET(req: NextRequest) {
   try {
     const regenerate = req.nextUrl.searchParams.get("regen") === "true";
     const supabaseUrl = process.env.SUPABASE_URL!;
     const supabaseKey = process.env.SUPABASE_SERVICE_KEY!;
 
+    // Always fetch active manual/pinned jobs
+    const manualJobs = await getManualJobs(supabaseUrl, supabaseKey);
+
     if (!regenerate) {
       const cached = await getCachedJobs(supabaseUrl, supabaseKey);
       if (cached) {
         const age = Date.now() - new Date(cached.fetchedAt).getTime();
         if (age < CACHE_MAX_AGE_HOURS * 60 * 60 * 1000) {
-          return NextResponse.json({ jobs: cached.jobs, cached: true });
+          return NextResponse.json({ jobs: [...manualJobs, ...cached.jobs], cached: true }, { headers: NO_CACHE_HEADERS });
         }
       }
     }
 
-    const jobs = await fetchQuantumJobs();
+    const aiJobs = await fetchQuantumJobs();
 
-    if (!regenerate && jobs.length > 0) {
-      cacheJobs(supabaseUrl, supabaseKey, jobs);
+    if (!regenerate && aiJobs.length > 0) {
+      cacheJobs(supabaseUrl, supabaseKey, aiJobs);
     }
 
-    return NextResponse.json({ jobs, cached: false });
+    return NextResponse.json({ jobs: [...manualJobs, ...aiJobs], cached: false }, { headers: NO_CACHE_HEADERS });
   } catch (err) {
     console.error('Quantum jobs API error:', err);
-    return NextResponse.json({ jobs: [], error: 'Failed to fetch jobs' }, { status: 500 });
+    return NextResponse.json({ jobs: [], error: 'Failed to fetch jobs' }, { status: 500, headers: NO_CACHE_HEADERS });
   }
 }
