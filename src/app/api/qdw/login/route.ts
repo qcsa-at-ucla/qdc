@@ -73,6 +73,7 @@ export async function POST(req: Request) {
           project_title: user.project_title,
           project_description: user.project_description,
           poster_url: user.poster_url,
+          cv_url: user.cv_url,
           student_id_photo_url: user.student_id_photo_url,
           approval_status: user.approval_status,
           created_at: user.created_at,
