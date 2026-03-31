@@ -2,8 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const CACHE_MAX_AGE_HOURS = 6;
+
+// Supabase client with fetch caching disabled (Next.js patches fetch to cache by default)
+function createUncachedClient(url: string, key: string) {
+  return createClient(url, key, {
+    global: {
+      fetch: (input, init) => fetch(input, { ...init, cache: 'no-store' }),
+    },
+  });
+}
 
 interface JobItem {
   title: string;
@@ -124,7 +134,7 @@ Ensure all links are real job postings (URLs that work). Do not include any extr
 
 async function getManualJobs(supabaseUrl: string, supabaseKey: string): Promise<JobItem[]> {
   try {
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createUncachedClient(supabaseUrl, supabaseKey);
     const { data, error } = await supabase
       .from('manual_job_listings')
       .select('*')
