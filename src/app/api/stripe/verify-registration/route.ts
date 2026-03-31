@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   try {
     const stripe = getStripe();
     
-    const { sessionId, posterUrl, studentIdPhotoUrl } = await req.json();
+    const { sessionId, cvUrl, posterUrl, studentIdPhotoUrl } = await req.json();
 
     if (!sessionId) {
       return NextResponse.json({ error: "Missing session ID" }, { status: 400 });
@@ -46,8 +46,9 @@ export async function POST(req: Request) {
       console.log("✓ Registration already exists for session:", sessionId);
       
       // Update with file URLs if provided
-      if (posterUrl || studentIdPhotoUrl) {
+      if (cvUrl || posterUrl || studentIdPhotoUrl) {
         const updateData: Record<string, string> = {};
+        if (cvUrl) updateData.cv_url = cvUrl;
         if (posterUrl) updateData.poster_url = posterUrl;
         if (studentIdPhotoUrl) updateData.student_id_photo_url = studentIdPhotoUrl;
         
@@ -123,6 +124,7 @@ export async function POST(req: Request) {
       project_title: meta.projectTitle || null,
       project_description: meta.projectDescription || null,
       poster_url: posterUrl || null,
+      cv_url: cvUrl || null,
       student_id_photo_url: studentIdPhotoUrl || null,
       wants_qdc_membership: meta.wantsQdcMembership === "true",
       agree_to_terms: meta.agreeToTerms === "true",

@@ -45,6 +45,7 @@ function RegistrationContent() {
     lastName: '',
     email: '',
     password: '',
+    confirmPassword: '',
     designation: '',
     location: '',
 
@@ -56,6 +57,7 @@ function RegistrationContent() {
     wantsQdcMembership: false,
     agreeToTerms: false,
 
+    cvPdf: null as File | null,
     posterPdf: null as File | null,
     studentIdPhoto: null as File | null,
   });
@@ -101,6 +103,31 @@ function RegistrationContent() {
     }
 
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (!file) {
+      setFormData(prev => ({ ...prev, cvPdf: null }));
+      return;
+    }
+
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    const maxBytes = 15 * 1024 * 1024;
+
+    if (!isPdf) {
+      setSubmitError('CV must be a PDF file.');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > maxBytes) {
+      setSubmitError('CV PDF is too large (max 15MB).');
+      e.target.value = '';
+      return;
+    }
+
+    setSubmitError(null);
+    setFormData(prev => ({ ...prev, cvPdf: file }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -290,6 +317,20 @@ function RegistrationContent() {
       return;
     }
 
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      setIsSubmitting(false);
+      setSubmitError('Passwords do not match.');
+      return;
+    }
+
+    // Validate CV is required
+    if (!formData.cvPdf) {
+      setIsSubmitting(false);
+      setSubmitError('CV upload is required.');
+      return;
+    }
+
     // Validate student ID photo is required for students
     const isStudent = formData.registrationType === 'student_in_person' || 
                       formData.registrationType === 'student_online';
@@ -366,12 +407,45 @@ function RegistrationContent() {
           }
         }
 
+        // Upload CV immediately (admin needs to see it for approval)
+        if (formData.cvPdf) {
+          const cvFormData = new FormData();
+          cvFormData.append('file', formData.cvPdf);
+          cvFormData.append('firstName', formData.firstName);
+          cvFormData.append('lastName', formData.lastName);
+          cvFormData.append('email', formData.email);
+
+          const cvUploadResponse = await fetch('/api/upload-cv', {
+            method: 'POST',
+            body: cvFormData,
+          });
+
+          if (cvUploadResponse.ok) {
+            const cvUploadData = await cvUploadResponse.json();
+
+            // Update registration with CV URL
+            await fetch('/api/qdw/update-student-id', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: formData.email,
+                cvUrl: cvUploadData.url,
+              }),
+            });
+          }
+        }
+
         // Store poster info for after-payment upload (if provided)
+        let posterBase64 = '';
+        let posterFileName = '';
         if (formData.posterPdf) {
-          const posterBase64 = await fileToBase64(formData.posterPdf);
+          posterBase64 = await fileToBase64(formData.posterPdf);
+          posterFileName = formData.posterPdf.name;
+        }
+        if (posterBase64) {
           const filesPayload = {
             posterBase64,
-            posterFileName: formData.posterPdf.name,
+            posterFileName,
             email: formData.email,
             firstName: formData.firstName,
             lastName: formData.lastName,
@@ -385,6 +459,8 @@ function RegistrationContent() {
       } else {
         // NON-STUDENT FLOW: Store in sessionStorage and proceed to payment
         // Convert files to base64 for temporary storage (files will be uploaded AFTER payment)
+        const cvBase64 = await fileToBase64(formData.cvPdf);
+        const cvFileName = formData.cvPdf.name;
         let posterBase64 = '';
         let posterFileName = '';
         let studentIdBase64 = '';
@@ -413,6 +489,8 @@ function RegistrationContent() {
           projectTitle: formData.projectTitle,
           projectDescription: formData.projectDescription,
           // Store files as base64 - will be uploaded after payment
+          cvBase64,
+          cvFileName,
           posterBase64,
           posterFileName,
           studentIdBase64,
@@ -653,7 +731,7 @@ function RegistrationContent() {
         <section className="py-20 px-4 sm:px-6 lg:px-8 pt-32">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12">
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">Getting Involved</h1>
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">Getting Involved in the Quantum Device Workshop (QDW)</h1>
               <p className="text-lg text-gray-600">
                 The Quantum Device Workshop is designed to teach advanced undergraduates and graduate students the art
                 of designing quantum devices.
@@ -777,6 +855,24 @@ function RegistrationContent() {
                   </p>
                 </div>
 
+                {/* Confirm Password */}
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-bold text-gray-900 mb-1">
+                    Confirm Password <span className="font-normal text-gray-500">(required)</span>
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    required
+                    minLength={8}
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mt-2"
+                    placeholder="Re-enter your password"
+                  />
+                </div>
+
                 {/* Student ID Photo - Required for student registration types */}
                 {isStudentRegistration && (
                   <div>
@@ -892,10 +988,34 @@ function RegistrationContent() {
                     </div>
 
                     <div>
-                      <label htmlFor="posterPdf" className="block text-sm font-bold text-gray-900 mb-1">
-                        CV/Poster PDF Upload <span className="font-normal text-gray-500">(optional)</span>
+                      <label htmlFor="cvPdf" className="block text-sm font-bold text-gray-900 mb-1">
+                        CV PDF Upload <span className="font-normal text-gray-500">(required)</span>
                       </label>
-                      <p className="text-xs text-gray-500 mb-2">Upload your CV or project poster (PDF, max 15MB)</p>
+                      <p className="text-xs text-gray-500 mb-2">Upload your CV (PDF, max 15MB)</p>
+                      <input
+                        type="file"
+                        id="cvPdf"
+                        name="cvPdf"
+                        accept="application/pdf,.pdf"
+                        onChange={handleCvFileChange}
+                        required
+                        className="mt-2 block w-full text-sm text-gray-700
+                                   file:mr-4 file:py-2 file:px-4
+                                   file:rounded-full file:border-0
+                                   file:text-sm file:font-semibold
+                                   file:bg-purple-100 file:text-purple-700
+                                   hover:file:bg-purple-200"
+                      />
+                      {formData.cvPdf && (
+                        <p className="text-xs text-gray-500 mt-2">Selected: {formData.cvPdf.name}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label htmlFor="posterPdf" className="block text-sm font-bold text-gray-900 mb-1">
+                        Poster PDF Upload <span className="font-normal text-gray-500">(optional)</span>
+                      </label>
+                      <p className="text-xs text-gray-500 mb-2">Upload your project poster (PDF, max 15MB)</p>
                       <input
                         type="file"
                         id="posterPdf"

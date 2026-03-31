@@ -13,6 +13,7 @@ interface Applicant {
   location: string;
   projectTitle: string;
   projectDescription: string;
+  cvUrl: string | null;
   posterUrl: string | null;
   studentIdPhotoUrl: string | null;
   paymentStatus: string;
@@ -504,6 +505,18 @@ export default function AdminDashboard() {
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-2">Files</h4>
                     <div className="space-y-2">
+                      {applicant.cvUrl && (
+                        <a
+                          href={`/api/qdw/view-cv?email=${encodeURIComponent(
+                            applicant.email
+                          )}&t=${Date.now()}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block text-purple-600 hover:text-purple-700 text-sm font-medium"
+                        >
+                          📄 View CV
+                        </a>
+                      )}
                       {applicant.posterUrl && (
                         <a
                           href={`/api/qdw/view-poster?email=${encodeURIComponent(
@@ -513,7 +526,7 @@ export default function AdminDashboard() {
                           rel="noopener noreferrer"
                           className="block text-purple-600 hover:text-purple-700 text-sm font-medium"
                         >
-                          📄 View Poster/CV
+                          📄 View Poster
                         </a>
                       )}
                       {applicant.studentIdPhotoUrl && (
@@ -528,7 +541,7 @@ export default function AdminDashboard() {
                           🆔 View Student ID
                         </a>
                       )}
-                      {!applicant.posterUrl && !applicant.studentIdPhotoUrl && (
+                      {!applicant.cvUrl && !applicant.posterUrl && !applicant.studentIdPhotoUrl && (
                         <p className="text-gray-500 text-sm">No files uploaded</p>
                       )}
                     </div>

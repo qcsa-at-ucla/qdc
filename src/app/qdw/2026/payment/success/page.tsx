@@ -73,8 +73,35 @@ function PaymentSuccessContent() {
         
         // Upload files NOW (after successful payment)
         setVerificationStatus("uploading");
+        let cvUrl = "";
         let posterUrl = "";
         let studentIdPhotoUrl = "";
+
+        // Upload CV PDF if exists
+        if (registrationData.cvBase64 && registrationData.cvFileName) {
+          setUploadMessage("Uploading CV...");
+          const cvFile = base64ToFile(registrationData.cvBase64, registrationData.cvFileName);
+          const cvFormData = new FormData();
+          cvFormData.append("file", cvFile);
+          cvFormData.append("email", registrationData.email);
+          
+          if (registrationData.firstName && registrationData.lastName) {
+            cvFormData.append("firstName", registrationData.firstName);
+            cvFormData.append("lastName", registrationData.lastName);
+          }
+
+          const cvRes = await fetch("/api/upload-cv", {
+            method: "POST",
+            body: cvFormData,
+          });
+
+          if (cvRes.ok) {
+            const cvData = await cvRes.json();
+            cvUrl = cvData.url || "";
+          } else {
+            console.error("CV upload failed");
+          }
+        }
 
         // Upload poster PDF if exists
         if (registrationData.posterBase64 && registrationData.posterFileName) {
@@ -132,6 +159,7 @@ function PaymentSuccessContent() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
             sessionId,
+            cvUrl,
             posterUrl,
             studentIdPhotoUrl,
           }),

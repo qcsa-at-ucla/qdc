@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
       location: applicant.location,
       projectTitle: applicant.project_title,
       projectDescription: applicant.project_description,
+      cvUrl: applicant.cv_url,
       posterUrl: applicant.poster_url,
       studentIdPhotoUrl: applicant.student_id_photo_url,
       paymentStatus: applicant.payment_status,

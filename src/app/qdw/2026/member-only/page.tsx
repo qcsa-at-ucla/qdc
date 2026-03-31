@@ -41,6 +41,13 @@ export default function MemberOnlyPage() {
   const [upgradeLoading, setUpgradeLoading] = useState(false);
   const [upgradeError, setUpgradeError] = useState("");
 
+  // CV update states
+  const [editingCv, setEditingCv] = useState(false);
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const [cvLoading, setCvLoading] = useState(false);
+  const [cvSuccess, setCvSuccess] = useState(false);
+  const [cvError, setCvError] = useState("");
+
   // Initialize form data when user data loads
   useEffect(() => {
     if (user) {
@@ -300,6 +307,89 @@ export default function MemberOnlyPage() {
       setStudentIdLoading(false);
     }
   };
+
+  const handleCvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (!file) {
+      setCvFile(null);
+      return;
+    }
+
+    const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+    const maxBytes = 15 * 1024 * 1024;
+
+    if (!isPdf) {
+      setCvError("File must be a PDF");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > maxBytes) {
+      setCvError("File is too large (max 15MB)");
+      e.target.value = "";
+      return;
+    }
+
+    setCvError("");
+    setCvFile(file);
+  };
+
+  const handleUpdateCv = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!cvFile) {
+      setCvError("Please select a CV PDF to upload");
+      return;
+    }
+
+    setCvLoading(true);
+    setCvError("");
+    setCvSuccess(false);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", cvFile);
+      formData.append("email", user.email);
+      formData.append("firstName", user.first_name);
+      formData.append("lastName", user.last_name);
+
+      const uploadRes = await fetch("/api/upload-cv", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        const errorData = await uploadRes.json();
+        throw new Error(errorData.error || "Failed to upload CV");
+      }
+
+      const uploadData = await uploadRes.json();
+
+      // Update database with CV URL
+      const updateRes = await fetch("/api/qdw/update-student-id", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: user.email,
+          cvUrl: uploadData.url,
+        }),
+      });
+
+      if (!updateRes.ok) {
+        throw new Error("Failed to update registration with CV");
+      }
+
+      setUser({ ...user, cv_url: uploadData.url });
+      setCvSuccess(true);
+      setEditingCv(false);
+      setCvFile(null);
+      setTimeout(() => setCvSuccess(false), 3000);
+    } catch (err: any) {
+      setCvError(err.message || "An error occurred. Please try again.");
+    } finally {
+      setCvLoading(false);
+    }
+  };
+
   const handleUpgrade = async () => {
     setUpgradeLoading(true);
     setUpgradeError("");
@@ -943,7 +1033,7 @@ export default function MemberOnlyPage() {
                 }}
                 className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-full transition-all font-medium"
               >
-                Update Poster
+                {user?.poster_url ? "Update Poster" : "Add Poster"}
               </button>
             )}
           </div>
@@ -996,7 +1086,7 @@ export default function MemberOnlyPage() {
 
               <div>
                 <label className="block text-sm font-bold text-gray-900 mb-1">
-                  Update CV/Poster PDF <span className="font-normal text-gray-500">(optional)</span>
+                  Update Poster PDF <span className="font-normal text-gray-500">(optional)</span>
                 </label>
                 <p className="text-xs text-gray-500 mb-2">
                   Leave empty to keep current file, or upload a new PDF to replace it
@@ -1080,6 +1170,131 @@ export default function MemberOnlyPage() {
                     View poster →
                   </a>
                 </div>
+              )}
+              {!user?.poster_url && (
+                <div>
+                  <span className="text-gray-500">Poster PDF:</span>{" "}
+                  <span className="font-medium text-gray-400">No poster uploaded yet</span>
+                </div>
+              )}
+              {user?.cv_url && (
+                <div>
+                  <span className="text-gray-500">CV PDF:</span>{" "}
+                  <a
+                    href={`/api/qdw/view-cv?email=${encodeURIComponent(user.email)}&t=${Date.now()}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-purple-600 hover:text-purple-700 underline font-medium"
+                  >
+                    View CV →
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* CV Section */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold text-gray-900">CV</h2>
+            {!editingCv && (
+              <button
+                onClick={() => {
+                  setEditingCv(true);
+                  setCvFile(null);
+                  setCvError("");
+                }}
+                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-full transition-all font-medium"
+              >
+                {user?.cv_url ? "Update CV" : "Add CV"}
+              </button>
+            )}
+          </div>
+
+          {cvSuccess && (
+            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700">
+              ✓ CV updated successfully!
+            </div>
+          )}
+
+          {cvError && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+              {cvError}
+            </div>
+          )}
+
+          {editingCv ? (
+            <form onSubmit={handleUpdateCv} className="space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-900 mb-1">
+                  CV PDF {user?.cv_url ? <span className="font-normal text-gray-500">(upload new to replace)</span> : <span className="font-normal text-gray-500">(required)</span>}
+                </label>
+                <p className="text-xs text-gray-500 mb-2">Upload your CV as a PDF (max 15MB)</p>
+                <input
+                  key={editingCv ? 'cv-file-input' : 'cv-file-reset'}
+                  type="file"
+                  accept="application/pdf,.pdf"
+                  onChange={handleCvFileChange}
+                  className="mt-2 block w-full text-sm text-gray-700
+                             file:mr-4 file:py-2 file:px-4
+                             file:rounded-full file:border-0
+                             file:text-sm file:font-semibold
+                             file:bg-purple-100 file:text-purple-700
+                             hover:file:bg-purple-200"
+                />
+                {cvFile && (
+                  <p className="text-xs text-gray-500 mt-2">New file: {cvFile.name}</p>
+                )}
+                {user?.cv_url && !cvFile && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    Current file:{" "}
+                    <a
+                      href={`/api/qdw/view-cv?email=${encodeURIComponent(user.email)}&t=${Date.now()}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-purple-600 hover:text-purple-700 underline"
+                    >
+                      View current CV
+                    </a>
+                  </p>
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={cvLoading}
+                  className="bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-full px-8 py-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {cvLoading ? "Uploading..." : "Save CV"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingCv(false);
+                    setCvFile(null);
+                    setCvError("");
+                  }}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-full px-8 py-3 transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div>
+              {user?.cv_url ? (
+                <a
+                  href={`/api/qdw/view-cv?email=${encodeURIComponent(user.email)}&t=${Date.now()}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-purple-600 hover:text-purple-700 underline font-medium"
+                >
+                  View CV →
+                </a>
+              ) : (
+                <span className="font-medium text-gray-400">No CV uploaded yet</span>
               )}
             </div>
           )}

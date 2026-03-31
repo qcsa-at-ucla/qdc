@@ -546,32 +546,30 @@ export default function QDW2026Info() {
                 
                 <div className="space-y-6">
                   <div className="border-l-2 border-purple-500/50 pl-4">
-                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 1: Introduction</h4>
+                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 1: Advanced simulation and large scale design</h4>
                     <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• Review of essential topics in superconducting quantum devices, including device design, simulation, and control integration</li>
+                      <li>• Advanced simulation techniques and large scale quantum device design</li>
                     </ul>
                   </div>
                   
                   <div className="border-l-2 border-purple-500/50 pl-4">
-                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 2: Advanced simulation and Cryogenic On Chip Control</h4>
+                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 2: Circuit analysis and designing for control</h4>
                     <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• Advanced simulation methods and cryogenic on chip control architectures</li>
-                    
+                      <li>• Circuit analysis methods and designing quantum devices for control</li>
                     </ul>
                   </div>
                   
                   <div className="border-l-2 border-purple-500/50 pl-4">
-                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 3: Quantum Error Correction</h4>
+                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 3: Error correction and AI in design</h4>
                     <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• Quantum error correction implementation for device design and simulation</li>
-            
+                      <li>• Quantum error correction and AI-driven approaches to device design</li>
                     </ul>
                   </div>
                   
                   <div className="border-l-2 border-purple-500/50 pl-4">
-                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 4: Hybrid Systems and Novel Device Architectures</h4>
+                    <h4 className="text-lg font-semibold text-purple-400 mb-2">Day 4: Design for unconventional and hybrid systems</h4>
                     <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• Hybrid Quantum Systems and novel device architectures</li>
+                      <li>• Designing for unconventional and hybrid quantum systems</li>
                     </ul>
                   </div>
                 </div>

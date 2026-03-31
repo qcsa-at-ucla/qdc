@@ -22,25 +22,32 @@ export async function POST(request: NextRequest) {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const body = await request.json();
-    const { email, studentIdPhotoUrl } = body;
+    const { email, studentIdPhotoUrl, cvUrl } = body;
 
-    if (!email || !studentIdPhotoUrl) {
+    if (!email || (!studentIdPhotoUrl && !cvUrl)) {
       return NextResponse.json(
-        { error: 'Email and studentIdPhotoUrl are required' },
+        { error: 'Email and at least one file URL are required' },
         { status: 400 }
       );
     }
 
-    // Update the registration record with student ID photo URL
-    // If approval_status is "rejected", reset it to "pending" for re-review
+    // Build update object
+    const updateFields: Record<string, any> = {};
+    if (studentIdPhotoUrl) {
+      updateFields.student_id_photo_url = studentIdPhotoUrl;
+      // If approval_status is "rejected", reset it to "pending" for re-review
+      updateFields.approval_status = 'pending';
+      updateFields.approved_at = null;
+      updateFields.approved_by = null;
+    }
+    if (cvUrl) {
+      updateFields.cv_url = cvUrl;
+    }
+
+    // Update the registration record
     const { data, error } = await supabase
       .from('qdw_registrations')
-      .update({
-        student_id_photo_url: studentIdPhotoUrl,
-        approval_status: 'pending',
-        approved_at: null,
-        approved_by: null,
-      })
+      .update(updateFields)
       .eq('email', email.toLowerCase())
       .select()
       .single();
