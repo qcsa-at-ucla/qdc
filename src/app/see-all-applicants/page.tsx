@@ -39,6 +39,15 @@ export default function AdminDashboard() {
   const [rejectReason, setRejectReason] = useState("");
   const [registrationToReject, setRegistrationToReject] = useState<string | null>(null);
 
+  // Email modal state
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailTarget, setEmailTarget] = useState<Applicant | null>(null);
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailBody, setEmailBody] = useState("");
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSuccess, setEmailSuccess] = useState(false);
+  const [emailError, setEmailError] = useState("");
+
   // Check if already authenticated
   useEffect(() => {
     const storedKey = sessionStorage.getItem("admin_api_key");
@@ -603,6 +612,29 @@ export default function AdminDashboard() {
                       </div>
                     )}
 
+                    {/* Send Email button — always visible */}
+                    <div className="mt-2">
+                      <button
+                        onClick={() => {
+                          setEmailTarget(applicant);
+                          setEmailSubject("Regarding your QDW 2026 Registration");
+                          setEmailBody(`Dear ${applicant.firstName},\n\n\n\nBest regards,\nClyde Villacrusis\nQuantum Device Workshop 2026`);
+                          setEmailSuccess(false);
+                          setEmailError("");
+                          setShowEmailModal(true);
+                        }}
+                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        ✉️ Send Email
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
       {/* Reject Confirmation Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -650,12 +682,95 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
-                  </div>
-                </div>
+
+      {/* Send Email Modal */}
+      {showEmailModal && emailTarget && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-1">Send Email</h3>
+            <p className="text-sm text-gray-500 mb-4">To: {emailTarget.firstName} {emailTarget.lastName} &lt;{emailTarget.email}&gt;</p>
+
+            {emailSuccess && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm">
+                ✓ Email sent successfully!
               </div>
-            ))
-          )}
+            )}
+            {emailError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                {emailError}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                <input
+                  type="text"
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                <textarea
+                  value={emailBody}
+                  onChange={(e) => setEmailBody(e.target.value)}
+                  rows={10}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowEmailModal(false);
+                  setEmailTarget(null);
+                  setEmailSuccess(false);
+                  setEmailError("");
+                }}
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-full px-4 py-2 transition-all"
+              >
+                Close
+              </button>
+              <button
+                disabled={sendingEmail || !emailSubject.trim() || !emailBody.trim()}
+                onClick={async () => {
+                  setSendingEmail(true);
+                  setEmailError("");
+                  setEmailSuccess(false);
+                  try {
+                    const res = await fetch("/api/qdw/admin/send-email", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        apiKey,
+                        registrationId: emailTarget.id,
+                        subject: emailSubject,
+                        body: emailBody,
+                      }),
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                      setEmailSuccess(true);
+                    } else {
+                      setEmailError(data.error || "Failed to send email");
+                    }
+                  } catch {
+                    setEmailError("An error occurred. Please try again.");
+                  } finally {
+                    setSendingEmail(false);
+                  }
+                }}
+                className="flex-1 bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-full px-4 py-2 transition-all"
+              >
+                {sendingEmail ? "Sending..." : "Send Email"}
+              </button>
+            </div>
+          </div>
         </div>
+      )}
       </div>
     </div>
   );
