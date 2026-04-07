@@ -317,7 +317,8 @@ export default function QDW2026Speakers() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name or institution…"
-                className="w-full pl-12 pr-4 py-3 bg-white/8 border border-white/20 rounded-full text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                className="w-full pl-12 pr-4 py-3 bg-white/8 border border-white/20 rounded-full text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm [color-scheme:light]"
+                style={{ color: '#000000' }}
               />
             </div>
           </div>
