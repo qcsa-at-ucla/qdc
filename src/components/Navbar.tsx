@@ -209,6 +209,16 @@ export default function Navbar() {
                           Info
                         </Link>
                         <Link
+                          href="/qdw/2026/speakers"
+                          className="block px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150 text-sm"
+                          onClick={() => {
+                            setIsQdwDropdownOpen(false);
+                            setIsQdw2026SubOpen(false);
+                          }}
+                        >
+                          Speakers
+                        </Link>
+                        <Link
                           href="/qdw/2026/registration"
                           className="block px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150 text-sm"
                           onClick={() => {
@@ -568,6 +578,13 @@ export default function Navbar() {
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           Info
+                        </Link>
+                        <Link
+                          href="/qdw/2026/speakers"
+                          className="text-white/80 hover:text-white hover:bg-white/10 transition-colors duration-200 text-sm font-medium px-8 py-3 rounded-lg"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Speakers
                         </Link>
                         <Link
                           href="/qdw/2026/registration"

@@ -265,6 +265,18 @@ export default function QDW2026Info() {
       bio: 'Murat Can Sarihan is a research scientist at Google Quantum AI, focusing on superconducting qubit design and quantum error correction.',
 
     },
+    {
+      name: 'Michael Hatridge',
+      affiliation: 'University of Pittsburgh',
+      image: '/images/Michael_Hatridge.png',
+      bio: 'Michael Hatridge is an Associate Professor at the University of Pittsburgh specializing in superconducting quantum circuits, quantum amplification, and quantum measurement.',
+    },
+    {
+      name: 'Ani Nersisyan',
+      affiliation: 'Google',
+      image: '/images/Ani_Nersisyan.png',
+      bio: 'Ani Nersisyan is a researcher at Google Quantum AI working on superconducting qubit systems and scalable quantum computing hardware.',
+    },
   ];
 
   return (
@@ -362,24 +374,23 @@ export default function QDW2026Info() {
       </section>
 
       {/* QDW 2026 Poster Section */}
-      <section className="py-12 lg:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black to-gray-900">
-        <div className="max-w-xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl border border-white/10"
-          >
-            <Image
-              src="/images/qdw2026Poster.png"
-              alt="QDW 2026 Poster"
-              fill
-              className="object-contain"
-              priority
-            />
-          </motion.div>
-        </div>
+      <section className="bg-gradient-to-b from-black to-gray-900">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="relative w-full"
+        >
+          <Image
+            src="/images/QDW2026Poster.png"
+            alt="QDW 2026 Poster"
+            width={1920}
+            height={1080}
+            className="w-full h-auto"
+            priority
+          />
+        </motion.div>
       </section>
 
       {/* About Section - White background, no chip image, content moved up */}
