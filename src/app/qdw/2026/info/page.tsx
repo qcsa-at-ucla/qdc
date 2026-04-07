@@ -293,6 +293,12 @@ export default function QDW2026Info() {
               Workshop Info
             </Link>
             <Link
+              href="/qdw/2026/speakers"
+              className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 px-4 py-2 rounded-full border border-white/20 hover:border-white/40"
+            >
+              Speakers
+            </Link>
+            <Link
               href="/qdw/2026/registration"
               className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 px-4 py-2 rounded-full border border-white/20 hover:border-white/40"
             >

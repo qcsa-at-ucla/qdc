@@ -48,12 +48,74 @@ export default function AdminDashboard() {
   const [emailSuccess, setEmailSuccess] = useState(false);
   const [emailError, setEmailError] = useState("");
 
+  // Admin tabs
+  const [activeTab, setActiveTab] = useState<"applicants" | "job-requests">("applicants");
+
+  // Job requests
+  interface JobRequest {
+    id: string;
+    company_name: string;
+    contact_name: string;
+    contact_email: string;
+    job_title: string;
+    job_type: string;
+    location: string;
+    description: string;
+    link: string | null;
+    status: "pending" | "approved" | "rejected";
+    admin_notes: string | null;
+    created_at: string;
+  }
+  const [jobRequests, setJobRequests] = useState<JobRequest[]>([]);
+  const [jobRequestsLoading, setJobRequestsLoading] = useState(false);
+  const [jobRequestsError, setJobRequestsError] = useState("");
+  const [processingJobId, setProcessingJobId] = useState<string | null>(null);
+
+  const fetchJobRequests = async (key: string) => {
+    setJobRequestsLoading(true);
+    setJobRequestsError("");
+    try {
+      const res = await fetch("/api/jobs/admin-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey: key, action: "list" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to fetch");
+      setJobRequests(data.requests || []);
+    } catch (err: any) {
+      setJobRequestsError(err.message);
+    } finally {
+      setJobRequestsLoading(false);
+    }
+  };
+
+  const handleJobRequestAction = async (id: string, action: "approve" | "reject") => {
+    if (!confirm(`${action === "approve" ? "Approve" : "Reject"} this job request?`)) return;
+    setProcessingJobId(id);
+    try {
+      const res = await fetch("/api/jobs/admin-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey, action, id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed");
+      await fetchJobRequests(apiKey);
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    } finally {
+      setProcessingJobId(null);
+    }
+  };
+
   // Check if already authenticated
   useEffect(() => {
     const storedKey = sessionStorage.getItem("admin_api_key");
     if (storedKey) {
       setApiKey(storedKey);
       fetchApplicants(storedKey);
+      fetchJobRequests(storedKey);
     }
   }, []);
 
@@ -80,6 +142,7 @@ export default function AdminDashboard() {
       setApplicants(data.applicants);
       setAuthenticated(true);
       sessionStorage.setItem("admin_api_key", key);
+      fetchJobRequests(key);
     } catch (err: any) {
       setError(err.message);
       setAuthenticated(false);
@@ -98,6 +161,7 @@ export default function AdminDashboard() {
     setAuthenticated(false);
     setApiKey("");
     setApplicants([]);
+    setJobRequests([]);
     sessionStorage.removeItem("admin_api_key");
   };
 
@@ -379,10 +443,32 @@ export default function AdminDashboard() {
               </button>
             </div>
           </div>
+
+          {/* Tab switcher */}
+          <div className="flex gap-2 mt-4">
+            <button
+              onClick={() => setActiveTab("applicants")}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${activeTab === "applicants" ? "bg-purple-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+            >
+              Applicants
+            </button>
+            <button
+              onClick={() => { setActiveTab("job-requests"); fetchJobRequests(apiKey); }}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === "job-requests" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+            >
+              Job Requests
+              {jobRequests.filter(r => r.status === "pending").length > 0 && (
+                <span className={`text-xs font-bold rounded-full px-2 py-0.5 ${activeTab === "job-requests" ? "bg-white/20 text-white" : "bg-indigo-600 text-white"}`}>
+                  {jobRequests.filter(r => r.status === "pending").length}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Filters */}
+      {activeTab === "applicants" && (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
           <div className="grid md:grid-cols-3 gap-4">
@@ -634,6 +720,91 @@ export default function AdminDashboard() {
             ))
           )}
         </div>
+      </div>
+      )} {/* end activeTab === "applicants" */}
+
+      {/* Job Requests Tab */}
+      {activeTab === "job-requests" && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xl font-bold text-gray-900">Company Job Requests</h2>
+            <button
+              onClick={() => fetchJobRequests(apiKey)}
+              className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+            >
+              ↻ Refresh
+            </button>
+          </div>
+
+          {jobRequestsLoading && <p className="text-gray-500">Loading…</p>}
+          {jobRequestsError && <p className="text-red-600">{jobRequestsError}</p>}
+
+          {!jobRequestsLoading && jobRequests.length === 0 && (
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center text-gray-500">
+              No job requests yet.
+            </div>
+          )}
+
+          {jobRequests.map((req) => (
+            <div
+              key={req.id}
+              className={`bg-white rounded-2xl border p-6 shadow-sm ${
+                req.status === "pending"
+                  ? "border-yellow-300"
+                  : req.status === "approved"
+                  ? "border-green-300"
+                  : "border-red-200"
+              }`}
+            >
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-lg font-bold text-gray-900">{req.job_title}</h3>
+                    <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
+                      req.status === "pending" ? "bg-yellow-100 text-yellow-700" :
+                      req.status === "approved" ? "bg-green-100 text-green-700" :
+                      "bg-red-100 text-red-700"
+                    }`}>
+                      {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
+                    </span>
+                  </div>
+                  <p className="text-indigo-600 font-medium">{req.company_name}</p>
+                  <p className="text-gray-500 text-sm">{req.location} · {req.job_type}</p>
+                  <p className="text-gray-700 text-sm mt-2">{req.description}</p>
+                  {req.link && (
+                    <a href={req.link} target="_blank" rel="noopener noreferrer" className="text-indigo-500 text-sm underline">
+                      {req.link}
+                    </a>
+                  )}
+                  <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-400 space-y-0.5">
+                    <p>Contact: {req.contact_name} &lt;{req.contact_email}&gt;</p>
+                    <p>Submitted: {new Date(req.created_at).toLocaleString()}</p>
+                  </div>
+                </div>
+
+                {req.status === "pending" && (
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button
+                      disabled={processingJobId === req.id}
+                      onClick={() => handleJobRequestAction(req.id, "approve")}
+                      className="bg-green-500 hover:bg-green-600 disabled:opacity-50 text-white font-semibold rounded-full px-4 py-2 text-sm transition-all"
+                    >
+                      {processingJobId === req.id ? "…" : "✓ Approve"}
+                    </button>
+                    <button
+                      disabled={processingJobId === req.id}
+                      onClick={() => handleJobRequestAction(req.id, "reject")}
+                      className="bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-semibold rounded-full px-4 py-2 text-sm transition-all"
+                    >
+                      {processingJobId === req.id ? "…" : "✗ Reject"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Reject Confirmation Modal */}
       {showRejectModal && (
@@ -771,7 +942,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 }
