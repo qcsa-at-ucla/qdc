@@ -389,7 +389,7 @@ export default function QDW2026Info() {
           className="relative w-full"
         >
           <Image
-            src="/images/QDW2026Poster.png"
+            src="/images/qdw2026Poster.png"
             alt="QDW 2026 Poster"
             width={1920}
             height={1080}
