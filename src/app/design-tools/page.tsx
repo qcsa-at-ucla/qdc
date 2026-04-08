@@ -20,7 +20,7 @@ const tools = [
     github: "https://github.com/awslabs/palace",
   },
   {
-    name: "SQUAADS",
+    name: "SQUADDS",
     id: "squaads",
     image: "/images/tools/SQuADDS.png",
     description:
