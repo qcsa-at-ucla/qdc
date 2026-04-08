@@ -99,7 +99,7 @@ export default function Navbar() {
   const toolsLinks = [
     { name: 'Qiskit Metal', href: '/design-tools#qiskit-metal' },
     { name: 'AWS Palace', href: '/design-tools#aws-palace' },
-    { name: 'SQUAADS', href: '/design-tools#squaads' },
+    { name: 'SQUADDS', href: '/design-tools#squadds' },
     { name: 'scqubits', href: '/design-tools#scqubits' },
     { name: 'qultra', href: '/design-tools#qultra' },
     { name: 'QTCAD', href: '/design-tools#qtcad' },
