@@ -92,7 +92,12 @@ Cover a wide range of roles including:
 - Control systems and electronics
 - Quantum research internships and fellowships
 
-For each job, classify it into exactly one category: "academic", "government", or "industry".
+For each job, classify it into exactly one category based ONLY on the EMPLOYER (not the job title):
+- "government": The employer is a national laboratory (Argonne, Sandia, Los Alamos, Oak Ridge, LBNL, ORNL, Fermilab, NIST, JPL, Lincoln Lab, APL, PNNL, INL), a defense/intelligence agency, a government agency, or a government contractor whose primary business is government/defense work
+- "academic": The employer is a university or university-affiliated research institute (MIT, Stanford, Harvard, Caltech, UC Berkeley, Oxford, etc.)
+- "industry": The employer is a private company, startup, or corporation — this includes IBM, Google, Microsoft, Amazon, IonQ, Rigetti, PsiQuantum, Quantinuum, Quantum Circuits, Intel, etc. Even if the role is "Research Intern" or "Research Scientist", if the employer is a private company, it is INDUSTRY.
+
+IMPORTANT: Categorize by WHO the employer is, not what the job title sounds like. A "Research Intern" at Microsoft is INDUSTRY. A "Research Scientist" at Argonne is GOVERNMENT.
 
 Return ONLY valid JSON array with objects:
 
@@ -168,6 +173,7 @@ async function getManualJobs(supabaseUrl: string, supabaseKey: string): Promise<
       company: row.company,
       location: row.location,
       type: row.type,
+      category: row.category || 'industry' as const,
       description: row.description,
       link: row.link,
       pinned: true,
