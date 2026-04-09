@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import QDW2026Nav from '@/components/QDW2026Nav';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 
@@ -524,7 +525,9 @@ function RegistrationContent() {
 
   if (isSubmitted) {
     return (
-      <main className="min-h-screen bg-white pt-20 flex items-center justify-center px-4">
+      <main className="min-h-screen bg-white flex flex-col items-stretch px-4">
+        <QDW2026Nav />
+        <div className="flex-1 flex items-center justify-center py-20">
         <div className="max-w-lg text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -540,6 +543,7 @@ function RegistrationContent() {
             Back to Event Info
           </Link>
         </div>
+        </div>
       </main>
     );
   }
@@ -548,6 +552,7 @@ function RegistrationContent() {
   if (showReuploadLogin) {
     return (
       <main className="min-h-screen bg-white">
+        <QDW2026Nav />
         <section className="py-20 px-4 sm:px-6 lg:px-8 pt-32">
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-8">
@@ -728,7 +733,8 @@ function RegistrationContent() {
   return (
     <>
       <main className="min-h-screen bg-white">
-        <section className="py-20 px-4 sm:px-6 lg:px-8 pt-32">
+        <QDW2026Nav />
+        <section className="py-20 px-4 sm:px-6 lg:px-8 pt-24">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12">
               <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">Getting Involved in the Quantum Device Workshop (QDW)</h1>

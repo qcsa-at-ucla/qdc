@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import QDW2026Nav from '@/components/QDW2026Nav';
 
 const tools = [
   {
@@ -55,7 +56,8 @@ const tools = [
 
 export default function DesignToolsPage() {
   return (
-    <main className="min-h-screen bg-white pt-24 pb-16">
+    <main className="min-h-screen bg-white pb-16">
+      <QDW2026Nav />
       <section className="py-8 md:py-16 text-black">
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-black text-center mb-6">
           Design & Simulation Tools

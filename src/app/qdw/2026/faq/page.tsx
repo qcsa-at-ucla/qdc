@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
+import QDW2026Nav from '@/components/QDW2026Nav';
 
 interface FAQItem {
   question: string;
@@ -137,7 +138,8 @@ export default function QDW2026FAQ() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black pt-20">
+    <main className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black">
+      <QDW2026Nav />
       {/* Hero Section */}
       <section className="relative py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">

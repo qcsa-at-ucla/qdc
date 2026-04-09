@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
+import QDW2026Nav from '@/components/QDW2026Nav';
 
 interface Speaker {
   name: string;
@@ -245,36 +246,7 @@ export default function QDW2026Speakers() {
     <>
       <main className="min-h-screen">
         {/* Quick Navigation Bar */}
-        <section className="sticky top-16 z-40 bg-black/90 backdrop-blur-md border-b border-white/10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
-              <Link
-                href="/qdw/2026/info"
-                className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 px-4 py-2 rounded-full border border-white/20 hover:border-white/40"
-              >
-                Workshop Info
-              </Link>
-              <Link
-                href="/qdw/2026/speakers"
-                className="text-purple-300 font-semibold px-4 py-2 rounded-full bg-purple-600/20 border border-purple-500/30"
-              >
-                Speakers
-              </Link>
-              <Link
-                href="/qdw/2026/registration"
-                className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 px-4 py-2 rounded-full border border-white/20 hover:border-white/40"
-              >
-                Registration
-              </Link>
-              <Link
-                href="/qdw/2026/faq"
-                className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 px-4 py-2 rounded-full border border-white/20 hover:border-white/40"
-              >
-                FAQ
-              </Link>
-            </div>
-          </div>
-        </section>
+        <QDW2026Nav />
 
         {/* Hero */}
         <section className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
