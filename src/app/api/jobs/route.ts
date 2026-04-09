@@ -20,6 +20,7 @@ interface JobItem {
   company: string;
   location: string;
   type: string;
+  category: 'academic' | 'government' | 'industry';
   description: string;
   link: string;
   pinned?: boolean;
@@ -72,12 +73,27 @@ async function fetchQuantumJobs(): Promise<JobItem[]> {
   try {
     const openaiKey = process.env.OPENAI_API_KEY!;
     const prompt = `
-Find 7 brand new current job opportunities in quantum computing, hardware, or related research. Do not keep regenerating the same stuff.
-Focus on:
-- Quantum device engineering
-- Superconducting qubits
-- Quantum photonics
-- Quantum research and internships
+Find 15 brand new current job opportunities across the full spectrum of quantum technology. Do not keep regenerating the same stuff. Search broadly.
+
+Search across ALL of these sectors:
+- ACADEMIC: University research positions, postdocs, PhD studentships, lab manager roles, research scientist positions at universities or research institutes
+- GOVERNMENT: National labs (e.g. NIST, Sandia, Oak Ridge, LBNL, ORNL, Fermilab), defense/intelligence agencies, government-funded research programs, DOE/DOD/DARPA-related quantum roles
+- INDUSTRY: Private companies (startups and large corporations), quantum computing companies (IBM, Google, IonQ, Rigetti, PsiQuantum, Quantinuum, etc.), semiconductor/photonics firms, consulting, quantum software companies
+
+Cover a wide range of roles including:
+- Quantum hardware engineering (superconducting, trapped ion, photonic, neutral atom, spin qubits)
+- Quantum software and algorithms
+- Quantum error correction
+- Cryogenic engineering
+- Quantum networking and communications
+- Quantum sensing and metrology
+- Materials science for quantum devices
+- Quantum simulation
+- Control systems and electronics
+- Quantum research internships and fellowships
+
+For each job, classify it into exactly one category: "academic", "government", or "industry".
+
 Return ONLY valid JSON array with objects:
 
 [
@@ -86,12 +102,13 @@ Return ONLY valid JSON array with objects:
     "company": "",
     "location": "",
     "type": "",
+    "category": "academic" | "government" | "industry",
     "description": "",
     "link": ""
   }
 ]
 
-Ensure all links are real job postings (URLs that work). Do not include any extra text or markdown.
+Aim for roughly 5 jobs per category (academic, government, industry). Ensure all links are real job postings (URLs that work). Do not include any extra text or markdown.
 `;
 
     const res = await fetch('https://api.openai.com/v1/responses', {

@@ -90,8 +90,13 @@ export default function Navbar() {
 
   const jobsLinks = [
   {
-    name: 'Quantum Device Jobs',
+    name: 'Browse Jobs',
     href: '/jobs',
+    external: false,
+  },
+  {
+    name: 'Post a Job',
+    href: '/jobs/post',
     external: false,
   },
 ];
@@ -687,6 +692,23 @@ export default function Navbar() {
                     </span>
                     <span className="text-xs text-white/40 mt-1">{link.description}</span>
                   </a>
+                ))}
+
+                {/* Mobile Jobs Section */}
+                <div className="px-4 py-2 mt-2">
+                  <span className="text-white/50 text-xs font-semibold uppercase tracking-wider">
+                    Jobs
+                  </span>
+                </div>
+                {jobsLinks.map((link, index) => (
+                  <Link
+                    key={index}
+                    href={link.href}
+                    className="text-white/80 hover:text-white hover:bg-white/10 transition-colors duration-200 text-sm font-medium px-6 py-3 rounded-lg"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link.name}
+                  </Link>
                 ))}
 
                 {/* Mobile Contact Section */}

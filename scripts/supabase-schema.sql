@@ -267,8 +267,45 @@ DECLARE
 BEGIN
   DELETE FROM password_reset_tokens
   WHERE expires_at < NOW() OR used = TRUE;
-  
+
   GET DIAGNOSTICS deleted_count = ROW_COUNT;
   RETURN deleted_count;
 END;
 $$ LANGUAGE plpgsql;
+
+-- =============================================
+-- Job Submissions Table (External Company Postings)
+-- =============================================
+
+CREATE TABLE IF NOT EXISTS job_submissions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  company_name TEXT NOT NULL,
+  contact_email TEXT NOT NULL,
+  job_title TEXT NOT NULL,
+  job_description TEXT NOT NULL,
+  job_location TEXT NOT NULL,
+  job_type TEXT NOT NULL DEFAULT 'Full-time',
+  category TEXT NOT NULL DEFAULT 'industry',
+  company_website TEXT,
+  status TEXT NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create indexes
+CREATE INDEX IF NOT EXISTS idx_job_submissions_status ON job_submissions(status);
+CREATE INDEX IF NOT EXISTS idx_job_submissions_email ON job_submissions(contact_email);
+
+-- Enable Row Level Security
+ALTER TABLE job_submissions ENABLE ROW LEVEL SECURITY;
+
+-- Create policy for service role (full access)
+CREATE POLICY "Service role has full access to job submissions" ON job_submissions
+  FOR ALL
+  USING (auth.role() = 'service_role');
+
+-- Trigger to automatically update updated_at
+CREATE TRIGGER update_job_submissions_updated_at
+  BEFORE UPDATE ON job_submissions
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();

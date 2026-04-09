@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 
+type Category = 'all' | 'academic' | 'government' | 'industry';
+
 type Job = {
   title: string;
   company: string;
   location: string;
   type: string;
+  category: 'academic' | 'government' | 'industry';
   description: string;
   link: string;
   pinned?: boolean;
@@ -25,10 +28,23 @@ const emptyForm = {
   link: "",
 };
 
+const CATEGORY_LABELS: Record<Category, string> = {
+  all: 'All Jobs',
+  academic: 'Academic',
+  government: 'Government',
+  industry: 'Industry',
+};
+
+const CATEGORY_DESCRIPTIONS: Record<Exclude<Category, 'all'>, string> = {
+  academic: 'University research, postdocs, PhD positions, and lab roles',
+  government: 'National labs, defense agencies, and government-funded programs',
+  industry: 'Private companies, startups, and corporate quantum teams',
+};
+
 export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState<Category>('all');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -47,9 +63,8 @@ export default function JobsPage() {
       const data = await res.json();
       const allJobs: Job[] = data.jobs || [];
       const pinned = allJobs.filter((j) => j.pinned);
-      const ai = allJobs.filter((j) => !j.pinned).slice(0, 7);
+      const ai = allJobs.filter((j) => !j.pinned);
       setJobs([...pinned, ...ai]);
-      setFilteredJobs([...pinned, ...ai]);
     } catch (err) {
       console.error(err);
     } finally {
@@ -60,16 +75,24 @@ export default function JobsPage() {
 
   useEffect(() => { loadJobs(); }, []);
 
-  useEffect(() => {
+  const filteredJobs = jobs.filter((job) => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) { setFilteredJobs(jobs); return; }
-    setFilteredJobs(jobs.filter((job) =>
+    const matchesSearch = !q || (
       job.title.toLowerCase().includes(q) ||
       job.company.toLowerCase().includes(q) ||
       job.location.toLowerCase().includes(q) ||
       job.type.toLowerCase().includes(q)
-    ));
-  }, [searchQuery, jobs]);
+    );
+    const matchesCategory = activeCategory === 'all' || job.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const categoryCounts = {
+    all: jobs.length,
+    academic: jobs.filter(j => j.category === 'academic').length,
+    government: jobs.filter(j => j.category === 'government').length,
+    industry: jobs.filter(j => j.category === 'industry').length,
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,10 +125,10 @@ export default function JobsPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex-1 space-y-1">
-            <h1 className="text-4xl font-bold">Quantum Device Job Opportunities</h1>
+            <h1 className="text-4xl font-bold">Quantum Job Opportunities</h1>
             <p className="text-gray-700 text-lg max-w-3xl">
-              Explore career opportunities in quantum hardware, software,
-              superconducting circuits, simulation, and related technologies.
+              Explore career opportunities across academia, government labs, and industry
+              in quantum computing, hardware, software, and related technologies.
             </p>
             <p className="text-gray-400 text-sm mt-1">Powered by AI Search</p>
           </div>
@@ -134,9 +157,39 @@ export default function JobsPage() {
           </div>
         </div>
 
-        {/* Job listings */}
+        {/* Category Tabs */}
+        <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-4">
+          {(Object.keys(CATEGORY_LABELS) as Category[]).map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                activeCategory === cat
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {CATEGORY_LABELS[cat]}
+              <span className={`ml-2 text-xs ${
+                activeCategory === cat ? 'text-indigo-200' : 'text-gray-400'
+              }`}>
+                ({categoryCounts[cat]})
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Category description */}
+        {activeCategory !== 'all' && (
+          <p className="text-gray-500 text-sm">
+            {CATEGORY_DESCRIPTIONS[activeCategory]}
+          </p>
+        )}
+
+        {/* Loading state */}
         {(loading || refreshing) && <div className="text-gray-500 text-lg">Loading jobs…</div>}
 
+        {/* Job listings */}
         <div className="space-y-6">
           {filteredJobs.map((job, idx) => (
             <div
@@ -149,12 +202,25 @@ export default function JobsPage() {
             >
               <div className="flex flex-col md:flex-row justify-between gap-3">
                 <div className="space-y-1">
-                  {job.pinned && (
-                    <span className="inline-block text-xs font-semibold bg-indigo-600 text-white px-2 py-0.5 rounded-full mb-1">
-                      Featured
-                    </span>
-                  )}
-                  <h2 className="text-xl font-semibold">{job.title}</h2>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {job.pinned && (
+                      <span className="text-xs font-semibold bg-indigo-600 text-white px-2 py-0.5 rounded-full">
+                        Featured
+                      </span>
+                    )}
+                    <h2 className="text-xl font-semibold">{job.title}</h2>
+                    {job.category && (
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                        job.category === 'academic'
+                          ? 'bg-blue-100 text-blue-700'
+                          : job.category === 'government'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-purple-100 text-purple-700'
+                      }`}>
+                        {job.category.charAt(0).toUpperCase() + job.category.slice(1)}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-indigo-600 font-medium">{job.company}</p>
                   <p className="text-gray-500 text-sm">{job.location} — {job.type}</p>
                 </div>
@@ -172,8 +238,11 @@ export default function JobsPage() {
               <p className="mt-3 text-gray-700 text-sm">{job.description}</p>
             </div>
           ))}
-          {!loading && filteredJobs.length === 0 && (
-            <div className="text-gray-500 text-center text-lg">No jobs found — try a different search.</div>
+
+          {!loading && !refreshing && filteredJobs.length === 0 && (
+            <div className="text-gray-500 text-center text-lg">
+              No jobs found — try a different search or category.
+            </div>
           )}
         </div>
 
