@@ -744,6 +744,15 @@ function RegistrationContent() {
               </p>
             </div>
 
+            <div className="mb-8 p-4 bg-amber-50 border border-amber-300 rounded-xl text-center">
+              <p className="text-amber-800 font-semibold">
+                Soft Deadline: May 16, 2026
+              </p>
+              <p className="text-amber-700 text-sm mt-1">
+                Prices may increase after May 16th. Registrations are not guaranteed to remain open after this date, so register early to secure your spot!
+              </p>
+            </div>
+
             <div className="bg-white rounded-xl p-8">
               {/* Link for students who need to reupload ID */}
               {/* <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-xl">
