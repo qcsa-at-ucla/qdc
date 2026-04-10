@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     const registrationData: RegistrationData = {
       firstName: body.firstName,
       lastName: body.lastName,
-      email: body.email,
+      email: body.email.trim().toLowerCase(),
       designation: body.designation || "",
       location: body.location || "",
       registrationType: body.registrationType,

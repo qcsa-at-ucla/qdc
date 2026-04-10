@@ -34,11 +34,11 @@ export async function POST(req: Request) {
 
     const supabase = createClient(supabaseUrl, serviceKey);
 
-    // Verify the approval token
+    // Verify the approval token (ilike for case-insensitive email match)
     const { data: registration, error } = await supabase
       .from("qdw_registrations")
       .select("*")
-      .eq("email", email.toLowerCase())
+      .ilike("email", email)
       .eq("approval_token", token)
       .eq("approval_status", "approved")
       .single();
