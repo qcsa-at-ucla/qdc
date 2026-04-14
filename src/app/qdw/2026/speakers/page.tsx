@@ -142,11 +142,11 @@ const speakers: Speaker[] = [
     bio: 'Sara Sussman is a researcher at Fermilab specializing in quantum device design and fabrication within the SQMS Center. Her work focuses on developing and characterizing superconducting quantum systems for both quantum computing and quantum sensing applications.',
   },
   {
-    name: 'Nicolas Pancotti',
+    name: 'Nicola Pancotti',
     affiliation: 'NVIDIA',
     title: 'Research Scientist',
     image: '/images/Nico_Pancotti.jpeg',
-    bio: 'Nicolas Pancotti is a Research Scientist at NVIDIA working at the intersection of quantum computing and machine learning. His research covers quantum algorithms, quantum machine learning, and the development of AI-accelerated simulation tools for quantum hardware design.',
+    bio: 'Nicola Pancotti is a Research Scientist at NVIDIA working at the intersection of quantum computing and machine learning. His research covers quantum algorithms, quantum machine learning, and the development of AI-accelerated simulation tools for quantum hardware design.',
   },
   {
     name: 'Taylor Patti',

@@ -254,10 +254,10 @@ export default function QDW2026Info() {
       bio: 'Kyle Serniak is a researcher at MIT Lincoln Laboratory working on superconducting qubit technologies and quantum systems.',
     },
     {
-      name: 'Nicolas Pancotti',
+      name: 'Nicola Pancotti',
       affiliation: 'Nvidia',
       image: '/images/Nico_Pancotti.jpeg',
-      bio: 'Nicolas Pancotti is a quantum computing researcher working on quantum algorithms and quantum machine learning.',
+      bio: 'Nicola Pancotti is a quantum computing researcher working on quantum algorithms and quantum machine learning.',
     },
     {
       name: "Murat Can Sarihan",
