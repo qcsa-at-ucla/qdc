@@ -25,7 +25,7 @@ const tools = [
     id: "squaads",
     image: "/images/tools/SQuADDS.png",
     description:
-      "SQUAADS is used for systematic design exploration and optimization of superconducting quantum devices, focusing on automation across large multidimensional parameter spaces. Users define device parameters, cost metrics, and constraints, after which SQUAADS executes sweeps, analyzes performance, and ranks candidate designs. Currently, it is best applied when investigating how fabrication tolerances, geometric choices, or circuit scaling impact device properties, making it valuable for rapid iteration and narrowing large design spaces.",
+      "SQUADDS is used for systematic design exploration and optimization of superconducting quantum devices, focusing on automation across large multidimensional parameter spaces. Users define device parameters, cost metrics, and constraints, after which SQUADDS executes sweeps, analyzes performance, and ranks candidate designs. Currently, it is best applied when investigating how fabrication tolerances, geometric choices, or circuit scaling impact device properties, making it valuable for rapid iteration and narrowing large design spaces.",
     github: "https://github.com/LFL-Lab/SQuADDS",
   },
   {
