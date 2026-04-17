@@ -126,6 +126,7 @@ export async function POST(req: Request) {
       poster_url: posterUrl || null,
       cv_url: cvUrl || null,
       student_id_photo_url: studentIdPhotoUrl || null,
+      dietary_restriction: meta.dietaryRestriction || null,
       wants_qdc_membership: meta.wantsQdcMembership === "true",
       agree_to_terms: meta.agreeToTerms === "true",
       payment_status: "paid",

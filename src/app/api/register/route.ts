@@ -107,6 +107,7 @@ export async function POST(request: NextRequest) {
         project_description: registrationData.projectDescription || null,
         poster_url: registrationData.posterUrl || null,
         student_id_photo_url: null,
+        dietary_restriction: body.dietaryRestriction || null,
         wants_qdc_membership: registrationData.wantsQdcMembership,
         agree_to_terms: registrationData.agreeToTerms,
         approval_status: approvalStatus,

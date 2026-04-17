@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS qdw_registrations (
   project_description TEXT,
   poster_url TEXT,
   student_id_photo_url TEXT,
+  dietary_restriction TEXT,
   wants_qdc_membership BOOLEAN DEFAULT FALSE,
   agree_to_terms BOOLEAN DEFAULT FALSE,
   payment_status TEXT DEFAULT 'pending',

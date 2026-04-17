@@ -58,6 +58,9 @@ function RegistrationContent() {
     wantsQdcMembership: false,
     agreeToTerms: false,
 
+    dietaryRestriction: '',
+    dietaryRestrictionOther: '',
+
     cvPdf: null as File | null,
     posterPdf: null as File | null,
     studentIdPhoto: null as File | null,
@@ -341,6 +344,18 @@ function RegistrationContent() {
       return;
     }
 
+    // Validate dietary restriction
+    if (!formData.dietaryRestriction) {
+      setIsSubmitting(false);
+      setSubmitError('Please select a dietary restriction.');
+      return;
+    }
+    if (formData.dietaryRestriction === 'Other' && !formData.dietaryRestrictionOther.trim()) {
+      setIsSubmitting(false);
+      setSubmitError('Please specify your dietary restriction.');
+      return;
+    }
+
     try {
       // Check if this is a student registration
       const isStudent = formData.registrationType === 'student_in_person' || 
@@ -367,6 +382,7 @@ function RegistrationContent() {
             registrationType: formData.registrationType,
             projectTitle: formData.projectTitle,
             projectDescription: formData.projectDescription,
+            dietaryRestriction: formData.dietaryRestriction === 'Other' ? formData.dietaryRestrictionOther : formData.dietaryRestriction,
             wantsQdcMembership: formData.wantsQdcMembership,
             agreeToTerms: formData.agreeToTerms,
           }),
@@ -489,6 +505,7 @@ function RegistrationContent() {
           registrationType: formData.registrationType,
           projectTitle: formData.projectTitle,
           projectDescription: formData.projectDescription,
+          dietaryRestriction: formData.dietaryRestriction === 'Other' ? formData.dietaryRestrictionOther : formData.dietaryRestriction,
           // Store files as base64 - will be uploaded after payment
           cvBase64,
           cvFileName,
@@ -961,6 +978,55 @@ function RegistrationContent() {
                       <option key={country} value={country}>{country}</option>
                     ))}
                   </select>
+                </div>
+
+                {/* Dietary Restriction */}
+                <div>
+                  <label htmlFor="dietaryRestriction" className="block text-sm font-bold text-gray-900 mb-1">
+                    Food Dietary Restriction <span className="font-normal text-gray-500">(required)</span>
+                  </label>
+                  {formData.dietaryRestriction === 'Other' ? (
+                    <div className="flex items-center gap-2 mt-2">
+                      <input
+                        type="text"
+                        name="dietaryRestrictionOther"
+                        value={formData.dietaryRestrictionOther}
+                        onChange={handleChange}
+                        autoFocus
+                        className="flex-1 h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Please specify your dietary restriction"
+                        maxLength={200}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, dietaryRestriction: '', dietaryRestrictionOther: '' }))}
+                        className="text-sm text-purple-600 hover:text-purple-700 whitespace-nowrap"
+                      >
+                        ← Back
+                      </button>
+                    </div>
+                  ) : (
+                    <select
+                      id="dietaryRestriction"
+                      name="dietaryRestriction"
+                      value={formData.dietaryRestriction}
+                      onChange={handleChange}
+                      className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mt-2"
+                      required
+                    >
+                      <option value="">Select dietary restriction</option>
+                      <option value="None">None / No restriction</option>
+                      <option value="Vegetarian">Vegetarian</option>
+                      <option value="Vegan">Vegan</option>
+                      <option value="Gluten-free">Gluten-free</option>
+                      <option value="Halal">Halal</option>
+                      <option value="Kosher">Kosher</option>
+                      <option value="Nut allergy">Nut allergy</option>
+                      <option value="Dairy-free">Dairy-free</option>
+                      <option value="Other">Other (please type)</option>
+                    </select>
+                  )}
                 </div>
 
                 {/* Project info */}

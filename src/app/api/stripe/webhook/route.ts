@@ -198,6 +198,7 @@ async function saveRegistration(
     poster_url: null,
     cv_url: null,
     student_id_photo_url: null,
+    dietary_restriction: meta.dietaryRestriction || null,
     wants_qdc_membership: meta.wantsQdcMembership === "true",
     agree_to_terms: meta.agreeToTerms === "true",
     payment_status: "paid",

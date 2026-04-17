@@ -71,6 +71,7 @@ export async function POST(req: Request) {
       metadata.registrationType = String(registrationData.registrationType || registrationType).slice(0, 500);
       metadata.projectTitle = String(registrationData.projectTitle || "").slice(0, 500);
       metadata.projectDescription = String(registrationData.projectDescription || "").slice(0, 500);
+      metadata.dietaryRestriction = String(registrationData.dietaryRestriction || "").slice(0, 500);
       // Note: posterUrl and studentIdPhotoUrl are uploaded AFTER payment on success page
       metadata.wantsQdcMembership = registrationData.wantsQdcMembership ? "true" : "false";
       metadata.agreeToTerms = registrationData.agreeToTerms ? "true" : "false";
