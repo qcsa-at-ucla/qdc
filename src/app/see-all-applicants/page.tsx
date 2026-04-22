@@ -339,7 +339,12 @@ export default function AdminDashboard() {
       app.projectTitle?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesFilter =
-      filterType === "all" || app.registrationType === filterType;
+      filterType === "all" ||
+      (filterType === "in_person_all"
+        ? app.registrationType === "student_in_person" || app.registrationType === "professional_in_person"
+        : filterType === "online_all"
+        ? app.registrationType === "student_online" || app.registrationType === "professional_online"
+        : app.registrationType === filterType);
 
     const matchesStatus =
       statusFilter === "all" ||
@@ -510,6 +515,8 @@ export default function AdminDashboard() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-xl font-medium text-purple-600 capitalize  focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
                 <option value="all">All Types</option>
+                <option value="in_person_all">All In-Person</option>
+                <option value="online_all">All Online</option>
                 <option value="student_in_person">Student (In-Person)</option>
                 <option value="student_online">Student (Online)</option>
                 <option value="professional_in_person">Professional (In-Person)</option>
