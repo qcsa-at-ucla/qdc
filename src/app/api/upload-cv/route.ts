@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${supabaseKey}`,
+          apikey: supabaseKey,
           'Content-Type': 'application/pdf',
           'x-upsert': 'true',
         },
