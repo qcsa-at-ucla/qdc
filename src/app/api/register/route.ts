@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import { Resend } from "resend";
 
 /**
  * Registration API - Saves user registration data to Supabase
@@ -136,6 +137,141 @@ export async function POST(request: NextRequest) {
         { error: "Registration saved, but missing id" },
         { status: 500 }
       );
+    }
+
+    // Send confirmation email (non-blocking — don't fail registration if email fails)
+    try {
+      const resendApiKey = process.env.RESEND_API_KEY;
+      const fromEmail = process.env.RESEND_FROM_EMAIL || "QDW 2026 <qdw2026@qdc-qcsa.org>";
+      const replyToEmail = process.env.RESEND_REPLY_TO_EMAIL || "quantum.ucla@gmail.com";
+
+      if (resendApiKey) {
+        const resend = new Resend(resendApiKey);
+
+        if (isStudent) {
+          // Student: pending review email
+          await resend.emails.send({
+            from: fromEmail,
+            to: registrationData.email,
+            replyTo: replyToEmail,
+            subject: "We received your QDW 2026 registration — pending review",
+            html: `
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <meta charset="utf-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                </head>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+                  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+                    <h1 style="margin: 0; font-size: 28px;">Registration Received!</h1>
+                    <p style="margin: 10px 0 0; font-size: 16px;">Quantum Device Workshop 2026</p>
+                  </div>
+
+                  <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+                    <p style="margin: 0 0 20px;">Hi ${registrationData.firstName},</p>
+
+                    <p style="margin: 0 0 20px;">
+                      Thank you for registering for <strong>QDW 2026</strong>! We've received your application and your student ID is currently under review.
+                    </p>
+
+                    <div style="background: white; border-left: 4px solid #667eea; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                      <p style="margin: 0 0 10px;"><strong>Your Registration Details:</strong></p>
+                      <p style="margin: 5px 0;">📝 <strong>Name:</strong> ${registrationData.firstName} ${registrationData.lastName}</p>
+                      <p style="margin: 5px 0;">📧 <strong>Email:</strong> ${registrationData.email}</p>
+                      <p style="margin: 5px 0;">🎓 <strong>Type:</strong> ${registrationData.registrationType === 'student_in_person' ? 'Student – In Person ($60)' : 'Student – Online ($30)'}</p>
+                    </div>
+
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                      <p style="margin: 0 0 8px;"><strong>⏳ What happens next?</strong></p>
+                      <ol style="margin: 0; padding-left: 20px;">
+                        <li style="margin-bottom: 6px;">Our team will verify your student ID photo</li>
+                        <li style="margin-bottom: 6px;">You'll receive an email with a payment link once approved</li>
+                        <li style="margin-bottom: 6px;">Complete payment to secure your spot</li>
+                      </ol>
+                    </div>
+
+                    <p style="margin: 20px 0;">
+                      If you have any questions in the meantime, feel free to reply to this email.
+                    </p>
+
+                    <p style="margin: 0;">
+                      See you at QDW 2026!<br>
+                      <strong>The QDW Team</strong>
+                    </p>
+                  </div>
+
+                  <div style="text-align: center; padding: 20px; color: #666; font-size: 12px;">
+                    <p style="margin: 0;">This is an automated email from QDW 2026</p>
+                    <p style="margin: 5px 0;">© ${new Date().getFullYear()} Quantum Device Workshop. All rights reserved.</p>
+                  </div>
+                </body>
+              </html>
+            `,
+          });
+        } else {
+          // Non-student: proceed to payment email
+          await resend.emails.send({
+            from: fromEmail,
+            to: registrationData.email,
+            replyTo: replyToEmail,
+            subject: "Almost there — complete your QDW 2026 registration",
+            html: `
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <meta charset="utf-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                </head>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+                  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+                    <h1 style="margin: 0; font-size: 28px;">One Step Away!</h1>
+                    <p style="margin: 10px 0 0; font-size: 16px;">Quantum Device Workshop 2026</p>
+                  </div>
+
+                  <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+                    <p style="margin: 0 0 20px;">Hi ${registrationData.firstName},</p>
+
+                    <p style="margin: 0 0 20px;">
+                      Thank you for signing up for <strong>QDW 2026</strong>! Your registration details have been saved. Please complete your payment to confirm your spot.
+                    </p>
+
+                    <div style="background: white; border-left: 4px solid #667eea; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                      <p style="margin: 0 0 10px;"><strong>Your Registration Details:</strong></p>
+                      <p style="margin: 5px 0;">📝 <strong>Name:</strong> ${registrationData.firstName} ${registrationData.lastName}</p>
+                      <p style="margin: 5px 0;">📧 <strong>Email:</strong> ${registrationData.email}</p>
+                      <p style="margin: 5px 0;">🏷️ <strong>Type:</strong> ${registrationData.registrationType === 'professional_in_person' ? 'Professional – In Person' : registrationData.registrationType === 'professional_online' ? 'Professional – Online' : registrationData.registrationType}</p>
+                    </div>
+
+                    <p style="margin: 20px 0;">
+                      If you did not complete payment yet, you were redirected to the payment page. If you need to return to it, please contact us and we'll resend your payment link.
+                    </p>
+
+                    <p style="margin: 20px 0;">
+                      If you have any questions, feel free to reply to this email.
+                    </p>
+
+                    <p style="margin: 0;">
+                      See you at QDW 2026!<br>
+                      <strong>The QDW Team</strong>
+                    </p>
+                  </div>
+
+                  <div style="text-align: center; padding: 20px; color: #666; font-size: 12px;">
+                    <p style="margin: 0;">This is an automated email from QDW 2026</p>
+                    <p style="margin: 5px 0;">© ${new Date().getFullYear()} Quantum Device Workshop. All rights reserved.</p>
+                  </div>
+                </body>
+              </html>
+            `,
+          });
+        }
+
+        console.log(`Confirmation email sent to ${registrationData.email}`);
+      }
+    } catch (emailError) {
+      // Don't fail the registration if email fails
+      console.error("Failed to send confirmation email:", emailError);
     }
 
     return NextResponse.json({
