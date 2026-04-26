@@ -225,6 +225,13 @@ const speakers: Speaker[] = [
     image: '/images/Ani_Nersisyan.png',
     bio: 'Ani Nersisyan is a Research Scientist at Google Quantum AI working on superconducting qubit systems and scalable quantum computing hardware. Her contributions span qubit design, chip integration, and the engineering of high-performance quantum processors.',
   },
+  {
+    name: 'Nik Zhelev',
+    affiliation: 'Northwestern University',
+    title: 'Researcher, CAPST',
+    image: '/images/Nik Zhelev.png',
+    bio: 'Nik Zhelev is a researcher at the Center for Applied Physics and Superconducting Technologies (CAPST) at Northwestern University. His work focuses on materials science and surface treatments for superconducting qubits, including investigating interface-level sources of two-level system loss and developing fabrication processes that improve qubit coherence and relaxation times.',
+  },
 ];
 
 export default function QDW2026Speakers() {
