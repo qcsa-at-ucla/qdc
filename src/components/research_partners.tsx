@@ -62,6 +62,12 @@ export default function ResearchPartners({ direction = 'left' }: { direction?: '
       width: 260,
       height: 130,
     },
+    {
+      name: 'Alice & Bob',
+      logo: '/images/Alice-Bob.png',
+      width: 280,
+      height: 100,
+    },
   ];
 
   return (

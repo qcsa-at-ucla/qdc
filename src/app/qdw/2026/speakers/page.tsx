@@ -12,6 +12,7 @@ interface Speaker {
   image: string;
   bio: string;
   title?: string;
+  sponsored?: boolean;
 }
 
 const speakers: Speaker[] = [
@@ -232,6 +233,14 @@ const speakers: Speaker[] = [
     image: '/images/Nik Zhelev.png',
     bio: 'Nik Zhelev is a researcher at the Center for Applied Physics and Superconducting Technologies (CAPST) at Northwestern University. His work focuses on materials science and surface treatments for superconducting qubits, including investigating interface-level sources of two-level system loss and developing fabrication processes that improve qubit coherence and relaxation times.',
   },
+  {
+    name: 'Alice & Bob',
+    affiliation: 'Alice & Bob',
+    title: 'Quantum Computing Company',
+    image: '/images/Alice-Bob.png',
+    bio: 'Alice & Bob is a French quantum computing company pioneering the cat qubit: a superconducting qubit architecture with built-in error correction that dramatically reduces the overhead required for fault-tolerant quantum computing. Their approach leverages the natural noise bias of cat qubits to build hardware-efficient, error-corrected quantum processors, with a roadmap toward the first universal fault-tolerant quantum computer.',
+    sponsored: true,
+  },
 ];
 
 export default function QDW2026Speakers() {
@@ -317,7 +326,7 @@ export default function QDW2026Speakers() {
                   onClick={() => setSelected(speaker)}
                   className="group flex flex-col items-center text-center focus:outline-none"
                 >
-                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-purple-400 transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_24px_rgba(147,51,234,0.4)] bg-gray-800">
+                  <div className={`relative w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full overflow-hidden border-2 transition-all duration-300 group-hover:scale-105 bg-gray-800 ${speaker.sponsored ? 'border-[#C0C0C0] group-hover:border-[#E8E8E8] group-hover:shadow-[0_0_24px_rgba(192,192,192,0.5)]' : 'border-white/10 group-hover:border-purple-400 group-hover:shadow-[0_0_24px_rgba(147,51,234,0.4)]'}`}>
                     <Image
                       src={speaker.image}
                       alt={speaker.name}

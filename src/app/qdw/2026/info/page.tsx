@@ -76,6 +76,7 @@ export default function QDW2026Info() {
     { name: 'Nanoacademic', logo: '/images/nanoacademic.png', tier: 'gold' },
     { name: 'Quantum Machines', logo: '/images/quantum_machine.png', tier: 'silver' },
     { name: 'Zurich Instruments', logo: '/images/zurich.png', tier: 'silver' },
+    { name: 'Alice & Bob', logo: '/images/Alice-Bob.png', tier: 'silver' },
   ];
 
   // Helper function to get border color based on tier
@@ -277,6 +278,12 @@ export default function QDW2026Info() {
       affiliation: 'Google',
       image: '/images/Ani_Nersisyan.png',
       bio: 'Ani Nersisyan is a researcher at Google Quantum AI working on superconducting qubit systems and scalable quantum computing hardware.',
+    },
+    {
+      name: 'Nik Zhelev',
+      affiliation: 'Northwestern University',
+      image: '/images/Nik Zhelev.png',
+      bio: 'Nik Zhelev is a researcher at the Center for Applied Physics and Superconducting Technologies (CAPST) at Northwestern University, focusing on materials science and surface treatments to improve superconducting qubit coherence.',
     },
   ];
 
