@@ -629,7 +629,7 @@ export default function QDW2026Info() {
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">Poster Session</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">
-                  Present your research and projects to the quantum community. Exchange ideas, receive feedback, and discover cutting-edge work from researchers across institutions.
+                  Present your research and projects to the quantum community. Exchange ideas, receive feedback, and discover cutting-edge work from researchers across institutions. Posters should be no more than 36 × 48 inches; both vertical and horizontal orientations are accepted.
                 </p>
               </div>
             </div>

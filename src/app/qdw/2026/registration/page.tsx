@@ -1096,7 +1096,7 @@ function RegistrationContent() {
                       <label htmlFor="posterPdf" className="block text-sm font-bold text-gray-900 mb-1">
                         Poster PDF Upload <span className="font-normal text-gray-500">(optional)</span>
                       </label>
-                      <p className="text-xs text-gray-500 mb-2">Upload your project poster (PDF, max 15MB)</p>
+                      <p className="text-xs text-gray-500 mb-2">Upload your project poster (PDF, max 15MB). Posters should be no more than 36 × 48 inches; vertical or horizontal orientation is accepted.</p>
                       <input
                         type="file"
                         id="posterPdf"

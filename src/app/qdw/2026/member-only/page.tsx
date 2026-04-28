@@ -1089,7 +1089,7 @@ export default function MemberOnlyPage() {
                   Update Poster PDF <span className="font-normal text-gray-500">(optional)</span>
                 </label>
                 <p className="text-xs text-gray-500 mb-2">
-                  Leave empty to keep current file, or upload a new PDF to replace it
+                  Leave empty to keep current file, or upload a new PDF to replace it. Posters should be no more than 36 × 48 inches; vertical or horizontal orientation is accepted.
                 </p>
                 <input
                   key={editingPoster ? 'poster-file-input' : 'poster-file-reset'}
