@@ -160,10 +160,13 @@ export async function POST(req: Request) {
                 </p>
 
                 <div style="text-align: center; margin: 30px 0;">
-                  <a href="${paymentUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; font-size: 16px;">
+                  <a href="${paymentUrl}" style="display: inline-block; background-color: #667eea; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff !important; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; font-size: 16px; border: 2px solid #667eea;">
                     Complete Payment Now
                   </a>
                 </div>
+
+                <p style="margin: 0 0 10px; font-size: 14px; color: #666; text-align: center;">Or copy and paste this link into your browser:</p>
+                <p style="font-size: 13px; color: #4F46E5; word-break: break-all; margin: 0 0 20px; text-align: center;">${paymentUrl}</p>
 
                 <div style="background: #fef3c7; border: 1px solid #fbbf24; padding: 15px; border-radius: 8px; margin: 20px 0;">
                   <p style="margin: 0 0 10px;"><strong>⚠️ Important:</strong></p>

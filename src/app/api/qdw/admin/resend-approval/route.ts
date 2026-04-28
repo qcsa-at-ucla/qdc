@@ -155,7 +155,7 @@ export async function POST(req: Request) {
                 </p>
 
                 <div style="text-align: center; margin: 30px 0;">
-                  <a href="${paymentUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; font-size: 16px;">
+                  <a href="${paymentUrl}" style="display: inline-block; background-color: #667eea; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff !important; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; font-size: 16px; border: 2px solid #667eea;">
                     Complete Payment Now
                   </a>
                 </div>
