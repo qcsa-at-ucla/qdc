@@ -281,9 +281,9 @@ export default function QDW2026Info() {
     },
     {
       name: 'Nik Zhelev',
-      affiliation: 'Northwestern University',
+      affiliation: 'University of Oregon',
       image: '/images/Nik Zhelev.png',
-      bio: 'Nik Zhelev is a researcher at the Center for Applied Physics and Superconducting Technologies (CAPST) at Northwestern University, focusing on materials science and surface treatments to improve superconducting qubit coherence.',
+      bio: 'Nik Zhelev is a researcher at the Center for Applied Physics and Superconducting Technologies (CAPST) at University of Oregon, focusing on materials science and surface treatments to improve superconducting qubit coherence.',
     },
   ];
 

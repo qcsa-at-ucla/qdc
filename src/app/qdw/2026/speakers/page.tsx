@@ -228,10 +228,10 @@ const speakers: Speaker[] = [
   },
   {
     name: 'Nik Zhelev',
-    affiliation: 'Northwestern University',
+    affiliation: 'University of Oregon',
     title: 'Researcher, CAPST',
     image: '/images/Nik Zhelev.png',
-    bio: 'Nik Zhelev is a researcher at the Center for Applied Physics and Superconducting Technologies (CAPST) at Northwestern University. His work focuses on materials science and surface treatments for superconducting qubits, including investigating interface-level sources of two-level system loss and developing fabrication processes that improve qubit coherence and relaxation times.',
+    bio: 'Nik Zhelev is a researcher at the Center for Applied Physics and Superconducting Technologies (CAPST) at University of Oregon. His work focuses on materials science and surface treatments for superconducting qubits, including investigating interface-level sources of two-level system loss and developing fabrication processes that improve qubit coherence and relaxation times.',
   },
   {
     name: 'Alice & Bob',
