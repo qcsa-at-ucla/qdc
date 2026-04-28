@@ -158,16 +158,6 @@ const teamMembers: TeamMember[] = [
     linkedIn: "https://www.linkedin.com/in/gina-namkung/",
   },
   {
-    id: 16,
-    name: "Sameer Kumar",
-    role: "Corporate Relations",
-    major: "Electrical Engineering",
-    year: "2nd Year",
-    bio: "Sameer Kumar is a second-year Electrical Engineering student at UCLA with a passion for circuit design, wireless systems, and robotics. He previously interned at the Johns Hopkins Applied Physics Laboratory, where he worked on microwave signal research and led prototype development in Wireless Power Transfer and Electric Impedance Spectroscopy.",
-    image: "/images/sameer.jpg",
-    linkedIn: "https://www.linkedin.com/in/sameer-kumar-aa981b32a/",
-  },
-  {
     id: 17,
     name: "Matt Guibord",
     role: "Events & Advertisement",
