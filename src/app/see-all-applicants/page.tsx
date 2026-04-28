@@ -330,6 +330,50 @@ export default function AdminDashboard() {
     window.URL.revokeObjectURL(url);
   };
 
+  const exportPaidCSV = () => {
+    const paidApplicants = applicants.filter((app) => app.paymentStatus === "paid");
+
+    const headers = [
+      "First Name",
+      "Last Name",
+      "Email",
+      "Registration Type",
+      "Designation",
+      "Location",
+      "Project Title",
+      "Project Description",
+      "Registration Date",
+      "CV URL",
+    ];
+
+    const origin = window.location.origin;
+    const csvData = paidApplicants.map((app) => [
+      app.firstName,
+      app.lastName,
+      app.email,
+      app.registrationType,
+      app.designation,
+      app.location,
+      app.projectTitle || "",
+      app.projectDescription || "",
+      new Date(app.createdAt).toLocaleDateString(),
+      app.cvUrl ? `${origin}/api/qdw/view-cv?email=${encodeURIComponent(app.email)}` : "",
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...csvData.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `qdw-2026-paid-users-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   // Filter applicants
   const filteredApplicants = applicants.filter((app) => {
     const matchesSearch =
@@ -439,6 +483,12 @@ export default function AdminDashboard() {
                 className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full transition-all font-medium"
               >
                 Export CSV
+              </button>
+              <button
+                onClick={exportPaidCSV}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full transition-all font-medium"
+              >
+                Export Paid CSV
               </button>
               <button
                 onClick={handleLogout}
