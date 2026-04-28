@@ -20,6 +20,7 @@ interface Applicant {
   approvalStatus: string | null;
   approvedAt: string | null;
   stripeSessionId: string;
+  dietaryRestriction: string | null;
   createdAt: string;
 }
 
@@ -340,6 +341,7 @@ export default function AdminDashboard() {
       "Registration Type",
       "Designation",
       "Location",
+      "Dietary Restriction",
       "Project Title",
       "Project Description",
       "Registration Date",
@@ -354,6 +356,7 @@ export default function AdminDashboard() {
       app.registrationType,
       app.designation,
       app.location,
+      app.dietaryRestriction || "",
       app.projectTitle || "",
       app.projectDescription || "",
       new Date(app.createdAt).toLocaleDateString(),

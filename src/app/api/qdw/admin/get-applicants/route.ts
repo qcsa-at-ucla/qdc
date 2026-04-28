@@ -65,6 +65,7 @@ export async function POST(request: NextRequest) {
       approvalStatus: applicant.approval_status,
       approvedAt: applicant.approved_at,
       stripeSessionId: applicant.stripe_session_id,
+      dietaryRestriction: applicant.dietary_restriction,
       createdAt: applicant.created_at,
     })) || [];
 
