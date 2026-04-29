@@ -229,9 +229,9 @@ const speakers: Speaker[] = [
   {
     name: 'Nik Zhelev',
     affiliation: 'University of Oregon',
-    title: 'Researcher, CAPST',
+    title: 'Research Assistant Professor & Director of Quantum Technology Master\'s Internship Program',
     image: '/images/Nik Zhelev.png',
-    bio: 'Nik Zhelev is a researcher at the Center for Applied Physics and Superconducting Technologies (CAPST) at University of Oregon. His work focuses on materials science and surface treatments for superconducting qubits, including investigating interface-level sources of two-level system loss and developing fabrication processes that improve qubit coherence and relaxation times.',
+    bio: 'Nik Zhelev is a Research Assistant Professor at the University of Oregon\'s Materials Science Institute, affiliated with OMQ and the Physics department. He also serves as Director of the Quantum Technology Master\'s Internship Program. His research focuses on superconducting quantum circuits and quantum computing hardware.',
   },
   {
     name: 'Alice & Bob',
