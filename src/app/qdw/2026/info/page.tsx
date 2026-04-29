@@ -282,8 +282,9 @@ export default function QDW2026Info() {
     {
       name: 'Nik Zhelev',
       affiliation: 'University of Oregon',
+      title: 'Research Assistant Professor & Director of Quantum Technology Master\'s Internship Program',
       image: '/images/Nik Zhelev.png',
-      bio: 'Nik Zhelev is a researcher at the Center for Applied Physics and Superconducting Technologies (CAPST) at University of Oregon, focusing on materials science and surface treatments to improve superconducting qubit coherence.',
+      bio: 'Nik Zhelev is a Research Assistant Professor at the University of Oregon\'s Materials Science Institute, affiliated with OMQ and the Physics department. He also serves as Director of the Quantum Technology Master\'s Internship Program. His research focuses on superconducting quantum circuits and quantum computing hardware.',
     },
   ];
 
