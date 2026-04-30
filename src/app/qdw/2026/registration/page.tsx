@@ -35,6 +35,29 @@ const VALID_COUNTRIES = [
   'Vatican City', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
 ];
 
+// Developing countries list (matched to names in VALID_COUNTRIES)
+const DEVELOPING_COUNTRIES = new Set([
+  'Afghanistan', 'Albania', 'Algeria', 'Angola', 'Armenia', 'Azerbaijan',
+  'Bangladesh', 'Belarus', 'Belize', 'Benin', 'Bhutan', 'Bolivia',
+  'Bosnia and Herzegovina', 'Botswana', 'Burkina Faso', 'Burundi',
+  'Cabo Verde', 'Cambodia', 'Central African Republic', 'Chad', 'Colombia',
+  'Comoros', 'Congo', 'Democratic Republic of the Congo', 'Djibouti',
+  'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea',
+  'Eswatini', 'Ethiopia', 'Fiji', 'Gabon', 'Gambia', 'Georgia', 'Ghana',
+  'Guatemala', 'Guinea', 'Guinea-Bissau', 'Haiti', 'Honduras', 'India',
+  'Indonesia', 'Jamaica', 'Jordan', 'Kenya', 'Kiribati', 'Kosovo',
+  'Kyrgyzstan', 'Laos', 'Lebanon', 'Lesotho', 'Liberia', 'Libya',
+  'Madagascar', 'Malawi', 'Mali', 'Marshall Islands', 'Mauritania',
+  'Micronesia', 'Moldova', 'Mongolia', 'Morocco', 'Mozambique', 'Myanmar',
+  'Namibia', 'Nepal', 'Nicaragua', 'Niger', 'Nigeria', 'North Macedonia',
+  'Palestine', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines',
+  'Rwanda', 'Samoa', 'Sao Tome and Principe', 'Senegal', 'Sierra Leone',
+  'Solomon Islands', 'South Africa', 'Sri Lanka', 'Sudan', 'Suriname',
+  'Tajikistan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga',
+  'Tunisia', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'Uzbekistan',
+  'Vanuatu', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe',
+]);
+
 // Inner component that uses useSearchParams
 function RegistrationContent() {
   const searchParams = useSearchParams();
@@ -69,6 +92,9 @@ function RegistrationContent() {
   // Helper to check if current registration type is student
   const isStudentRegistration = formData.registrationType === 'student_in_person' || 
                                  formData.registrationType === 'student_online';
+
+  // Helper to check if selected country is a developing country
+  const isFromDevelopingCountry = DEVELOPING_COUNTRIES.has(formData.location);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -979,6 +1005,31 @@ function RegistrationContent() {
                     ))}
                   </select>
                 </div>
+
+                {/* Developing country fee-waiver notice */}
+                {isFromDevelopingCountry && (
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-sm">
+                    <p className="font-semibold mb-1">Financial Hardship Fee Waiver</p>
+                    <p>
+                      If you are from a developing country and genuinely cannot afford the registration
+                      fees, please email{' '}
+                      <a
+                        href="mailto:quantum.ucla@gmail.com"
+                        className="underline font-semibold hover:text-blue-900"
+                      >
+                        quantum.ucla@gmail.com
+                      </a>{' '}
+                      and explain your situation clearly. To be considered, you must attach:
+                    </p>
+                    <ul className="list-disc list-inside mt-2 space-y-1">
+                      <li>A <strong>valid student ID</strong> (if you are a student)</li>
+                      <li>A <strong>valid CV</strong> (required for everyone)</li>
+                    </ul>
+                    <p className="mt-2">
+                      Incomplete requests will not be reviewed.
+                    </p>
+                  </div>
+                )}
 
                 {/* Dietary Restriction */}
                 <div>
