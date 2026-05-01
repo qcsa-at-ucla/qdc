@@ -26,6 +26,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // For the list action (login), also verify admin email
+    if (action === "list") {
+      const adminEmailEnv = process.env.ADMIN_EMAIL;
+      const { adminEmail } = payload;
+      if (adminEmailEnv && (!adminEmail || adminEmail.toLowerCase() !== adminEmailEnv.toLowerCase())) {
+        return NextResponse.json({ error: "Unauthorized - Invalid email" }, { status: 401 });
+      }
+    }
+
     const supabaseUrl = process.env.SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_KEY;
 

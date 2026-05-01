@@ -26,6 +26,7 @@ const EMPTY_FORM = {
 export default function ManageJobsPage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [apiKey, setApiKey] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
   const [authError, setAuthError] = useState("");
   const [jobs, setJobs] = useState<ManualJob[]>([]);
   const [loading, setLoading] = useState(false);
@@ -39,30 +40,34 @@ export default function ManageJobsPage() {
 
   useEffect(() => {
     const stored = sessionStorage.getItem("admin_api_key");
-    if (stored) {
+    const storedEmail = sessionStorage.getItem("admin_email");
+    if (stored && storedEmail) {
       setApiKey(stored);
-      loadJobs(stored);
+      setAdminEmail(storedEmail);
+      loadJobs(stored, storedEmail);
     }
   }, []);
 
-  const loadJobs = async (key: string) => {
+  const loadJobs = async (key: string, email: string) => {
     setLoading(true);
     setError("");
     try {
       const res = await fetch("/api/jobs/manage", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ apiKey: key, action: "list" }),
+        body: JSON.stringify({ apiKey: key, adminEmail: email, action: "list" }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to load jobs");
       setJobs(data.jobs || []);
       setAuthenticated(true);
       sessionStorage.setItem("admin_api_key", key);
+      sessionStorage.setItem("admin_email", email);
     } catch (err: any) {
       setAuthError(err.message);
       setAuthenticated(false);
       sessionStorage.removeItem("admin_api_key");
+      sessionStorage.removeItem("admin_email");
     } finally {
       setLoading(false);
     }
@@ -70,7 +75,7 @@ export default function ManageJobsPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    loadJobs(apiKey);
+    loadJobs(apiKey, adminEmail);
   };
 
   const handleAdd = async (e: React.FormEvent) => {
@@ -162,6 +167,17 @@ export default function ManageJobsPage() {
                 required
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Admin Email</label>
+              <input
+                type="email"
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="Enter admin email"
+                required
+              />
+            </div>
             <button
               type="submit"
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg transition"
@@ -199,7 +215,9 @@ export default function ManageJobsPage() {
             <button
               onClick={() => {
                 setAuthenticated(false);
+                setAdminEmail("");
                 sessionStorage.removeItem("admin_api_key");
+                sessionStorage.removeItem("admin_email");
               }}
               className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm transition"
             >

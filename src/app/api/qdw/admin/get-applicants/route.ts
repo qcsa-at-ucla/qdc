@@ -24,11 +24,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Admin access not configured" }, { status: 500 });
     }
 
-    // Verify admin API key
-    const { apiKey } = await request.json();
+    // Verify admin API key and email
+    const adminEmailEnv = process.env.ADMIN_EMAIL;
+    const { apiKey, adminEmail } = await request.json();
 
     if (!apiKey || apiKey !== adminApiKey) {
       return NextResponse.json({ error: "Unauthorized - Invalid API key" }, { status: 401 });
+    }
+
+    if (adminEmailEnv && (!adminEmail || adminEmail.toLowerCase() !== adminEmailEnv.toLowerCase())) {
+      return NextResponse.json({ error: "Unauthorized - Invalid email" }, { status: 401 });
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);

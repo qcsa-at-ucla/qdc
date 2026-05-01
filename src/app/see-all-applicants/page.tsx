@@ -27,6 +27,7 @@ interface Applicant {
 export default function AdminDashboard() {
   const [authenticated, setAuthenticated] = useState(false);
   const [apiKey, setApiKey] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [applicants, setApplicants] = useState<Applicant[]>([]);
@@ -113,14 +114,16 @@ export default function AdminDashboard() {
   // Check if already authenticated
   useEffect(() => {
     const storedKey = sessionStorage.getItem("admin_api_key");
-    if (storedKey) {
+    const storedEmail = sessionStorage.getItem("admin_email");
+    if (storedKey && storedEmail) {
       setApiKey(storedKey);
-      fetchApplicants(storedKey);
+      setAdminEmail(storedEmail);
+      fetchApplicants(storedKey, storedEmail);
       fetchJobRequests(storedKey);
     }
   }, []);
 
-  const fetchApplicants = async (key: string) => {
+  const fetchApplicants = async (key: string, email: string) => {
     setLoading(true);
     setError("");
 
@@ -130,7 +133,7 @@ export default function AdminDashboard() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ apiKey: key }),
+        body: JSON.stringify({ apiKey: key, adminEmail: email }),
         cache: "no-store", // Prevent caching of applicant data
       });
 
@@ -143,11 +146,13 @@ export default function AdminDashboard() {
       setApplicants(data.applicants);
       setAuthenticated(true);
       sessionStorage.setItem("admin_api_key", key);
+      sessionStorage.setItem("admin_email", email);
       fetchJobRequests(key);
     } catch (err: any) {
       setError(err.message);
       setAuthenticated(false);
       sessionStorage.removeItem("admin_api_key");
+      sessionStorage.removeItem("admin_email");
     } finally {
       setLoading(false);
     }
@@ -155,15 +160,17 @@ export default function AdminDashboard() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchApplicants(apiKey);
+    fetchApplicants(apiKey, adminEmail);
   };
 
   const handleLogout = () => {
     setAuthenticated(false);
     setApiKey("");
+    setAdminEmail("");
     setApplicants([]);
     setJobRequests([]);
     sessionStorage.removeItem("admin_api_key");
+    sessionStorage.removeItem("admin_email");
   };
 
   const handleReject = async (registrationId: string) => {
@@ -205,7 +212,7 @@ export default function AdminDashboard() {
       setRegistrationToReject(null);
 
       // Refresh applicants list
-      await fetchApplicants(apiKey);
+      await fetchApplicants(apiKey, adminEmail);
     } catch (err: any) {
       alert("Error: " + err.message);
       setError(err.message);
@@ -244,7 +251,7 @@ export default function AdminDashboard() {
       alert(data.message || "Registration approved and email sent!");
 
       // Refresh applicants list
-      await fetchApplicants(apiKey);
+      await fetchApplicants(apiKey, adminEmail);
     } catch (err: any) {
       alert("Error: " + err.message);
       setError(err.message);
@@ -283,7 +290,7 @@ export default function AdminDashboard() {
       alert(data.message || "Approval notification resent successfully!");
 
       // Refresh applicants list
-      await fetchApplicants(apiKey);
+      await fetchApplicants(apiKey, adminEmail);
     } catch (err: any) {
       alert("Error: " + err.message);
       setError(err.message);
@@ -419,7 +426,7 @@ export default function AdminDashboard() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               QDW 2026 Admin
             </h1>
-            <p className="text-gray-600">Enter admin API key to access dashboard</p>
+            <p className="text-gray-600">Enter your credentials to access the dashboard</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -433,6 +440,19 @@ export default function AdminDashboard() {
                 onChange={(e) => setApiKey(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                 placeholder="Enter admin API key"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Admin Email
+              </label>
+              <input
+                type="email"
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="Enter admin email"
                 required
               />
             </div>
