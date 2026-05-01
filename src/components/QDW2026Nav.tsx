@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 
 const navLinks = [
   { label: 'Workshop Info', href: '/qdw/2026/info' },
+  { label: 'Schedule', href: '/qdw/2026/schedule' },
   { label: 'Speakers', href: '/qdw/2026/speakers' },
   { label: 'Registration', href: '/qdw/2026/registration' },
   { label: 'FAQ', href: '/qdw/2026/faq' },

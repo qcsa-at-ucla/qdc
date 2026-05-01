@@ -3,6 +3,75 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+// ── Schedule data ──────────────────────────────────────────────────────────────
+type SessionType = 'lecture' | 'workshop' | 'break' | 'social' | 'meal' | 'panel' | 'talk' | 'project' | 'poster';
+interface ScheduleSession { title: string; type: SessionType; speaker?: string; company?: string; }
+interface ScheduleSlot { time: string; days: (ScheduleSession | null)[]; }
+
+const SESSION_STYLES: Record<SessionType, string> = {
+  lecture:  'bg-purple-900/40 border-purple-500/50 text-purple-100',
+  workshop: 'bg-green-900/40 border-green-500/50 text-green-100',
+  break:    'bg-gray-800/60 border-gray-600/40 text-gray-400',
+  meal:     'bg-gray-800/60 border-gray-600/40 text-gray-400',
+  social:   'bg-amber-900/40 border-amber-500/50 text-amber-100',
+  panel:    'bg-indigo-900/40 border-indigo-500/50 text-indigo-100',
+  talk:     'bg-cyan-900/40 border-cyan-500/50 text-cyan-100',
+  project:  'bg-emerald-900/40 border-emerald-500/50 text-emerald-100',
+  poster:   'bg-pink-900/40 border-pink-500/50 text-pink-100',
+};
+const SESSION_DOTS: Record<SessionType, string> = {
+  lecture: 'bg-purple-400', workshop: 'bg-green-400', break: 'bg-gray-500', meal: 'bg-gray-500',
+  social: 'bg-amber-400', panel: 'bg-indigo-400', talk: 'bg-cyan-400', project: 'bg-emerald-400', poster: 'bg-pink-400',
+};
+
+const TRAINING_SCHEDULE: ScheduleSlot[] = [
+  { time: '8:00 – 9:00 AM', days: [{ title: 'Breakfast', type: 'meal', speaker: 'Intro (8:45)', company: 'Eli Levenson-Falk' }, { title: 'Breakfast', type: 'meal' }, { title: 'Breakfast', type: 'meal' }, { title: 'Breakfast', type: 'meal' }] },
+  { time: '9:00 – 9:45 AM', days: [{ title: 'Intro to cQED', type: 'lecture', speaker: 'Zlatko Minev' }, { title: 'Noise', type: 'lecture', speaker: 'Kyle Serniak' }, { title: 'Circuit Analysis', type: 'lecture', speaker: "Kevin O'Brien" }, { title: 'Intro to Design Project', type: 'lecture', speaker: 'Murat Can Sarihan' }] },
+  { time: '9:45 – 10:30 AM', days: [{ title: 'Intro to Circuits', type: 'lecture', speaker: 'Aziza Almanakly' }, { title: 'Circuit Simulation', type: 'lecture', speaker: 'Jens Koch' }, { title: 'Circuit Analysis', type: 'lecture', speaker: 'David & Lukas Pahl' }, { title: 'Design Project', type: 'project' }] },
+  { time: '10:30 – 11:15 AM', days: [{ title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }] },
+  { time: '11:15 AM – 12:00 PM', days: [{ title: 'Intro to Circuits Pt. 2', type: 'lecture', speaker: 'Nik Zhelev' }, { title: 'Workshop – Circuit Analysis & Simulation', type: 'workshop' }, { title: 'EM Quantum Analysis Techniques', type: 'lecture', speaker: 'Alp Sipahigil' }, { title: 'Design Project', type: 'project' }] },
+  { time: '12:00 – 1:30 PM', days: [{ title: 'Lunch', type: 'meal' }, { title: 'Lunch', type: 'meal' }, { title: 'Lunch', type: 'meal' }, { title: 'Lunch', type: 'meal' }] },
+  { time: '1:30 – 2:15 PM', days: [{ title: 'Intro to Gates', type: 'lecture', speaker: 'Eli Levenson-Falk' }, { title: 'EM Simulations – Classical', type: 'lecture', speaker: 'Sara Sussman' }, { title: 'Workshop – EM & Circuit Analysis', type: 'workshop', speaker: 'TBD' }, { title: 'Designing for Foundries', type: 'talk', speaker: 'Mollie Schwartz' }] },
+  { time: '2:15 – 3:00 PM', days: [{ title: 'Intro to Readout', type: 'lecture', speaker: 'Daniel Sank' }, { title: 'Workshop – EM Simulations', type: 'workshop', speaker: 'Sadman Shanto' }, { title: 'Materials', type: 'lecture', speaker: 'Loren Alegria' }, { title: 'Design Project', type: 'project' }] },
+  { time: '3:00 – 3:30 PM', days: [{ title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }] },
+  { time: '3:30 – 4:15 PM', days: [{ title: 'Intro to Layout', type: 'lecture', speaker: 'Murat Can Sarihan' }, { title: 'Couplers & 2Q Gates', type: 'lecture', speaker: 'Michael Hatridge' }, { title: 'Error Correction Basics', type: 'talk', speaker: 'Andreas Walraff' }, { title: 'Nanoacademic', type: 'talk', company: 'Nanoacademic' }] },
+  { time: '4:15 – 5:00 PM', days: [{ title: 'Workshop – Design & Layout', type: 'workshop' }, { title: 'Workshop – Full Device Simulation', type: 'workshop', company: 'Synopsys / Qolab' }, { title: 'Large Scale Quantum', type: 'talk', speaker: 'Reza Molavi' }, { title: 'Panel Discussion', type: 'panel', speaker: 'Zlatko Minev (Mod.)' }] },
+  { time: '5:00 – 6:00 PM', days: [{ title: 'Poster Session', type: 'poster' }, { title: 'Quantum Beers', type: 'social' }, { title: 'Career Session', type: 'social' }, { title: 'Panel & Reception', type: 'panel' }] },
+  { time: '', days: [null, null, null, { title: 'Reception', type: 'social' }] },
+];
+
+const ADVANCED_SCHEDULE: ScheduleSlot[] = [
+  { time: '8:00 – 9:00 AM', days: [{ title: 'Breakfast', type: 'meal', speaker: 'Intro (8:45)', company: 'Eli Levenson-Falk' }, { title: 'Breakfast', type: 'meal' }, { title: 'Breakfast', type: 'meal' }, { title: 'Breakfast', type: 'meal' }] },
+  { time: '9:00 – 9:45 AM', days: [{ title: 'Ani Nersisyan', type: 'lecture', company: 'Google' }, { title: 'Michael Hatridge', type: 'lecture', company: 'Univ. of Pittsburgh' }, { title: 'Andreas Walraff', type: 'lecture', company: 'ETH Zurich' }, { title: 'Yvonne Gao', type: 'lecture', company: 'NUS' }] },
+  { time: '9:45 – 10:30 AM', days: [{ title: 'Shuhei Tamate', type: 'lecture', company: 'RIKEN' }, { title: 'Jeff Grover', type: 'lecture', company: 'MIT' }, { title: 'Aziza Almanakly', type: 'lecture', company: 'NYU' }, { title: 'Mark Gyure', type: 'lecture', company: 'UCLA' }] },
+  { time: '10:30 – 11:15 AM', days: [{ title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }] },
+  { time: '11:15 AM – 12:00 PM', days: [{ title: 'Ebrahim Forati', type: 'lecture', company: 'Google' }, { title: 'Kyle Serniak', type: 'lecture', company: 'MIT Lincoln Lab' }, { title: 'Anna Grassellino', type: 'lecture', company: 'Fermilab' }, { title: 'Holly Stemp', type: 'lecture', company: 'MIT' }] },
+  { time: '12:00 – 1:30 PM', days: [{ title: 'Lunch', type: 'meal' }, { title: 'Lunch', type: 'meal' }, { title: 'Lunch', type: 'meal' }, { title: 'Lunch', type: 'meal' }] },
+  { time: '1:30 – 2:15 PM', days: [{ title: 'Greg Peairs', type: 'talk', company: 'AWS' }, { title: "Kevin O'Brien", type: 'lecture', company: 'MIT' }, { title: 'Taylor Patti', type: 'talk', company: 'NVIDIA' }, { title: 'Alice & Bob', type: 'talk', company: 'Alice & Bob' }] },
+  { time: '2:15 – 3:00 PM', days: [{ title: 'Hugh Carson', type: 'talk', company: 'AWS' }, { title: 'Wei Dai', type: 'lecture', company: 'Quantum Machines' }, { title: 'Nicola Pancotti', type: 'talk', company: 'NVIDIA' }, { title: 'Nanoacademic', type: 'talk', company: 'Nanoacademic' }] },
+  { time: '3:00 – 3:30 PM', days: [{ title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }] },
+  { time: '3:30 – 4:15 PM', days: [{ title: 'Rigetti', type: 'talk', company: 'Rigetti' }, { title: 'Rigetti', type: 'talk', company: 'Rigetti' }, { title: 'Sadman Ahmed Shanto', type: 'lecture', company: 'USC' }, { title: 'Quantum Design', type: 'talk', speaker: 'TBA' }] },
+  { time: '4:15 – 5:00 PM', days: [{ title: 'Silvia Zorzetti', type: 'lecture', company: 'Fermilab' }, { title: 'Joseph Glick', type: 'talk', company: 'QBlox' }, { title: 'Taekwan Yoon', type: 'talk', company: 'Zurich Instruments' }, { title: 'Panel Discussion', type: 'panel', speaker: 'Zlatko Minev (Mod., 4:30)' }] },
+  { time: '5:00 – 6:00 PM', days: [{ title: 'Poster Session', type: 'poster' }, { title: 'Quantum Beers', type: 'social' }, { title: 'Breakout: Business', type: 'panel', speaker: 'Panel + Talk + Mini Workshop' }, { title: 'Panel & Reception', type: 'panel' }] },
+  { time: '', days: [null, null, { title: 'QDC', type: 'social' }, { title: 'Reception', type: 'social' }] },
+];
+
+const SCHEDULE_DAYS = ['Day 1 · Jun 15', 'Day 2 · Jun 16', 'Day 3 · Jun 17', 'Day 4 · Jun 18'];
+
+function MemberScheduleCell({ s }: { s: ScheduleSession | null }) {
+  if (!s) return <div className="min-h-[52px]" />;
+  return (
+    <div className={`rounded-lg border px-2.5 py-2 min-h-[52px] flex flex-col justify-center gap-0.5 ${SESSION_STYLES[s.type]}`}>
+      <div className="flex items-start gap-1.5">
+        <span className={`mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 ${SESSION_DOTS[s.type]}`} />
+        <span className="text-[11px] sm:text-xs font-semibold leading-snug">{s.title}</span>
+      </div>
+      {s.speaker && <p className="text-[10px] opacity-70 pl-3">{s.speaker}</p>}
+      {s.company && <p className="text-[10px] opacity-55 pl-3 italic">{s.company}</p>}
+    </div>
+  );
+}
+
 export default function MemberOnlyPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -47,6 +116,9 @@ export default function MemberOnlyPage() {
   const [cvLoading, setCvLoading] = useState(false);
   const [cvSuccess, setCvSuccess] = useState(false);
   const [cvError, setCvError] = useState("");
+
+  // Schedule track toggle
+  const [memberTrack, setMemberTrack] = useState<'training' | 'advanced'>('training');
 
   // Initialize form data when user data loads
   useEffect(() => {
@@ -1298,6 +1370,93 @@ export default function MemberOnlyPage() {
               )}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* ── QDW 2026 Schedule ─────────────────────────────────────────── */}
+      <div className="bg-[#05050f] mt-0 px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <p className="text-purple-400 text-xs font-semibold tracking-widest uppercase mb-2">Member Access</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2"
+              style={{ textShadow: '0 0 30px rgba(147,51,234,0.3)' }}>
+              QDW 2026 Full Schedule
+            </h2>
+            <p className="text-gray-500 text-sm">June 15–18 · Cohen Room & Mong Auditorium · UCLA · All times Pacific Time</p>
+          </div>
+
+          {/* Track Toggle */}
+          <div className="flex justify-center mb-8">
+            <div className="inline-flex bg-white/5 border border-white/10 rounded-full p-1 gap-1">
+              <button
+                onClick={() => setMemberTrack('training')}
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${memberTrack === 'training' ? 'bg-green-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+              >
+                Training Track
+              </button>
+              <button
+                onClick={() => setMemberTrack('advanced')}
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${memberTrack === 'advanced' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+              >
+                Advanced Track
+              </button>
+            </div>
+          </div>
+
+          {/* Legend */}
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            {([
+              ['lecture', 'bg-purple-400', 'Lecture'],
+              ['workshop', 'bg-green-400', 'Workshop'],
+              ['talk', 'bg-cyan-400', 'Industry Talk'],
+              ['panel', 'bg-indigo-400', 'Panel / Event'],
+              ['project', 'bg-emerald-400', 'Design Project'],
+              ['poster', 'bg-pink-400', 'Poster Session'],
+              ['social', 'bg-amber-400', 'Social / Networking'],
+              ['break', 'bg-gray-500', 'Break / Meal'],
+            ] as [string, string, string][]).map(([, dot, label]) => (
+              <span key={label} className="flex items-center gap-1.5 text-xs text-gray-400">
+                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dot}`} />
+                {label}
+              </span>
+            ))}
+          </div>
+
+          {/* Grid */}
+          <div className="overflow-x-auto rounded-2xl border border-white/10">
+            <div className="min-w-[680px]">
+              {/* Header */}
+              <div className="grid grid-cols-[130px_1fr_1fr_1fr_1fr] bg-white/5 border-b border-white/10">
+                <div className="px-3 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Time</div>
+                {SCHEDULE_DAYS.map((d, i) => (
+                  <div key={i} className="px-2 py-3 text-center">
+                    <p className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider ${memberTrack === 'training' ? 'text-green-400' : 'text-purple-400'}`}>{d}</p>
+                  </div>
+                ))}
+              </div>
+              {/* Rows */}
+              {(memberTrack === 'training' ? TRAINING_SCHEDULE : ADVANCED_SCHEDULE).map((slot, ri) => (
+                <div
+                  key={ri}
+                  className={`grid grid-cols-[130px_1fr_1fr_1fr_1fr] border-b border-white/5 ${slot.days.every(d => d?.type === 'break' || d?.type === 'meal' || d === null) ? 'bg-white/[0.02]' : 'hover:bg-white/[0.03] transition-colors'}`}
+                >
+                  <div className="px-3 py-2 flex items-center">
+                    <span className={`text-[10px] font-medium leading-snug ${slot.time ? 'text-gray-400' : 'text-transparent'}`}>
+                      {slot.time || '—'}
+                    </span>
+                  </div>
+                  {slot.days.map((s, ci) => (
+                    <div key={ci} className="px-1.5 py-1.5">
+                      <MemberScheduleCell s={s} />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-center text-gray-700 text-xs mt-5">Schedule subject to change. Check back for updates.</p>
         </div>
       </div>
     </div>
