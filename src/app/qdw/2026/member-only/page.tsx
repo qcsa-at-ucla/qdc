@@ -120,6 +120,9 @@ export default function MemberOnlyPage() {
   // Schedule track toggle
   const [memberTrack, setMemberTrack] = useState<'training' | 'advanced'>('training');
 
+  // Tab navigation
+  const [activeTab, setActiveTab] = useState<'info' | 'training' | 'advanced'>('info');
+
   // Initialize form data when user data loads
   useEffect(() => {
     if (user) {
@@ -749,33 +752,66 @@ export default function MemberOnlyPage() {
 
   // Authenticated member area
   return (
-    <div className="min-h-screen bg-white px-4 sm:px-6 lg:px-8 pt-24 pb-12">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
-          <div className="flex justify-between items-center">
+    <div className="min-h-screen bg-[#07071a] pt-16">
+      {/* Sticky top header + tab bar */}
+      <div className="sticky top-16 z-30 bg-[#07071a]/95 backdrop-blur-md border-b border-white/10 px-4 sm:px-6 lg:px-8 pt-6 pb-0">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex justify-between items-center mb-5">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-                Welcome, {user?.first_name}!
-              </h1>
-              <p className="text-gray-600">QDW 2026 Member Portal</p>
+              <p className="text-purple-400 text-xs font-semibold tracking-widest uppercase mb-1">QDW 2026 · Member Portal</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">Welcome, {user?.first_name}!</h1>
             </div>
             <button
               onClick={() => {
                 sessionStorage.removeItem("qdw_member_email");
                 setIsAuthenticated(false);
               }}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full transition-all font-medium"
+              className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full transition-all font-medium text-sm border border-white/20"
             >
               Sign Out
             </button>
           </div>
+
+          {/* Tab bar */}
+          <div className="flex gap-1">
+            {([
+              { id: 'info',     label: 'My Info',         icon: '' },
+              { id: 'training', label: 'Training Track',   icon: '🟢' },
+              { id: 'advanced', label: 'Advanced Track',   icon: '🟣' },
+            ] as { id: 'info' | 'training' | 'advanced'; label: string; icon: string }[]).map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-t-xl border-b-2 transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? tab.id === 'training'
+                      ? 'border-green-500 text-green-300 bg-green-900/20'
+                      : tab.id === 'advanced'
+                      ? 'border-purple-500 text-purple-300 bg-purple-900/20'
+                      : 'border-indigo-400 text-indigo-200 bg-indigo-900/20'
+                    : 'border-transparent text-gray-500 hover:text-gray-300 hover:bg-white/5'
+                }`}
+              >
+                <span>{tab.icon}</span>
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
+      </div>
+
+      {/* Tab content */}
+      <div className="px-4 sm:px-6 lg:px-8 pt-8 pb-16">
+      <div className="max-w-6xl mx-auto">
+
+      {/* ── MY INFO TAB ──────────────────────────────────────────────── */}
+      {activeTab === 'info' && (
+        <div className="max-w-4xl mx-auto space-y-6">
 
         {/* Registration Details Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Registration Details</h2>
-          <div className="grid md:grid-cols-2 gap-4 text-gray-700">
+        <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 sm:p-8">
+          <h2 className="text-xl font-bold text-white mb-4">Registration Details</h2>
+          <div className="grid md:grid-cols-2 gap-4 text-gray-300">
             <div>
               <span className="text-gray-500">Email:</span>{" "}
               <span className="font-medium">{user?.email}</span>
@@ -788,7 +824,7 @@ export default function MemberOnlyPage() {
             </div>
             <div>
               <span className="text-gray-500">Payment Status:</span>{" "}
-              <span className="text-green-600 font-semibold">✓ Paid</span>
+              <span className="text-green-400 font-semibold">✓ Paid</span>
             </div>
             <div>
               <span className="text-gray-500">Registered:</span>{" "}
@@ -801,12 +837,12 @@ export default function MemberOnlyPage() {
 
         {/* Upgrade to In-Person */}
         {(user?.registration_type === "student_online" || user?.registration_type === "professional_online") && (
-          <div className="bg-white rounded-2xl shadow-sm border border-blue-200 p-6 sm:p-8 mb-6">
+          <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-blue-500/30 p-6 sm:p-8">
             <div className="flex items-start gap-4">
               <div className="text-3xl">🎟️</div>
               <div className="flex-1">
-                <h2 className="text-xl font-bold text-gray-900 mb-1">Upgrade to In-Person Attendance</h2>
-                <p className="text-gray-600 text-sm mb-4">
+                <h2 className="text-xl font-bold text-white mb-1">Upgrade to In-Person Attendance</h2>
+                <p className="text-gray-400 text-sm mb-4">
                   You're currently registered for{" "}
                   <span className="font-semibold capitalize">
                     {user.registration_type?.replace(/_/g, " ")}
@@ -814,20 +850,20 @@ export default function MemberOnlyPage() {
                   . Upgrade to attend QDW 2026 in person and present your poster live!
                 </p>
 
-                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-4 inline-block">
+                <div className="bg-blue-900/30 border border-blue-500/30 rounded-xl p-4 mb-4 inline-block">
                   <p className="text-sm text-gray-600">
                     Upgrade fee{" "}
                     <span className="text-xs text-gray-500">
                       (difference from your current plan)
                     </span>
                   </p>
-                  <p className="text-2xl font-bold text-blue-600">
+                  <p className="text-2xl font-bold text-blue-300">
                     {user.registration_type === "student_online" ? "$30" : "$150"}
                   </p>
                 </div>
 
                 {upgradeError && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                  <div className="mb-4 p-3 bg-red-900/30 border border-red-500/40 rounded-xl text-red-300 text-sm">
                     {upgradeError}
                   </div>
                 )}
@@ -847,9 +883,9 @@ export default function MemberOnlyPage() {
         )}
 
         {/* Update Profile Section */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
+        <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 sm:p-8">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">Profile Information</h2>
+            <h2 className="text-2xl font-bold text-white">Profile Information</h2>
             {!editingProfile && (
               <button
                 onClick={() => setEditingProfile(true)}
@@ -861,13 +897,13 @@ export default function MemberOnlyPage() {
           </div>
 
           {profileSuccess && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700">
+            <div className="mb-4 p-4 bg-green-900/30 border border-green-500/40 rounded-xl text-green-300">
               ✓ Profile updated successfully!
             </div>
           )}
 
           {profileError && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+            <div className="mb-4 p-4 bg-red-900/30 border border-red-500/40 rounded-xl text-red-300">
               {profileError}
             </div>
           )}
@@ -876,7 +912,7 @@ export default function MemberOnlyPage() {
             <form onSubmit={handleUpdateProfile} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-1">
+                  <label className="block text-sm font-bold text-white mb-1">
                     First Name
                   </label>
                   <input
@@ -884,11 +920,11 @@ export default function MemberOnlyPage() {
                     value={profileData.firstName}
                     onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
                     required
-                    className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full h-12 px-4 border border-white/20 rounded-full bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-1">
+                  <label className="block text-sm font-bold text-white mb-1">
                     Last Name
                   </label>
                   <input
@@ -896,7 +932,7 @@ export default function MemberOnlyPage() {
                     value={profileData.lastName}
                     onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
                     required
-                    className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full h-12 px-4 border border-white/20 rounded-full bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -919,7 +955,7 @@ export default function MemberOnlyPage() {
                     });
                     setProfileError("");
                   }}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-full px-8 py-3 transition-all"
+                  className="bg-white/10 hover:bg-white/20 text-gray-300 font-semibold rounded-full px-8 py-3 transition-all"
                 >
                   Cancel
                 </button>
@@ -929,7 +965,7 @@ export default function MemberOnlyPage() {
             <div className="space-y-3">
               <div>
                 <span className="text-gray-500">Full Name:</span>{" "}
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-white">
                   {user?.first_name} {user?.last_name}
                 </span>
               </div>
@@ -939,9 +975,9 @@ export default function MemberOnlyPage() {
 
         {/* Student ID Section (for student registrations only) */}
         {(user?.registration_type === 'student_in_person' || user?.registration_type === 'student_online') && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
+          <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 sm:p-8">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">Student ID Verification</h2>
+              <h2 className="text-2xl font-bold text-white">Student ID Verification</h2>
               {!editingStudentId && user?.approval_status === "rejected" && (
                 <button
                   onClick={() => {
@@ -957,7 +993,7 @@ export default function MemberOnlyPage() {
 
             {/* Approval Status Banner */}
             {user?.approval_status === "pending" && (
-              <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800">
+              <div className="mb-4 p-4 bg-yellow-900/30 border border-yellow-500/40 rounded-xl text-yellow-300">
                 <div className="flex items-start">
                   <span className="text-2xl mr-3">⏳</span>
                   <div>
@@ -969,7 +1005,7 @@ export default function MemberOnlyPage() {
             )}
 
             {user?.approval_status === "approved" && (
-              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800">
+              <div className="mb-4 p-4 bg-green-900/30 border border-green-500/40 rounded-xl text-green-300">
                 <div className="flex items-start">
                   <span className="text-2xl mr-3">✓</span>
                   <div>
@@ -981,7 +1017,7 @@ export default function MemberOnlyPage() {
             )}
 
             {user?.approval_status === "rejected" && (
-              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-800">
+              <div className="mb-4 p-4 bg-red-900/30 border border-red-500/40 rounded-xl text-red-300">
                 <div className="flex items-start">
                   <span className="text-2xl mr-3">✗</span>
                   <div>
@@ -999,13 +1035,13 @@ export default function MemberOnlyPage() {
             )}
 
             {studentIdSuccess && (
-              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700">
+              <div className="mb-4 p-4 bg-green-900/30 border border-green-500/40 rounded-xl text-green-300">
                 ✓ Student ID uploaded successfully! Your submission is now pending admin review.
               </div>
             )}
 
             {studentIdError && (
-              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+              <div className="mb-4 p-4 bg-red-900/30 border border-red-500/40 rounded-xl text-red-300">
                 {studentIdError}
               </div>
             )}
@@ -1013,7 +1049,7 @@ export default function MemberOnlyPage() {
             {editingStudentId ? (
               <form onSubmit={handleUpdateStudentId} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-2">
+                  <label className="block text-sm font-bold text-white mb-2">
                     Upload Student ID Photo
                   </label>
                   <p className="text-sm text-gray-600 mb-3">
@@ -1053,7 +1089,7 @@ export default function MemberOnlyPage() {
                       setStudentIdFile(null);
                       setStudentIdError("");
                     }}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-full px-8 py-3 transition-all"
+                    className="bg-white/10 hover:bg-white/20 text-gray-300 font-semibold rounded-full px-8 py-3 transition-all"
                   >
                     Cancel
                   </button>
@@ -1063,7 +1099,7 @@ export default function MemberOnlyPage() {
               <div className="space-y-3">
                 <div>
                   <span className="text-gray-500">Status:</span>{" "}
-                  <span className="font-medium text-gray-900 capitalize">
+                  <span className="font-medium text-white capitalize">
                     {user?.approval_status === "pending" && "⏳ Pending Review"}
                     {user?.approval_status === "approved" && "✓ Approved"}
                     {user?.approval_status === "rejected" && "✗ Rejected - Action Required"}
@@ -1089,9 +1125,9 @@ export default function MemberOnlyPage() {
         )}
 
         {/* Update Poster Section */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
+        <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 sm:p-8">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">Project & Poster</h2>
+            <h2 className="text-2xl font-bold text-white">Project & Poster</h2>
             {!editingPoster && (
               <button
                 onClick={() => {
@@ -1111,13 +1147,13 @@ export default function MemberOnlyPage() {
           </div>
 
           {posterSuccess && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700">
+            <div className="mb-4 p-4 bg-green-900/30 border border-green-500/40 rounded-xl text-green-300">
               ✓ Poster information updated successfully!
             </div>
           )}
 
           {posterError && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+            <div className="mb-4 p-4 bg-red-900/30 border border-red-500/40 rounded-xl text-red-300">
               {posterError}
             </div>
           )}
@@ -1125,7 +1161,7 @@ export default function MemberOnlyPage() {
           {editingPoster ? (
             <form onSubmit={handleUpdatePoster} className="space-y-6">
               <div>
-                <label className="block text-sm font-bold text-gray-900 mb-1">
+                <label className="block text-sm font-bold text-white mb-1">
                   Project Title
                 </label>
                 <input
@@ -1134,12 +1170,12 @@ export default function MemberOnlyPage() {
                   onChange={(e) => setPosterData({ ...posterData, projectTitle: e.target.value })}
                   required
                   maxLength={500}
-                  className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full h-12 px-4 border border-white/20 rounded-full bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-900 mb-1">
+                <label className="block text-sm font-bold text-white mb-1">
                   Project Description
                 </label>
                 <textarea
@@ -1148,7 +1184,7 @@ export default function MemberOnlyPage() {
                   required
                   rows={5}
                   maxLength={500}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-white/20 rounded-2xl bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="Describe your project (goals, methods, results, etc.)"
                 />
                 <p className="text-xs text-gray-500 mt-1 text-right">
@@ -1157,7 +1193,7 @@ export default function MemberOnlyPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-900 mb-1">
+                <label className="block text-sm font-bold text-white mb-1">
                   Update Poster PDF <span className="font-normal text-gray-500">(optional)</span>
                 </label>
                 <p className="text-xs text-gray-500 mb-2">
@@ -1212,7 +1248,7 @@ export default function MemberOnlyPage() {
                     });
                     setPosterError("");
                   }}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-full px-8 py-3 transition-all"
+                  className="bg-white/10 hover:bg-white/20 text-gray-300 font-semibold rounded-full px-8 py-3 transition-all"
                 >
                   Cancel
                 </button>
@@ -1222,11 +1258,11 @@ export default function MemberOnlyPage() {
             <div className="space-y-3">
               <div>
                 <span className="text-gray-500">Project Title:</span>{" "}
-                <span className="font-medium text-gray-900">{user?.project_title || "Not set"}</span>
+                <span className="font-medium text-white">{user?.project_title || "Not set"}</span>
               </div>
               <div>
                 <span className="text-gray-500">Description:</span>{" "}
-                <p className="font-medium text-gray-900 mt-1">
+                <p className="font-medium text-white mt-1">
                   {user?.project_description || "Not set"}
                 </p>
               </div>
@@ -1267,9 +1303,9 @@ export default function MemberOnlyPage() {
         </div>
 
         {/* CV Section */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
+        <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 sm:p-8">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">CV</h2>
+            <h2 className="text-2xl font-bold text-white">CV</h2>
             {!editingCv && (
               <button
                 onClick={() => {
@@ -1285,13 +1321,13 @@ export default function MemberOnlyPage() {
           </div>
 
           {cvSuccess && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700">
+            <div className="mb-4 p-4 bg-green-900/30 border border-green-500/40 rounded-xl text-green-300">
               ✓ CV updated successfully!
             </div>
           )}
 
           {cvError && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+            <div className="mb-4 p-4 bg-red-900/30 border border-red-500/40 rounded-xl text-red-300">
               {cvError}
             </div>
           )}
@@ -1299,7 +1335,7 @@ export default function MemberOnlyPage() {
           {editingCv ? (
             <form onSubmit={handleUpdateCv} className="space-y-6">
               <div>
-                <label className="block text-sm font-bold text-gray-900 mb-1">
+                <label className="block text-sm font-bold text-white mb-1">
                   CV PDF {user?.cv_url ? <span className="font-normal text-gray-500">(upload new to replace)</span> : <span className="font-normal text-gray-500">(required)</span>}
                 </label>
                 <p className="text-xs text-gray-500 mb-2">Upload your CV as a PDF (max 15MB)</p>
@@ -1348,7 +1384,7 @@ export default function MemberOnlyPage() {
                     setCvFile(null);
                     setCvError("");
                   }}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-full px-8 py-3 transition-all"
+                  className="bg-white/10 hover:bg-white/20 text-gray-300 font-semibold rounded-full px-8 py-3 transition-all"
                 >
                   Cancel
                 </button>
@@ -1371,94 +1407,178 @@ export default function MemberOnlyPage() {
             </div>
           )}
         </div>
+        </div>
+      )}
+
+      {/* ── TRAINING TRACK TAB ──────────────────────────────────────────── */}
+      {activeTab === 'training' && (
+        <ZoomRoomPanel
+          trackName="Training Track"
+          room="Cohen Room: Engineering VI, UCLA"
+          accentColor="green"
+          zoomMeetingUrl={null}
+          schedule={TRAINING_SCHEDULE}
+          scheduleDays={SCHEDULE_DAYS}
+        />
+      )}
+
+      {/* ── ADVANCED TRACK TAB ──────────────────────────────────────────── */}
+      {activeTab === 'advanced' && (
+        <ZoomRoomPanel
+          trackName="Advanced Track"
+          room="Mong Auditorium: Engineering VI, UCLA"
+          accentColor="purple"
+          zoomMeetingUrl={null}
+          schedule={ADVANCED_SCHEDULE}
+          scheduleDays={SCHEDULE_DAYS}
+        />
+      )}
+
+      </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Zoom Room Panel Component ─────────────────────────────────────────────────
+interface ZoomRoomPanelProps {
+  trackName: string;
+  room: string;
+  accentColor: 'green' | 'purple';
+  zoomMeetingUrl: string | null;
+  schedule: ScheduleSlot[];
+  scheduleDays: string[];
+}
+
+function ZoomRoomPanel({ trackName, room, accentColor, zoomMeetingUrl, schedule, scheduleDays }: ZoomRoomPanelProps) {
+  const isGreen = accentColor === 'green';
+  const accent = isGreen
+    ? { border: 'border-green-500/40', text: 'text-green-400', bg: 'bg-green-900/20', dot: 'bg-green-400', toggleBg: 'bg-green-600', badge: 'bg-green-500/20 text-green-300 border-green-500/30' }
+    : { border: 'border-purple-500/40', text: 'text-purple-400', bg: 'bg-purple-900/20', dot: 'bg-purple-400', toggleBg: 'bg-purple-600', badge: 'bg-purple-500/20 text-purple-300 border-purple-500/30' };
+
+  return (
+    <div className="space-y-6">
+      {/* Room header */}
+      <div className={`rounded-2xl border ${accent.border} p-5 flex items-center gap-4 bg-white/[0.03]`}>
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${accent.bg} flex-shrink-0`}>
+          <svg className={`w-6 h-6 ${accent.text}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.069A1 1 0 0121 8.868V15.132a1 1 0 01-1.447.901L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div className="flex-1 min-w-0">
+          <h2 className="text-xl font-bold text-white">{trackName}</h2>
+          <p className="text-gray-400 text-sm">{room}</p>
+        </div>
+        <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${accent.badge} flex-shrink-0`}>
+          June 15–18, 2026
+        </span>
       </div>
 
-      {/* ── QDW 2026 Schedule ─────────────────────────────────────────── */}
-      <div className="bg-[#05050f] mt-0 px-4 sm:px-6 lg:px-8 py-16">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-10">
-            <p className="text-purple-400 text-xs font-semibold tracking-widest uppercase mb-2">Member Access</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2"
-              style={{ textShadow: '0 0 30px rgba(147,51,234,0.3)' }}>
-              QDW 2026 Full Schedule
-            </h2>
-            <p className="text-gray-500 text-sm">June 15–18 · Cohen Room & Mong Auditorium · UCLA · All times Pacific Time</p>
-          </div>
+      {/* Zoom panel — full width */}
+      <div>
 
-          {/* Track Toggle */}
-          <div className="flex justify-center mb-8">
-            <div className="inline-flex bg-white/5 border border-white/10 rounded-full p-1 gap-1">
-              <button
-                onClick={() => setMemberTrack('training')}
-                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${memberTrack === 'training' ? 'bg-green-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
-              >
-                Training Track
-              </button>
-              <button
-                onClick={() => setMemberTrack('advanced')}
-                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${memberTrack === 'advanced' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
-              >
-                Advanced Track
-              </button>
+        {/* Zoom Video Panel */}
+        <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#0d0d1f]">
+          {/* Zoom-style top bar */}
+          <div className="flex items-center gap-3 px-4 py-3 bg-[#1a1a2e] border-b border-white/10">
+            <div className="flex gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-red-500/70" />
+              <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
+              <span className="w-3 h-3 rounded-full bg-green-500/70" />
+            </div>
+            <div className="flex-1 flex items-center justify-center gap-2">
+              <svg className="w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M4.5 4h15A2.5 2.5 0 0122 6.5v11A2.5 2.5 0 0119.5 20h-15A2.5 2.5 0 012 17.5v-11A2.5 2.5 0 014.5 4zm11 7.5l4-2.4v5.8l-4-2.4V16h-11V8h11v3.5z"/>
+              </svg>
+              <span className="text-xs text-gray-400 font-medium">QDW 2026: {trackName}</span>
             </div>
           </div>
 
-          {/* Legend */}
-          <div className="flex flex-wrap justify-center gap-3 mb-8">
-            {([
-              ['lecture', 'bg-purple-400', 'Lecture'],
-              ['workshop', 'bg-green-400', 'Workshop'],
-              ['talk', 'bg-cyan-400', 'Industry Talk'],
-              ['panel', 'bg-indigo-400', 'Panel / Event'],
-              ['project', 'bg-emerald-400', 'Design Project'],
-              ['poster', 'bg-pink-400', 'Poster Session'],
-              ['social', 'bg-amber-400', 'Social / Networking'],
-              ['break', 'bg-gray-500', 'Break / Meal'],
-            ] as [string, string, string][]).map(([, dot, label]) => (
-              <span key={label} className="flex items-center gap-1.5 text-xs text-gray-400">
-                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dot}`} />
-                {label}
-              </span>
-            ))}
-          </div>
+          {/* Video area — Coming Soon overlay */}
+          <div className="relative aspect-video bg-gradient-to-br from-[#0d0d1f] to-[#12122a] flex items-center justify-center">
+            {/* Decorative grid */}
+            <div className="absolute inset-0 opacity-10"
+              style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-          {/* Grid */}
-          <div className="overflow-x-auto rounded-2xl border border-white/10">
-            <div className="min-w-[680px]">
-              {/* Header */}
-              <div className="grid grid-cols-[130px_1fr_1fr_1fr_1fr] bg-white/5 border-b border-white/10">
-                <div className="px-3 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Time</div>
-                {SCHEDULE_DAYS.map((d, i) => (
-                  <div key={i} className="px-2 py-3 text-center">
-                    <p className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider ${memberTrack === 'training' ? 'text-green-400' : 'text-purple-400'}`}>{d}</p>
-                  </div>
-                ))}
-              </div>
-              {/* Rows */}
-              {(memberTrack === 'training' ? TRAINING_SCHEDULE : ADVANCED_SCHEDULE).map((slot, ri) => (
-                <div
-                  key={ri}
-                  className={`grid grid-cols-[130px_1fr_1fr_1fr_1fr] border-b border-white/5 ${slot.days.every(d => d?.type === 'break' || d?.type === 'meal' || d === null) ? 'bg-white/[0.02]' : 'hover:bg-white/[0.03] transition-colors'}`}
-                >
-                  <div className="px-3 py-2 flex items-center">
-                    <span className={`text-[10px] font-medium leading-snug ${slot.time ? 'text-gray-400' : 'text-transparent'}`}>
-                      {slot.time || '—'}
-                    </span>
-                  </div>
-                  {slot.days.map((s, ci) => (
-                    <div key={ci} className="px-1.5 py-1.5">
-                      <MemberScheduleCell s={s} />
-                    </div>
-                  ))}
+            {/* Placeholder participant tiles */}
+            <div className="absolute inset-4 grid grid-cols-3 grid-rows-2 gap-2 opacity-20 pointer-events-none">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-white/10" />
                 </div>
               ))}
             </div>
+
+            {/* Coming Soon badge */}
+            <div className="relative z-10 text-center px-8">
+              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest mb-5 border ${accent.badge}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${accent.dot} animate-pulse`} />
+                Coming June 2026
+              </div>
+              <div className="text-5xl mb-4">🎥</div>
+              <h3 className="text-2xl font-bold text-white mb-2">Zoom Room</h3>
+              <p className="text-gray-400 text-sm max-w-sm mx-auto leading-relaxed">
+                The live Zoom session for the <span className={accent.text + ' font-semibold'}>{trackName}</span> will be available here once the event begins. A meeting link and passcode will be emailed to you.
+              </p>
+              {zoomMeetingUrl ? (
+                <a
+                  href={zoomMeetingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-block mt-6 px-6 py-3 rounded-full text-white font-semibold text-sm ${accent.toggleBg} hover:opacity-90 transition-opacity`}
+                >
+                  Join Meeting →
+                </a>
+              ) : (
+                <button disabled className="mt-6 px-6 py-3 rounded-full text-gray-500 font-semibold text-sm bg-white/5 border border-white/10 cursor-not-allowed">
+                  Join Meeting: Available Soon
+                </button>
+              )}
+            </div>
           </div>
 
-          <p className="text-center text-gray-700 text-xs mt-5">Schedule subject to change. Check back for updates.</p>
+        </div>
+
+      </div>
+
+      {/* Schedule for this track */}
+      <div className="rounded-2xl border border-white/10 overflow-hidden">
+        <div className={`px-6 py-4 border-b border-white/10 flex items-center gap-3 ${accent.bg}`}>
+          <span className={`text-sm font-bold ${accent.text}`}>📅 {trackName}: Full Schedule</span>
+          <span className="text-xs text-gray-500 ml-auto">All times Pacific Time (PT)</span>
+        </div>
+        <div className="overflow-x-auto">
+          <div className="min-w-[680px]">
+            <div className="grid grid-cols-[130px_1fr_1fr_1fr_1fr] bg-white/5 border-b border-white/10">
+              <div className="px-3 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Time</div>
+              {scheduleDays.map((d, i) => (
+                <div key={i} className="px-2 py-3 text-center">
+                  <p className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider ${accent.text}`}>{d}</p>
+                </div>
+              ))}
+            </div>
+            {schedule.map((slot, ri) => (
+              <div
+                key={ri}
+                className={`grid grid-cols-[130px_1fr_1fr_1fr_1fr] border-b border-white/5 ${slot.days.every(d => d?.type === 'break' || d?.type === 'meal' || d === null) ? 'bg-white/[0.02]' : 'hover:bg-white/[0.03] transition-colors'}`}
+              >
+                <div className="px-3 py-2 flex items-center">
+                  <span className={`text-[10px] font-medium leading-snug ${slot.time ? 'text-gray-400' : 'text-transparent'}`}>{slot.time || '—'}</span>
+                </div>
+                {slot.days.map((s, ci) => (
+                  <div key={ci} className="px-1.5 py-1.5">
+                    <MemberScheduleCell s={s} />
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="px-6 py-3 bg-white/[0.02] border-t border-white/5">
+          <p className="text-gray-600 text-xs">Schedule subject to change. Check back for updates.</p>
         </div>
       </div>
     </div>
   );
 }
+
