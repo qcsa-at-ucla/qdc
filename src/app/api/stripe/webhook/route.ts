@@ -2,7 +2,121 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
+import { Resend } from "resend";
 export const runtime = "nodejs";
+
+function getRegistrationTypeDisplay(type: string): string {
+  switch (type) {
+    case "student_in_person": return "Student — In Person";
+    case "student_online": return "Student — Online";
+    case "professional_in_person": return "Professional — In Person";
+    case "professional_online": return "Professional — Online";
+    default: return type.replace(/_/g, " ");
+  }
+}
+
+async function sendCongratulationsEmail(meta: Record<string, string>) {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.RESEND_FROM_EMAIL;
+  const replyToEmail = process.env.RESEND_REPLY_TO_EMAIL;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+
+  if (!resendApiKey || !fromEmail) {
+    console.warn("Resend not configured — skipping congratulations email");
+    return;
+  }
+
+  const firstName = meta.firstName || "";
+  const lastName = meta.lastName || "";
+  const email = meta.email || "";
+  const registrationType = meta.registrationType || "";
+
+  if (!email) return;
+
+  const resend = new Resend(resendApiKey);
+  const registrationTypeDisplay = getRegistrationTypeDisplay(registrationType);
+  const memberPortalUrl = `${siteUrl}/qdw/2026/member-only`;
+
+  try {
+    await resend.emails.send({
+      from: fromEmail,
+      to: email,
+      replyTo: replyToEmail || "quantum.ucla@gmail.com",
+      subject: "🎉 You're officially registered for QDW 2026!",
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+              <h1 style="margin: 0; font-size: 32px;">🎉 Congratulations!</h1>
+              <p style="margin: 10px 0 0; font-size: 16px;">You're officially registered for QDW 2026</p>
+            </div>
+
+            <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+              <p style="margin: 0 0 20px;">Hi ${firstName},</p>
+
+              <p style="margin: 0 0 20px;">
+                Welcome to the <strong>Quantum Device Workshop 2026</strong>! Your registration is now complete and your payment has been received. We're thrilled to have you join us!
+              </p>
+
+              <div style="background: white; border-left: 4px solid #667eea; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <p style="margin: 0 0 10px;"><strong>Your Registration Details:</strong></p>
+                <p style="margin: 5px 0;">📝 <strong>Name:</strong> ${firstName} ${lastName}</p>
+                <p style="margin: 5px 0;">📧 <strong>Email:</strong> ${email}</p>
+                <p style="margin: 5px 0;">🎟️ <strong>Type:</strong> ${registrationTypeDisplay}</p>
+              </div>
+
+              <p style="margin: 20px 0;">
+                You can now access the member portal using your registered email and password.
+              </p>
+
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${memberPortalUrl}" style="display: inline-block; background-color: #667eea; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff !important; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; font-size: 16px; border: 2px solid #667eea;">
+                  Access Member Portal
+                </a>
+              </div>
+
+              <p style="margin: 0 0 10px; font-size: 14px; color: #666; text-align: center;">Or copy and paste this link into your browser:</p>
+              <p style="font-size: 13px; color: #4F46E5; word-break: break-all; margin: 0 0 20px; text-align: center;">${memberPortalUrl}</p>
+
+              <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 0 0 10px;"><strong>📅 What's Next?</strong></p>
+                <ul style="margin: 0; padding-left: 20px;">
+                  <li>Check the event details and schedule on our <a href="${siteUrl}/qdw/2026/info" style="color: #667eea;">event info page</a></li>
+                  <li>Log into your member portal to view exclusive content</li>
+                  <li>We'll send you updates and reminders as the event approaches</li>
+                </ul>
+              </div>
+
+              <p style="margin: 20px 0;">
+                If you have any questions, feel free to reach out to us at
+                <a href="mailto:quantum.ucla@gmail.com" style="color: #667eea;">quantum.ucla@gmail.com</a>.
+              </p>
+
+              <p style="margin: 0;">
+                See you at QDW 2026!<br>
+                <strong>The QDW Team</strong>
+              </p>
+            </div>
+
+            <div style="text-align: center; padding: 20px; color: #666; font-size: 12px;">
+              <p style="margin: 0;">This is an automated email from QDW 2026</p>
+              <p style="margin: 5px 0;">© ${new Date().getFullYear()} Quantum Device Workshop. All rights reserved.</p>
+            </div>
+          </body>
+        </html>
+      `,
+    });
+    console.log(`✅ Congratulations email sent to ${email}`);
+  } catch (emailError) {
+    console.error("Failed to send congratulations email:", emailError);
+    // Non-fatal — don't break the webhook response
+  }
+}
 
 // Helper function to save registration to Supabase
 async function saveRegistration(
@@ -288,6 +402,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: result.error }, { status: 500 });
     }
 
+    // Send congratulations email (skip for upgrades)
+    if (result.success && paymentIntent.metadata?.isUpgrade !== "true") {
+      await sendCongratulationsEmail(paymentIntent.metadata || {});
+    }
+
     console.log("✓ Registration saved successfully!");
     return NextResponse.json({ received: true });
   }
@@ -318,6 +437,11 @@ export async function POST(req: Request) {
     if (!result.success && result.error) {
       console.error("Failed to save registration:", result.error);
       return NextResponse.json({ error: result.error }, { status: 500 });
+    }
+
+    // Send congratulations email (skip for upgrades)
+    if (result.success && session.metadata?.isUpgrade !== "true") {
+      await sendCongratulationsEmail(session.metadata || {});
     }
 
     console.log("✓ Registration saved successfully!");

@@ -37,6 +37,7 @@ export default function AdminDashboard() {
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [resendingId, setResendingId] = useState<string | null>(null);
+  const [resendingCongratulationsId, setResendingCongratulationsId] = useState<string | null>(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [registrationToReject, setRegistrationToReject] = useState<string | null>(null);
@@ -296,6 +297,36 @@ export default function AdminDashboard() {
       setError(err.message);
     } finally {
       setResendingId(null);
+    }
+  };
+
+  const handleResendCongratulations = async (registrationId: string) => {
+    if (!confirm("Resend the congratulations / welcome email to this paid participant?")) {
+      return;
+    }
+
+    setResendingCongratulationsId(registrationId);
+    setError("");
+
+    try {
+      const response = await fetch("/api/qdw/admin/resend-congratulations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey, registrationId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to resend congratulations email");
+      }
+
+      alert(data.message || "Congratulations email resent successfully!");
+    } catch (err: any) {
+      alert("Error: " + err.message);
+      setError(err.message);
+    } finally {
+      setResendingCongratulationsId(null);
     }
   };
 
@@ -774,6 +805,19 @@ export default function AdminDashboard() {
                           className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-full px-4 py-2 text-sm transition-all"
                         >
                           {resendingId === applicant.id ? "Sending..." : "📧 Resend Payment Link"}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Resend Congratulations Button (for paid participants) */}
+                    {applicant.paymentStatus === "paid" && (
+                      <div className="mt-3">
+                        <button
+                          onClick={() => handleResendCongratulations(applicant.id)}
+                          disabled={resendingCongratulationsId === applicant.id}
+                          className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-full px-4 py-2 text-sm transition-all"
+                        >
+                          {resendingCongratulationsId === applicant.id ? "Sending..." : "🎉 Resend Congratulations"}
                         </button>
                       </div>
                     )}
