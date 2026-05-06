@@ -5,6 +5,16 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import QDW2026Nav from '@/components/QDW2026Nav';
 
+interface Advisor {
+  id: number;
+  name: string;
+  title: string;
+  affiliation?: string;
+  website?: string;
+  bio?: string;
+  image?: string;
+}
+
 interface TeamMember {
   id: number;
   name: string;
@@ -179,9 +189,48 @@ const teamMembers: TeamMember[] = [
   // },
 ];
 
+const advisors: Advisor[] = [
+  {
+    id: 1,
+    name: "Professor Mark Gyure",
+    title: "Faculty Advisor",
+    affiliation: "UCLA",
+    bio: "In addition to coordinating the day-to-day activities of the CQSE, Gyure’s research is focused on the theory and simulation of solid-state quantum information processing devices and architectures, specifically electrostatically-defined semiconductor quantum dots. He and collaborators at UCLA and HRL Laboratories, LLC in Malibu have developed a sophisticated device modeling code that employs the full configuration-interaction (FCI) method to solve the multi-electron Schrodinger equation self consistently with the electrostatic potential generated from realistic device geometries, enabling highly accurate calculations of the energy spectrum of coupled quantum dot systems. He came to UCLA recently from HRL Laboratories where he was the Principal Investigator and Chief Scientist for over 15 years on numerous programs in the quantum information science and technology area.",
+    website: "https://qcsa-ucla.org",
+    image: "/images/mark.png",
+  },
+  {
+    id: 2,
+    name: "Eli Levenson-Falk",
+    affiliation: "University of Southern California",
+    title: "Advisor",
+    bio: "Eli Levenson-Falk is an Associate Professor at USC specializing in quantum device fabrication, materials science, and noise in superconducting quantum systems. His group studies the microscopic origins of decoherence and develops new approaches to building long-lived qubits",
+    image: "/images/ELILF.jpeg",
+  },
+  {
+    id: 3,
+    name: "Murat",
+    affiliation: "Google Quantum AI",
+    title: "Advisor",
+    bio: "Murat Can Sarihan is a Research Scientist at Google Quantum AI focusing on superconducting qubit design and quantum error correction. His research contributes to Google's efforts to build large-scale, error-corrected quantum processors.",
+    image: "/images/Murat_Can_Sarihan.jpeg",
+  },
+
+  {
+    id: 4,
+    name: "Zlatko Minev",
+    affiliation: "Google Quantum AI",
+    title: "Advisor",
+    bio: "Zlatko Minev is a Research Scientist at Google Quantum AI, known for his landmark work on catching and reversing quantum jumps. He also created Qiskit Metal, an open-source quantum hardware design tool. His research spans quantum measurement, qubit design automation, and machine learning for quantum systems",
+    image: "/images/ZMinev.jpeg",
+  },
+];
+
 export default function QDW2026Team() {
   const [hoveredMember, setHoveredMember] = useState<number | null>(null);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [hoveredAdvisor, setHoveredAdvisor] = useState<number | null>(null);
+  const [selectedAdvisor, setSelectedAdvisor] = useState<Advisor | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
   // Detect mobile
@@ -229,7 +278,7 @@ export default function QDW2026Team() {
               </span>
             </h1>
             <p className="text-gray-300 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
-              The dedicated students and researchers behind QDW 2026.
+              The dedicated students, researchers, and advisors behind QDW 2026.
             </p>
           </motion.div>
         </div>
@@ -238,6 +287,9 @@ export default function QDW2026Team() {
       {/* Team Grid */}
       <section className="px-4 sm:px-6 lg:px-8 pb-24">
         <div className="max-w-7xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-10 text-center">
+            <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">Leadership</span>
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {teamMembers.map((member, index) => (
               <motion.div
@@ -285,7 +337,7 @@ export default function QDW2026Team() {
 
                 {/* Desktop hover popup */}
                 {!isMobile && hoveredMember === member.id && (
-                  <div className="absolute z-50 top-0 left-0 w-80 bg-gray-900 border border-purple-500/30 rounded-xl shadow-2xl p-5 transform -translate-x-2 -translate-y-2">
+                  <div className="absolute z-50 top-0 left-0 w-80 bg-gray-900 border border-purple-500/30 rounded-xl shadow-2xl p-5 transform -translate-x-2 -translate-y-2 max-h-80 overflow-y-auto">
                     <div className="flex items-start gap-4">
                       <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-gray-700">
                         <Image
@@ -300,7 +352,7 @@ export default function QDW2026Team() {
                         <h3 className="font-bold text-white text-sm mb-0.5">{member.name}</h3>
                         <p className="text-purple-400 text-xs font-medium mb-0.5">{member.role}</p>
                         <p className="text-gray-400 text-xs mb-3">{member.major} &bull; {member.year}</p>
-                        <p className="text-gray-300 text-xs leading-relaxed line-clamp-5">{member.bio}</p>
+                        <p className="text-gray-300 text-xs leading-relaxed">{member.bio}</p>
                       </div>
                     </div>
                   </div>
@@ -308,10 +360,169 @@ export default function QDW2026Team() {
               </motion.div>
             ))}
           </div>
+
+          {/* Advisors Section */}
+          <div className="mt-20">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-10 text-center">
+              <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">Advisors</span>
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {advisors.map((advisor, index) => (
+                <motion.div
+                  key={advisor.id}
+                  className={`relative group cursor-pointer ${hoveredAdvisor === advisor.id ? 'z-50' : 'z-0'}`}
+                  onMouseEnter={() => !isMobile && setHoveredAdvisor(advisor.id)}
+                  onMouseLeave={() => !isMobile && setHoveredAdvisor(null)}
+                  onClick={() => {
+                    if (isMobile) {
+                      setSelectedAdvisor(advisor);
+                    } else if (advisor.website) {
+                      window.open(advisor.website, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.04, duration: 0.5 }}
+                >
+                  <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-purple-500/40 transition-all duration-300 hover:bg-white/10">
+                    <div className="w-full h-64 bg-gray-800 flex items-center justify-center overflow-hidden relative">
+                      {advisor.image ? (
+                        <Image
+                          src={advisor.image}
+                          alt={advisor.name}
+                          width={256}
+                          height={256}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <span className="text-white text-5xl font-bold opacity-60">
+                          {advisor.name.split(' ').filter(w => !['Professor', 'Prof.', 'Dr.'].includes(w)).map(w => w[0]).slice(0, 2).join('')}
+                        </span>
+                      )}
+                    </div>
+                    <div className="p-5 text-center">
+                      <h3 className="font-bold text-base text-white mb-1">{advisor.name}</h3>
+                      <p className="text-purple-400 font-medium text-sm mb-1">{advisor.title}</p>
+                      {advisor.affiliation && (
+                        <p className="text-gray-400 text-xs">{advisor.affiliation}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Desktop hover popup */}
+                  {!isMobile && hoveredAdvisor === advisor.id && (
+                    <div className="absolute z-50 top-0 left-0 w-80 bg-gray-900 border border-purple-500/30 rounded-xl shadow-2xl p-5 transform -translate-x-2 -translate-y-2 max-h-80 overflow-y-auto">
+                      <div className="flex items-start gap-4">
+                        <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-gray-700">
+                          {advisor.image ? (
+                            <Image
+                              src={advisor.image}
+                              alt={advisor.name}
+                              width={56}
+                              height={56}
+                              className="w-full h-full object-cover rounded-full"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-purple-700 to-indigo-700 flex items-center justify-center text-white text-lg font-bold">
+                              {advisor.name.split(' ').filter(w => !['Professor', 'Prof.', 'Dr.'].includes(w)).map(w => w[0]).slice(0, 2).join('')}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-white text-sm mb-0.5">{advisor.name}</h3>
+                          <p className="text-purple-400 text-xs font-medium mb-0.5">{advisor.title}</p>
+                          {advisor.affiliation && (
+                            <p className="text-gray-400 text-xs mb-3">{advisor.affiliation}</p>
+                          )}
+                          {advisor.bio && (
+                            <p className="text-gray-300 text-xs leading-relaxed">{advisor.bio}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Mobile bio modal */}
+      {/* Advisor mobile modal */}
+      {isMobile && selectedAdvisor && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
+          onClick={() => setSelectedAdvisor(null)}
+          style={{ backdropFilter: 'blur(4px)' }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="advisor-modal-title"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div
+            className="bg-gray-900 border border-purple-500/30 rounded-xl max-w-md w-full max-h-[90vh] overflow-auto p-6"
+            onClick={(e) => e.stopPropagation()}
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+          >
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="flex items-start gap-4 flex-1">
+                <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-gray-700">
+                  {selectedAdvisor.image ? (
+                    <Image
+                      src={selectedAdvisor.image}
+                      alt={selectedAdvisor.name}
+                      width={56}
+                      height={56}
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-purple-700 to-indigo-700 flex items-center justify-center text-white text-lg font-bold">
+                      {selectedAdvisor.name.split(' ').filter(w => !['Professor', 'Prof.', 'Dr.'].includes(w)).map(w => w[0]).slice(0, 2).join('')}
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h3 id="advisor-modal-title" className="font-bold text-white text-base mb-0.5">{selectedAdvisor.name}</h3>
+                  <p className="text-purple-400 text-sm font-medium mb-0.5">{selectedAdvisor.title}</p>
+                  {selectedAdvisor.affiliation && (
+                    <p className="text-gray-400 text-xs">{selectedAdvisor.affiliation}</p>
+                  )}
+                </div>
+              </div>
+              <button
+                className="text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 rounded p-1 transition-colors flex-shrink-0"
+                onClick={() => setSelectedAdvisor(null)}
+                aria-label="Close"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {selectedAdvisor.bio && (
+              <p className="text-gray-300 text-sm leading-relaxed">{selectedAdvisor.bio}</p>
+            )}
+            {selectedAdvisor.website && (
+              <div className="mt-5 flex justify-center">
+                <button
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                  onClick={() => window.open(selectedAdvisor.website, '_blank', 'noopener,noreferrer')}
+                >
+                  Visit Website
+                </button>
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Member mobile bio modal */}
       {isMobile && selectedMember && (
         <motion.div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
