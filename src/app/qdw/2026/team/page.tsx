@@ -209,7 +209,7 @@ const advisors: Advisor[] = [
   },
   {
     id: 3,
-    name: "Murat",
+    name: "Murat Can Sarihan",
     affiliation: "Google Quantum AI",
     title: "Advisor",
     bio: "Murat Can Sarihan is a Research Scientist at Google Quantum AI focusing on superconducting qubit design and quantum error correction. His research contributes to Google's efforts to build large-scale, error-corrected quantum processors.",
