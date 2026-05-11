@@ -286,6 +286,12 @@ export default function QDW2026Info() {
       image: '/images/Nik Zhelev.png',
       bio: 'Nik Zhelev is a Research Assistant Professor at the University of Oregon\'s Materials Science Institute, affiliated with OMQ and the Physics department. He also serves as Director of the Quantum Technology Master\'s Internship Program. His research focuses on superconducting quantum circuits and quantum computing hardware.',
     },
+    {
+      name: 'Wei Dai',
+      affiliation: 'Quantum Machines',
+      image: '/images/Wei_Dai.png',
+      bio: 'Wei Dai is a researcher at Quantum Machines working on quantum control systems and pulse-level programming for superconducting quantum processors.',
+    },
   ];
 
   return (

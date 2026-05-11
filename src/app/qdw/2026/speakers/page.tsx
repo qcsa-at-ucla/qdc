@@ -234,6 +234,13 @@ const speakers: Speaker[] = [
     bio: 'Nik Zhelev is a Research Assistant Professor at the University of Oregon\'s Materials Science Institute, affiliated with OMQ and the Physics department. He also serves as Director of the Quantum Technology Master\'s Internship Program. His research focuses on superconducting quantum circuits and quantum computing hardware.',
   },
   {
+    name: 'Wei Dai',
+    affiliation: 'Quantum Machines',
+    title: 'Researcher',
+    image: '/images/Wei_Dai.png',
+    bio: 'Wei Dai is a researcher at Quantum Machines working on quantum control systems, pulse-level programming, and the software-hardware interface for superconducting quantum processors. His work focuses on enabling precise, high-fidelity quantum operations through advanced control electronics and firmware.',
+  },
+  {
     name: 'Alice & Bob',
     affiliation: 'Alice & Bob',
     title: 'Quantum Computing Company',
