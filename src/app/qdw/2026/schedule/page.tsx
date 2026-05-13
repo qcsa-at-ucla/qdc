@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import QDW2026Nav from '@/components/QDW2026Nav';
 
@@ -319,7 +319,137 @@ function SessionCell({ session }: { session: Session | null }) {
 
 export default function SchedulePage() {
   const [track, setTrack] = useState<'training' | 'advanced'>('training');
+  const [exporting, setExporting] = useState(false);
+  const scheduleRef = useRef<HTMLDivElement>(null);
   const schedule = track === 'training' ? trainingSchedule : advancedSchedule;
+
+  async function generatePDF() {
+    if (!scheduleRef.current || exporting) return;
+    setExporting(true);
+    try {
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
+
+      const el = scheduleRef.current;
+      const canvas = await html2canvas(el, {
+        scale: 2.5,
+        useCORS: true,
+        backgroundColor: '#05050f',
+        logging: false,
+        windowWidth: el.scrollWidth,
+        windowHeight: el.scrollHeight,
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const trackLabel = track === 'training' ? 'Training Track' : 'Advanced Track';
+      const accentHex = track === 'training' ? '#22c55e' : '#a855f7';
+
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a3' });
+      const pW = pdf.internal.pageSize.getWidth();
+      const pH = pdf.internal.pageSize.getHeight();
+
+      // Background
+      pdf.setFillColor(5, 5, 15);
+      pdf.rect(0, 0, pW, pH, 'F');
+
+      // Top accent bar
+      const [r, g, b] = track === 'training' ? [34, 197, 94] : [168, 85, 247];
+      pdf.setFillColor(r, g, b);
+      pdf.rect(0, 0, pW, 1.5, 'F');
+
+      // Header area
+      const headerH = 28;
+      pdf.setFillColor(12, 12, 28);
+      pdf.rect(0, 0, pW, headerH, 'F');
+
+      // Left: event info
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(20);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text('QDW 2026 Schedule', 14, 11);
+
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(9);
+      pdf.setTextColor(160, 160, 180);
+      pdf.text('June 15–18  ·  Cohen Room & Mong Auditorium  ·  UCLA', 14, 17);
+
+      // Right: track badge
+      const badgeW = 44;
+      const badgeX = pW - badgeW - 12;
+      pdf.setFillColor(r, g, b);
+      pdf.roundedRect(badgeX, 6, badgeW, 10, 2, 2, 'F');
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(8);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text(trackLabel.toUpperCase(), badgeX + badgeW / 2, 12.5, { align: 'center' });
+
+      // Divider line under header
+      pdf.setDrawColor(50, 50, 80);
+      pdf.setLineWidth(0.3);
+      pdf.line(0, headerH, pW, headerH);
+
+      // Schedule image
+      const contentY = headerH + 3;
+      const availH = pH - contentY - 14;
+      const imgAspect = canvas.width / canvas.height;
+      const availW = pW - 24;
+
+      let drawW = availW;
+      let drawH = drawW / imgAspect;
+      if (drawH > availH) {
+        drawH = availH;
+        drawW = drawH * imgAspect;
+      }
+      const drawX = (pW - drawW) / 2;
+
+      pdf.addImage(imgData, 'PNG', drawX, contentY, drawW, drawH, undefined, 'FAST');
+
+      // Footer
+      const footerY = pH - 8;
+      pdf.setFillColor(12, 12, 28);
+      pdf.rect(0, pH - 12, pW, 12, 'F');
+      pdf.setDrawColor(50, 50, 80);
+      pdf.line(0, pH - 12, pW, pH - 12);
+
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(7);
+      pdf.setTextColor(100, 100, 130);
+      pdf.text('Schedule subject to change · All times Pacific Time (PT) · quantumdeviceworkshop.com', pW / 2, footerY, { align: 'center' });
+
+      const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      pdf.setTextColor(80, 80, 100);
+      pdf.text(`Generated ${dateStr}`, pW - 12, footerY, { align: 'right' });
+
+      // Legend row above footer
+      const legendY = pH - 19;
+      const legendTypes: { type: SessionType; label: string; hex: [number, number, number] }[] = [
+        { type: 'lecture',  label: 'Lecture',           hex: [192, 132, 252] },
+        { type: 'workshop', label: 'Workshop',          hex: [74, 222, 128] },
+        { type: 'talk',     label: 'Industry Talk',     hex: [34, 211, 238] },
+        { type: 'panel',    label: 'Panel / Event',     hex: [129, 140, 248] },
+        { type: 'project',  label: 'Design Project',    hex: [52, 211, 153] },
+        { type: 'poster',   label: 'Poster Session',    hex: [244, 114, 182] },
+        { type: 'social',   label: 'Social / Network',  hex: [251, 191, 36] },
+        { type: 'break',    label: 'Break / Meal',      hex: [107, 114, 128] },
+      ];
+      let lx = 14;
+      legendTypes.forEach(({ label, hex }) => {
+        pdf.setFillColor(...hex);
+        pdf.circle(lx + 1.2, legendY + 0.5, 1.2, 'F');
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(6.5);
+        pdf.setTextColor(160, 160, 180);
+        pdf.text(label, lx + 4, legendY + 1.2);
+        lx += label.length * 2.1 + 6;
+      });
+
+      pdf.save(`QDW2026_Schedule_${track === 'training' ? 'Training' : 'Advanced'}.pdf`);
+    } finally {
+      setExporting(false);
+    }
+  }
 
   return (
     <>
@@ -357,7 +487,7 @@ export default function SchedulePage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.15 }}
-              className="flex justify-center mb-10"
+              className="flex flex-col items-center gap-4 mb-10"
             >
               <div className="inline-flex bg-white/5 border border-white/10 rounded-full p-1 gap-1">
                 <button
@@ -381,6 +511,39 @@ export default function SchedulePage() {
                   Advanced Track
                 </button>
               </div>
+
+              {/* PDF Download Button */}
+              <button
+                onClick={generatePDF}
+                disabled={exporting}
+                className={`group relative inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 overflow-hidden border ${
+                  track === 'training'
+                    ? 'border-green-500/40 text-green-300 hover:text-white hover:border-green-400 hover:shadow-lg hover:shadow-green-900/40'
+                    : 'border-purple-500/40 text-purple-300 hover:text-white hover:border-purple-400 hover:shadow-lg hover:shadow-purple-900/40'
+                } disabled:opacity-50 disabled:cursor-not-allowed bg-white/5 hover:bg-white/10`}
+              >
+                <span className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                  track === 'training'
+                    ? 'bg-gradient-to-r from-green-600/20 to-emerald-600/20'
+                    : 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20'
+                }`} />
+                {exporting ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin relative z-10" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                    <span className="relative z-10">Generating PDF…</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 relative z-10 transition-transform duration-200 group-hover:translate-y-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" />
+                    </svg>
+                    <span className="relative z-10">Download PDF Schedule</span>
+                  </>
+                )}
+              </button>
             </motion.div>
 
             {/* Legend */}
@@ -406,7 +569,7 @@ export default function SchedulePage() {
               transition={{ duration: 0.45 }}
               className="overflow-x-auto rounded-2xl border border-white/10"
             >
-              <div className="min-w-[700px]">
+              <div ref={scheduleRef} className="min-w-[700px]">
                 {/* Header Row */}
                 <div className="grid grid-cols-[140px_1fr_1fr_1fr_1fr] bg-white/5 border-b border-white/10">
                   <div className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
