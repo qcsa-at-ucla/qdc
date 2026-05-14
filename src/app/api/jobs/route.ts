@@ -4,7 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const CACHE_MAX_AGE_HOURS = 6;
+// How often to run a new AI scrape (hours). Between scrapes, persisted jobs are served.
+const SCRAPE_INTERVAL_HOURS = 6;
 
 // Supabase client with fetch caching disabled (Next.js patches fetch to cache by default)
 function createUncachedClient(url: string, key: string) {
@@ -26,14 +27,10 @@ interface JobItem {
   pinned?: boolean;
 }
 
-interface CachedJobsResult {
-  jobs_data: JobItem[];
-  fetched_at: string;
-}
-
-async function getCachedJobs(supabaseUrl: string, supabaseKey: string) {
+/** Returns all persisted scraped jobs from the DB */
+async function getPersistedJobs(supabaseUrl: string, supabaseKey: string): Promise<JobItem[]> {
   try {
-    const res = await fetch(`${supabaseUrl}/rest/v1/rpc/get_cached_jobs`, {
+    const res = await fetch(`${supabaseUrl}/rest/v1/rpc/get_scraped_jobs`, {
       method: 'POST',
       headers: {
         apikey: supabaseKey,
@@ -41,21 +38,27 @@ async function getCachedJobs(supabaseUrl: string, supabaseKey: string) {
         'Content-Type': 'application/json',
       },
     });
-    if (!res.ok) return null;
-
-    const data: CachedJobsResult[] = await res.json();
-    if (data.length === 0) return null;
-
-    return { jobs: data[0].jobs_data, fetchedAt: data[0].fetched_at };
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data || []).map((row: any) => ({
+      title: row.title,
+      company: row.company,
+      location: row.location,
+      type: row.type,
+      category: row.category as JobItem['category'],
+      description: row.description,
+      link: row.link,
+    }));
   } catch (err) {
-    console.error('Failed to get cached jobs:', err);
-    return null;
+    console.error('Failed to get persisted jobs:', err);
+    return [];
   }
 }
 
-async function cacheJobs(supabaseUrl: string, supabaseKey: string, jobs: JobItem[]) {
+/** Upserts scraped jobs into the DB by link (deduplicates; updates last_seen_at) */
+async function persistScrapedJobs(supabaseUrl: string, supabaseKey: string, jobs: JobItem[]) {
   try {
-    await fetch(`${supabaseUrl}/rest/v1/rpc/cache_jobs`, {
+    await fetch(`${supabaseUrl}/rest/v1/rpc/upsert_scraped_jobs`, {
       method: 'POST',
       headers: {
         apikey: supabaseKey,
@@ -64,8 +67,39 @@ async function cacheJobs(supabaseUrl: string, supabaseKey: string, jobs: JobItem
       },
       body: JSON.stringify({ jobs_data: jobs }),
     });
+    // Log the scrape run
+    await fetch(`${supabaseUrl}/rest/v1/rpc/log_scrape_run`, {
+      method: 'POST',
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ job_count: jobs.length }),
+    });
   } catch (err) {
-    console.error('Failed to save jobs to cache:', err);
+    console.error('Failed to persist scraped jobs:', err);
+  }
+}
+
+/** Returns the timestamp of the last successful scrape, or null */
+async function getLastScrapeTime(supabaseUrl: string, supabaseKey: string): Promise<Date | null> {
+  try {
+    const res = await fetch(`${supabaseUrl}/rest/v1/rpc/get_last_scrape_time`, {
+      method: 'POST',
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || data.length === 0) return null;
+    return new Date(data[0].scraped_at);
+  } catch (err) {
+    console.error('Failed to get last scrape time:', err);
+    return null;
   }
 }
 
@@ -195,23 +229,34 @@ export async function GET(req: NextRequest) {
     // Always fetch active manual/pinned jobs
     const manualJobs = await getManualJobs(supabaseUrl, supabaseKey);
 
-    if (!regenerate) {
-      const cached = await getCachedJobs(supabaseUrl, supabaseKey);
-      if (cached) {
-        const age = Date.now() - new Date(cached.fetchedAt).getTime();
-        if (age < CACHE_MAX_AGE_HOURS * 60 * 60 * 1000) {
-          return NextResponse.json({ jobs: [...manualJobs, ...cached.jobs], cached: true }, { headers: NO_CACHE_HEADERS });
-        }
+    // Check if a fresh scrape is needed
+    let shouldScrape = regenerate;
+    if (!shouldScrape) {
+      const lastScrape = await getLastScrapeTime(supabaseUrl, supabaseKey);
+      if (!lastScrape) {
+        shouldScrape = true; // Never scraped before
+      } else {
+        const ageMs = Date.now() - lastScrape.getTime();
+        shouldScrape = ageMs > SCRAPE_INTERVAL_HOURS * 60 * 60 * 1000;
       }
     }
 
-    const aiJobs = await fetchQuantumJobs();
-
-    if (!regenerate && aiJobs.length > 0) {
-      cacheJobs(supabaseUrl, supabaseKey, aiJobs);
+    if (shouldScrape) {
+      // Run the AI scrape; fire-and-forget the persist so response isn't delayed
+      const aiJobs = await fetchQuantumJobs();
+      if (aiJobs.length > 0) {
+        // Persist in background — don't await so the response is fast
+        persistScrapedJobs(supabaseUrl, supabaseKey, aiJobs).catch(() => {});
+      }
     }
 
-    return NextResponse.json({ jobs: [...manualJobs, ...aiJobs], cached: false }, { headers: NO_CACHE_HEADERS });
+    // Always serve ALL persisted scraped jobs (accumulates over time, never blank)
+    const scrapedJobs = await getPersistedJobs(supabaseUrl, supabaseKey);
+
+    return NextResponse.json(
+      { jobs: [...manualJobs, ...scrapedJobs], cached: !shouldScrape },
+      { headers: NO_CACHE_HEADERS }
+    );
   } catch (err) {
     console.error('Quantum jobs API error:', err);
     return NextResponse.json({ jobs: [], error: 'Failed to fetch jobs' }, { status: 500, headers: NO_CACHE_HEADERS });
