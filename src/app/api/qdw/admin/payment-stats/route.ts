@@ -106,11 +106,11 @@ export async function POST(request: NextRequest) {
     //  which silently default to $0, making paid users look comped.)
     const BATCH_SIZE = 20;
 
-    async function fetchAmount(row: typeof eligible[0]): Promise<{
+    const fetchAmount = async (row: typeof eligible[0]): Promise<{
       firstName: string; lastName: string; email: string; type: string;
       actualCents: number; noStripeRecord: boolean;
       stripeSessionId: string | null; stripePaymentIntentId: string | null;
-    }> {
+    }> => {
       let actualCents = 0;
       let noStripeRecord = false;
       try {
