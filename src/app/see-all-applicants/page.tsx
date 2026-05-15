@@ -57,9 +57,10 @@ export default function AdminDashboard() {
   // Payment stats
   interface PaymentBreakdown {
     type: string;
-    count: number;           // all paid (incl. 100% discount)
-    paidCount: number;       // actually charged > $0
-    discountedCount: number; // comped / 100% discount
+    count: number;
+    paidCount: number;
+    discountedCount: number;
+    failedCount: number; // Stripe lookup failed — excluded from revenue
     unitAmountCents: number | null;
     actualRevenueCents: number;
   }
@@ -68,14 +69,14 @@ export default function AdminDashboard() {
     lastName: string;
     email: string;
     type: string;
-    actualCents: number;
+    actualCents: number; // -1 = Stripe lookup failed
     noStripeRecord: boolean;
     stripeSessionId: string | null;
     stripePaymentIntentId: string | null;
   }
   interface PaymentStats {
     breakdown: PaymentBreakdown[];
-    totals: { count: number; actualRevenueCents: number };
+    totals: { count: number; actualRevenueCents: number; failedCount: number };
     excludedCount: number;
     registrationDetails: RegDetail[];
   }
@@ -957,11 +958,17 @@ export default function AdminDashboard() {
 
             return (
               <div className="space-y-4">
-                {/* Excluded sponsors notice */}
+                {/* Notices */}
                 {paymentStats.excludedCount > 0 && (
                   <div className="rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 text-sm text-gray-600 flex items-center gap-2">
                     <span className="text-gray-400">ℹ</span>
                     <span><strong>{paymentStats.excludedCount}</strong> QCF sponsor registration{paymentStats.excludedCount !== 1 ? "s" : ""} (qcsa-ucla.org) excluded from all figures below.</span>
+                  </div>
+                )}
+                {paymentStats.totals.failedCount > 0 && (
+                  <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm text-red-700 flex items-center gap-2">
+                    <span>⚠️</span>
+                    <span><strong>{paymentStats.totals.failedCount}</strong> Stripe lookup{paymentStats.totals.failedCount !== 1 ? "s" : ""} failed even after retry — those registrations are <strong>excluded from the revenue total</strong>. Try refreshing.</span>
                   </div>
                 )}
 
@@ -1113,8 +1120,8 @@ export default function AdminDashboard() {
                                 <td className="px-4 py-2 font-medium text-gray-800">{r.firstName} {r.lastName}</td>
                                 <td className="px-4 py-2 text-gray-600">{r.email}</td>
                                 <td className="px-4 py-2 text-gray-600">{LABELS[r.type] ?? r.type.replace(/_/g, " ")}</td>
-                                <td className={`px-4 py-2 text-right font-semibold ${r.actualCents === 0 ? "text-orange-600" : "text-gray-800"}`}>
-                                  {r.actualCents === 0 ? (r.noStripeRecord ? "$0 (no record)" : "$0 (100% discount)") : fmt(r.actualCents)}
+                                <td className={`px-4 py-2 text-right font-semibold ${r.actualCents === -1 ? "text-red-500" : r.actualCents === 0 ? "text-orange-600" : "text-gray-800"}`}>
+                                  {r.actualCents === -1 ? "⚠ lookup failed" : r.actualCents === 0 ? (r.noStripeRecord ? "$0 (no record)" : "$0 (100% discount)") : fmt(r.actualCents)}
                                 </td>
                                 <td className="px-4 py-2 text-gray-400 font-mono truncate max-w-[160px]">
                                   {r.stripeSessionId ?? r.stripePaymentIntentId ?? "—"}

@@ -100,53 +100,95 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    // Resolve actual amount charged for each registration via Stripe
-    // Checkout session amount_total is the authoritative source (covers $0 coupons too)
-    const amountResults = await Promise.all(
-      eligible.map(async (row) => {
-        let actualCents = 0;
-        let noStripeRecord = false;
-        try {
-          if (row.stripe_checkout_session_id) {
-            const session = await stripe.checkout.sessions.retrieve(
-              row.stripe_checkout_session_id,
-              { expand: [] }
-            );
-            actualCents = session.amount_total ?? 0;
-          } else if (row.stripe_payment_intent_id) {
-            const pi = await stripe.paymentIntents.retrieve(row.stripe_payment_intent_id);
-            actualCents = pi.amount_received ?? 0;
-          } else {
-            actualCents = 0; // 100% coupon, no Stripe record
-            noStripeRecord = true;
-          }
-        } catch (err) {
-          console.error("Failed to retrieve Stripe amount for", row.email, err);
-          actualCents = 0;
+    // Resolve actual amount charged for each registration via Stripe.
+    // Process in batches of 20 to avoid hitting Stripe's rate limits.
+    // (Firing all 200+ requests concurrently causes random throttle failures
+    //  which silently default to $0, making paid users look comped.)
+    const BATCH_SIZE = 20;
+
+    async function fetchAmount(row: typeof eligible[0]): Promise<{
+      firstName: string; lastName: string; email: string; type: string;
+      actualCents: number; noStripeRecord: boolean;
+      stripeSessionId: string | null; stripePaymentIntentId: string | null;
+    }> {
+      let actualCents = 0;
+      let noStripeRecord = false;
+      try {
+        if (row.stripe_checkout_session_id) {
+          const session = await stripe.checkout.sessions.retrieve(
+            row.stripe_checkout_session_id
+          );
+          actualCents = session.amount_total ?? 0;
+        } else if (row.stripe_payment_intent_id) {
+          const pi = await stripe.paymentIntents.retrieve(row.stripe_payment_intent_id);
+          actualCents = pi.amount_received ?? 0;
+        } else {
+          noStripeRecord = true; // 100% coupon with no Stripe record
         }
-        return {
-          firstName: row.first_name as string,
-          lastName: row.last_name as string,
-          email: row.email as string,
-          type: row.registration_type as string,
-          actualCents,
-          noStripeRecord,
-          stripeSessionId: row.stripe_checkout_session_id as string | null,
-          stripePaymentIntentId: row.stripe_payment_intent_id as string | null,
-        };
-      })
-    );
+      } catch (err) {
+        console.error("Failed to retrieve Stripe amount for", row.email, err);
+        // Re-throw so the batch retries rather than silently returning $0
+        throw err;
+      }
+      return {
+        firstName: row.first_name as string,
+        lastName: row.last_name as string,
+        email: row.email as string,
+        type: row.registration_type as string,
+        actualCents,
+        noStripeRecord,
+        stripeSessionId: row.stripe_checkout_session_id as string | null,
+        stripePaymentIntentId: row.stripe_payment_intent_id as string | null,
+      };
+    }
+
+    const amountResults: Awaited<ReturnType<typeof fetchAmount>>[] = [];
+    for (let i = 0; i < eligible.length; i += BATCH_SIZE) {
+      const batch = eligible.slice(i, i + BATCH_SIZE);
+      const batchResults = await Promise.all(
+        batch.map(async (row) => {
+          // Retry once on failure before giving up
+          try {
+            return await fetchAmount(row);
+          } catch {
+            try {
+              return await fetchAmount(row);
+            } catch (err2) {
+              console.error("Stripe lookup failed after retry for", row.email, err2);
+              // Only fall back to $0 after both attempts fail
+              return {
+                firstName: row.first_name as string,
+                lastName: row.last_name as string,
+                email: row.email as string,
+                type: row.registration_type as string,
+                actualCents: -1, // sentinel: lookup failed
+                noStripeRecord: false,
+                stripeSessionId: row.stripe_checkout_session_id as string | null,
+                stripePaymentIntentId: row.stripe_payment_intent_id as string | null,
+              };
+            }
+          }
+        })
+      );
+      amountResults.push(...batchResults);
+    }
 
     // Aggregate per type
     const countMap: Record<string, number> = {};
     const actualRevenueMap: Record<string, number> = {};
-    const discountedCountMap: Record<string, number> = {}; // paid $0
+    const discountedCountMap: Record<string, number> = {}; // genuinely paid $0
+    const failedLookupCount: Record<string, number> = {};  // Stripe fetch failed
 
     for (const { type, actualCents } of amountResults) {
       countMap[type] = (countMap[type] ?? 0) + 1;
-      actualRevenueMap[type] = (actualRevenueMap[type] ?? 0) + actualCents;
-      if (actualCents === 0) {
-        discountedCountMap[type] = (discountedCountMap[type] ?? 0) + 1;
+      if (actualCents === -1) {
+        // Stripe lookup failed — don't count toward revenue or comped
+        failedLookupCount[type] = (failedLookupCount[type] ?? 0) + 1;
+      } else {
+        actualRevenueMap[type] = (actualRevenueMap[type] ?? 0) + actualCents;
+        if (actualCents === 0) {
+          discountedCountMap[type] = (discountedCountMap[type] ?? 0) + 1;
+        }
       }
     }
 
@@ -154,14 +196,16 @@ export async function POST(request: NextRequest) {
     const breakdown = REG_TYPES.map((type) => {
       const count = countMap[type] ?? 0;
       const discountedCount = discountedCountMap[type] ?? 0;
-      const paidCount = count - discountedCount;
+      const failedCount = failedLookupCount[type] ?? 0;
+      const paidCount = count - discountedCount - failedCount;
       const unitCents = listPrices[type];
       const actualRevenueCents = actualRevenueMap[type] ?? 0;
       return {
         type,
-        count,           // all paid (including 100% discount)
-        paidCount,       // actually charged > $0
-        discountedCount, // comped / 100% discount
+        count,
+        paidCount,
+        discountedCount,
+        failedCount,
         unitAmountCents: unitCents,
         actualRevenueCents,
       };
@@ -169,6 +213,7 @@ export async function POST(request: NextRequest) {
 
     const totalCount = breakdown.reduce((s, b) => s + b.count, 0);
     const totalActualRevenueCents = breakdown.reduce((s, b) => s + b.actualRevenueCents, 0);
+    const totalFailedCount = breakdown.reduce((s, b) => s + b.failedCount, 0);
 
     // Full per-registration detail (sorted: comped first within each type, then by name)
     const registrationDetails = amountResults
@@ -194,6 +239,7 @@ export async function POST(request: NextRequest) {
       totals: {
         count: totalCount,
         actualRevenueCents: totalActualRevenueCents,
+        failedCount: totalFailedCount,
       },
       excludedCount,
       registrationDetails,
