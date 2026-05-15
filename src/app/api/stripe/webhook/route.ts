@@ -122,7 +122,8 @@ async function sendCongratulationsEmail(meta: Record<string, string>) {
 async function saveRegistration(
   meta: Record<string, string>,
   paymentIntentId: string | null,
-  checkoutSessionId: string | null
+  checkoutSessionId: string | null,
+  amountCents: number | null = null
 ) {
   // console.log("=== saveRegistration called ===");
   // console.log("Metadata received:", JSON.stringify(meta, null, 2));
@@ -211,6 +212,7 @@ async function saveRegistration(
           payment_status: "paid",
           stripe_checkout_session_id: checkoutSessionId,
           stripe_payment_intent_id: paymentIntentId,
+          amount_paid_cents: amountCents,
           paid_at: new Date().toISOString(),
         })
         .eq("id", registrationId);
@@ -223,6 +225,7 @@ async function saveRegistration(
           payment_status: "paid",
           stripe_checkout_session_id: checkoutSessionId,
           stripe_payment_intent_id: paymentIntentId,
+          amount_paid_cents: amountCents,
           paid_at: new Date().toISOString(),
         })
         .eq("email", email.toLowerCase())
@@ -275,6 +278,7 @@ async function saveRegistration(
           payment_status: "paid",
           stripe_checkout_session_id: checkoutSessionId,
           stripe_payment_intent_id: paymentIntentId,
+          amount_paid_cents: amountCents,
           paid_at: new Date().toISOString(),
         })
         .eq("id", existingApproved.id)
@@ -319,6 +323,7 @@ async function saveRegistration(
     password_hash: passwordHash,
     stripe_checkout_session_id: checkoutSessionId,
     stripe_payment_intent_id: paymentIntentId,
+    amount_paid_cents: amountCents,
     paid_at: new Date().toISOString(),
   };
 
@@ -394,7 +399,8 @@ export async function POST(req: Request) {
     const result = await saveRegistration(
       paymentIntent.metadata || {},
       paymentIntent.id,
-      null
+      null,
+      paymentIntent.amount  // cents charged by Stripe
     );
 
     if (!result.success && result.error) {
@@ -431,7 +437,8 @@ export async function POST(req: Request) {
     const result = await saveRegistration(
       session.metadata || {},
       paymentIntentId,
-      session.id
+      session.id,
+      session.amount_total ?? 0  // cents (0 for 100% coupons)
     );
 
     if (!result.success && result.error) {

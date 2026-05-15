@@ -64,10 +64,10 @@ export async function POST(request: NextRequest) {
     const supabase = createClient(supabaseUrl, supabaseKey);
     const stripe = new Stripe(stripeKey, { apiVersion: "2026-01-28.clover" as any });
 
-    // Fetch all paid registrations with Stripe IDs
+    // Fetch all paid registrations — include amount_paid_cents from DB
     const { data: rows, error } = await supabase
       .from("qdw_registrations")
-      .select("first_name, last_name, email, registration_type, stripe_checkout_session_id, stripe_payment_intent_id")
+      .select("id, first_name, last_name, email, registration_type, stripe_checkout_session_id, stripe_payment_intent_id, amount_paid_cents")
       .eq("payment_status", "paid");
 
     if (error) {
@@ -100,17 +100,41 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    // Resolve actual amount charged for each registration via Stripe.
-    // Process in batches of 20 to avoid hitting Stripe's rate limits.
-    // (Firing all 200+ requests concurrently causes random throttle failures
-    //  which silently default to $0, making paid users look comped.)
-    const BATCH_SIZE = 20;
-
-    const fetchAmount = async (row: typeof eligible[0]): Promise<{
+    // Split rows: those already have a stored amount vs those that need Stripe lookup (old records).
+    type AmountResult = {
+      id: string;
       firstName: string; lastName: string; email: string; type: string;
       actualCents: number; noStripeRecord: boolean;
       stripeSessionId: string | null; stripePaymentIntentId: string | null;
-    }> => {
+    };
+
+    const amountResults: AmountResult[] = [];
+    const needsLookup: typeof eligible = [];
+
+    for (const row of eligible) {
+      if (row.amount_paid_cents !== null && row.amount_paid_cents !== undefined) {
+        // Amount already stored in DB — use it directly, no Stripe call needed
+        amountResults.push({
+          id: row.id as string,
+          firstName: row.first_name as string,
+          lastName: row.last_name as string,
+          email: row.email as string,
+          type: row.registration_type as string,
+          actualCents: row.amount_paid_cents as number,
+          noStripeRecord: false,
+          stripeSessionId: row.stripe_checkout_session_id as string | null,
+          stripePaymentIntentId: row.stripe_payment_intent_id as string | null,
+        });
+      } else {
+        needsLookup.push(row);
+      }
+    }
+
+    // For old records without a stored amount, look up Stripe and backfill the DB.
+    // Batch 20 at a time to stay within Stripe's rate limits.
+    const BATCH_SIZE = 20;
+
+    const fetchAmount = async (row: typeof eligible[0]): Promise<AmountResult> => {
       let actualCents = 0;
       let noStripeRecord = false;
       try {
@@ -123,14 +147,26 @@ export async function POST(request: NextRequest) {
           const pi = await stripe.paymentIntents.retrieve(row.stripe_payment_intent_id);
           actualCents = pi.amount_received ?? 0;
         } else {
-          noStripeRecord = true; // 100% coupon with no Stripe record
+          noStripeRecord = true; // 100% coupon — no Stripe record
         }
       } catch (err) {
         console.error("Failed to retrieve Stripe amount for", row.email, err);
-        // Re-throw so the batch retries rather than silently returning $0
-        throw err;
+        throw err; // let caller retry
       }
+
+      // Backfill the DB so this lookup never needs to happen again
+      if (!noStripeRecord) {
+        supabase
+          .from("qdw_registrations")
+          .update({ amount_paid_cents: actualCents })
+          .eq("id", row.id)
+          .then(({ error: e }) => {
+            if (e) console.error("Failed to backfill amount_paid_cents for", row.email, e);
+          });
+      }
+
       return {
+        id: row.id as string,
         firstName: row.first_name as string,
         lastName: row.last_name as string,
         email: row.email as string,
@@ -140,23 +176,21 @@ export async function POST(request: NextRequest) {
         stripeSessionId: row.stripe_checkout_session_id as string | null,
         stripePaymentIntentId: row.stripe_payment_intent_id as string | null,
       };
-    }
+    };
 
-    const amountResults: Awaited<ReturnType<typeof fetchAmount>>[] = [];
-    for (let i = 0; i < eligible.length; i += BATCH_SIZE) {
-      const batch = eligible.slice(i, i + BATCH_SIZE);
+    for (let i = 0; i < needsLookup.length; i += BATCH_SIZE) {
+      const batch = needsLookup.slice(i, i + BATCH_SIZE);
       const batchResults = await Promise.all(
         batch.map(async (row) => {
-          // Retry once on failure before giving up
           try {
             return await fetchAmount(row);
           } catch {
             try {
-              return await fetchAmount(row);
+              return await fetchAmount(row); // one retry
             } catch (err2) {
               console.error("Stripe lookup failed after retry for", row.email, err2);
-              // Only fall back to $0 after both attempts fail
               return {
+                id: row.id as string,
                 firstName: row.first_name as string,
                 lastName: row.last_name as string,
                 email: row.email as string,

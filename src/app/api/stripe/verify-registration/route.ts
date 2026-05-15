@@ -133,6 +133,7 @@ export async function POST(req: Request) {
       password_hash: passwordHash,
       stripe_checkout_session_id: sessionId,
       stripe_payment_intent_id: paymentIntentId,
+      amount_paid_cents: session.amount_total ?? 0,
       paid_at: new Date().toISOString(),
     };
 
