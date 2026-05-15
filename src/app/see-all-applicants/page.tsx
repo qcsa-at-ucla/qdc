@@ -897,7 +897,7 @@ export default function AdminDashboard() {
             <div>
               <h2 className="text-2xl font-bold text-gray-900">Payment Statistics</h2>
               <p className="text-sm text-gray-500 mt-1">
-                Revenue = <strong>actual amounts charged by Stripe</strong>. People with 100% discount codes are counted but contribute $0. QCF sponsors (qcsa-ucla.org) are excluded.
+                Revenue = <strong>actual amounts charged by Stripe</strong>. People with 100% discount codes are counted but contribute $0.
               </p>
             </div>
             <button
@@ -1000,7 +1000,7 @@ export default function AdminDashboard() {
                       <p className="text-4xl font-extrabold text-emerald-800 mt-1">
                         {fmt(paymentStats.totals.actualRevenueCents)}
                       </p>
-                      <p className="text-xs text-emerald-600 mt-1">real Stripe charges · excludes qcsa-ucla.org · comped registrations count as $0</p>
+                      <p className="text-xs text-emerald-600 mt-1">real Stripe charges · comped registrations count as $0</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-emerald-700 font-medium">Total registrations</p>
