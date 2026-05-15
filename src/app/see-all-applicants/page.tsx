@@ -63,14 +63,27 @@ export default function AdminDashboard() {
     unitAmountCents: number | null;
     actualRevenueCents: number;
   }
+  interface RegDetail {
+    firstName: string;
+    lastName: string;
+    email: string;
+    type: string;
+    actualCents: number;
+    noStripeRecord: boolean;
+    stripeSessionId: string | null;
+    stripePaymentIntentId: string | null;
+  }
   interface PaymentStats {
     breakdown: PaymentBreakdown[];
     totals: { count: number; actualRevenueCents: number };
     excludedCount: number;
+    registrationDetails: RegDetail[];
   }
   const [paymentStats, setPaymentStats] = useState<PaymentStats | null>(null);
   const [paymentStatsLoading, setPaymentStatsLoading] = useState(false);
   const [paymentStatsError, setPaymentStatsError] = useState("");
+  const [detailFilter, setDetailFilter] = useState<"all" | "comped" | "paid">("all");
+  const [detailTypeFilter, setDetailTypeFilter] = useState("all");
 
   const fetchPaymentStats = async (key: string, email: string) => {
     setPaymentStatsLoading(true);
@@ -1047,6 +1060,78 @@ export default function AdminDashboard() {
                       </tr>
                     </tfoot>
                   </table>
+                </div>
+
+                {/* Per-registration detail */}
+                <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-100 flex flex-wrap items-center gap-3">
+                    <h3 className="font-semibold text-gray-900 text-sm flex-1">Registration Detail</h3>
+                    <div className="flex gap-2 flex-wrap">
+                      {(["all", "comped", "paid"] as const).map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => setDetailFilter(f)}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${detailFilter === f ? (f === "comped" ? "bg-orange-500 text-white" : f === "paid" ? "bg-emerald-600 text-white" : "bg-gray-700 text-white") : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+                        >
+                          {f === "all" ? "All" : f === "comped" ? "Comped ($0)" : "Paid (>$0)"}
+                        </button>
+                      ))}
+                      <select
+                        value={detailTypeFilter}
+                        onChange={(e) => setDetailTypeFilter(e.target.value)}
+                        className="px-3 py-1 rounded-full text-xs border border-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                      >
+                        <option value="all">All Types</option>
+                        {Object.entries(LABELS).map(([k, v]) => (
+                          <option key={k} value={k}>{v}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  {(() => {
+                    const filtered = paymentStats.registrationDetails.filter((r) => {
+                      if (detailFilter === "comped" && r.actualCents !== 0) return false;
+                      if (detailFilter === "paid" && r.actualCents === 0) return false;
+                      if (detailTypeFilter !== "all" && r.type !== detailTypeFilter) return false;
+                      return true;
+                    });
+                    return (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead className="bg-gray-50 border-b border-gray-100">
+                            <tr>
+                              <th className="text-left px-4 py-2 text-gray-500 font-semibold">Name</th>
+                              <th className="text-left px-4 py-2 text-gray-500 font-semibold">Email</th>
+                              <th className="text-left px-4 py-2 text-gray-500 font-semibold">Type</th>
+                              <th className="text-right px-4 py-2 text-gray-500 font-semibold">Charged</th>
+                              <th className="text-left px-4 py-2 text-gray-500 font-semibold">Stripe ID</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-50">
+                            {filtered.map((r, i) => (
+                              <tr key={i} className={r.actualCents === 0 ? "bg-orange-50/40" : ""}>
+                                <td className="px-4 py-2 font-medium text-gray-800">{r.firstName} {r.lastName}</td>
+                                <td className="px-4 py-2 text-gray-600">{r.email}</td>
+                                <td className="px-4 py-2 text-gray-600">{LABELS[r.type] ?? r.type.replace(/_/g, " ")}</td>
+                                <td className={`px-4 py-2 text-right font-semibold ${r.actualCents === 0 ? "text-orange-600" : "text-gray-800"}`}>
+                                  {r.actualCents === 0 ? (r.noStripeRecord ? "$0 (no record)" : "$0 (100% discount)") : fmt(r.actualCents)}
+                                </td>
+                                <td className="px-4 py-2 text-gray-400 font-mono truncate max-w-[160px]">
+                                  {r.stripeSessionId ?? r.stripePaymentIntentId ?? "—"}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        {filtered.length === 0 && (
+                          <p className="text-center text-gray-400 py-6 text-sm">No registrations match this filter.</p>
+                        )}
+                        <div className="px-4 py-2 border-t border-gray-100 text-xs text-gray-400">
+                          Showing {filtered.length} of {paymentStats.registrationDetails.length} registrations
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             );

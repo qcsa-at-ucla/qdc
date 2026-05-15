@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     // Fetch all paid registrations with Stripe IDs
     const { data: rows, error } = await supabase
       .from("qdw_registrations")
-      .select("email, registration_type, stripe_checkout_session_id, stripe_payment_intent_id")
+      .select("first_name, last_name, email, registration_type, stripe_checkout_session_id, stripe_payment_intent_id")
       .eq("payment_status", "paid");
 
     if (error) {
@@ -105,6 +105,7 @@ export async function POST(request: NextRequest) {
     const amountResults = await Promise.all(
       eligible.map(async (row) => {
         let actualCents = 0;
+        let noStripeRecord = false;
         try {
           if (row.stripe_checkout_session_id) {
             const session = await stripe.checkout.sessions.retrieve(
@@ -117,14 +118,21 @@ export async function POST(request: NextRequest) {
             actualCents = pi.amount_received ?? 0;
           } else {
             actualCents = 0; // 100% coupon, no Stripe record
+            noStripeRecord = true;
           }
         } catch (err) {
           console.error("Failed to retrieve Stripe amount for", row.email, err);
           actualCents = 0;
         }
         return {
+          firstName: row.first_name as string,
+          lastName: row.last_name as string,
+          email: row.email as string,
           type: row.registration_type as string,
           actualCents,
+          noStripeRecord,
+          stripeSessionId: row.stripe_checkout_session_id as string | null,
+          stripePaymentIntentId: row.stripe_payment_intent_id as string | null,
         };
       })
     );
@@ -162,6 +170,24 @@ export async function POST(request: NextRequest) {
     const totalCount = breakdown.reduce((s, b) => s + b.count, 0);
     const totalActualRevenueCents = breakdown.reduce((s, b) => s + b.actualRevenueCents, 0);
 
+    // Full per-registration detail (sorted: comped first within each type, then by name)
+    const registrationDetails = amountResults
+      .sort((a, b) => {
+        if (a.type !== b.type) return a.type.localeCompare(b.type);
+        if (a.actualCents !== b.actualCents) return a.actualCents - b.actualCents; // comped ($0) first
+        return a.lastName.localeCompare(b.lastName);
+      })
+      .map(({ firstName, lastName, email, type, actualCents, noStripeRecord, stripeSessionId, stripePaymentIntentId }) => ({
+        firstName,
+        lastName,
+        email,
+        type,
+        actualCents,
+        noStripeRecord,
+        stripeSessionId,
+        stripePaymentIntentId,
+      }));
+
     return NextResponse.json({
       success: true,
       breakdown,
@@ -170,6 +196,7 @@ export async function POST(request: NextRequest) {
         actualRevenueCents: totalActualRevenueCents,
       },
       excludedCount,
+      registrationDetails,
     });
   } catch (err) {
     console.error("Error in payment-stats API:", err);
