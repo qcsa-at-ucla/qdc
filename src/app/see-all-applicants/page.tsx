@@ -52,7 +52,41 @@ export default function AdminDashboard() {
   const [emailError, setEmailError] = useState("");
 
   // Admin tabs
-  const [activeTab, setActiveTab] = useState<"applicants" | "job-requests">("applicants");
+  const [activeTab, setActiveTab] = useState<"applicants" | "job-requests" | "payment-stats">("applicants");
+
+  // Payment stats
+  interface PaymentBreakdown {
+    type: string;
+    count: number;
+    unitAmountCents: number | null;
+    listPriceTotalCents: number | null;
+  }
+  interface PaymentStats {
+    breakdown: PaymentBreakdown[];
+    totals: { count: number; listPriceTotalCents: number | null };
+  }
+  const [paymentStats, setPaymentStats] = useState<PaymentStats | null>(null);
+  const [paymentStatsLoading, setPaymentStatsLoading] = useState(false);
+  const [paymentStatsError, setPaymentStatsError] = useState("");
+
+  const fetchPaymentStats = async (key: string, email: string) => {
+    setPaymentStatsLoading(true);
+    setPaymentStatsError("");
+    try {
+      const res = await fetch("/api/qdw/admin/payment-stats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey: key, adminEmail: email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to fetch payment stats");
+      setPaymentStats(data);
+    } catch (err: any) {
+      setPaymentStatsError(err.message);
+    } finally {
+      setPaymentStatsLoading(false);
+    }
+  };
 
   // Job requests
   interface JobRequest {
@@ -572,6 +606,12 @@ export default function AdminDashboard() {
                 </span>
               )}
             </button>
+            <button
+              onClick={() => { setActiveTab("payment-stats"); fetchPaymentStats(apiKey, adminEmail); }}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${activeTab === "payment-stats" ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+            >
+              💰 Payment Stats
+            </button>
           </div>
         </div>
       </div>
@@ -846,6 +886,139 @@ export default function AdminDashboard() {
         </div>
       </div>
       )} {/* end activeTab === "applicants" */}
+
+      {/* Payment Stats Tab */}
+      {activeTab === "payment-stats" && (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Payment Statistics</h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Revenue figures show <strong>full list prices</strong> (before any discount codes).
+              </p>
+            </div>
+            <button
+              onClick={() => fetchPaymentStats(apiKey, adminEmail)}
+              className="text-sm text-emerald-600 hover:text-emerald-800 font-medium"
+            >
+              ↻ Refresh
+            </button>
+          </div>
+
+          {paymentStatsLoading && (
+            <p className="text-gray-500">Loading…</p>
+          )}
+          {paymentStatsError && (
+            <p className="text-red-600">{paymentStatsError}</p>
+          )}
+
+          {paymentStats && !paymentStatsLoading && (() => {
+            const fmt = (cents: number | null) =>
+              cents === null ? "N/A" : `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            const LABELS: Record<string, string> = {
+              student_in_person: "Student — In Person",
+              student_online: "Student — Online",
+              professional_in_person: "Professional — In Person",
+              professional_online: "Professional — Online",
+            };
+
+            const COLORS: Record<string, string> = {
+              student_in_person: "bg-purple-50 border-purple-200",
+              student_online: "bg-blue-50 border-blue-200",
+              professional_in_person: "bg-amber-50 border-amber-200",
+              professional_online: "bg-green-50 border-green-200",
+            };
+
+            const BADGE_COLORS: Record<string, string> = {
+              student_in_person: "bg-purple-100 text-purple-700",
+              student_online: "bg-blue-100 text-blue-700",
+              professional_in_person: "bg-amber-100 text-amber-700",
+              professional_online: "bg-green-100 text-green-700",
+            };
+
+            return (
+              <div className="space-y-4">
+                {/* Breakdown cards */}
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {paymentStats.breakdown.map((b) => (
+                    <div
+                      key={b.type}
+                      className={`rounded-2xl border p-6 ${COLORS[b.type] ?? "bg-gray-50 border-gray-200"}`}
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <span className={`text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full ${BADGE_COLORS[b.type] ?? "bg-gray-100 text-gray-600"}`}>
+                          {LABELS[b.type] ?? b.type.replace(/_/g, " ")}
+                        </span>
+                        <span className="text-3xl font-extrabold text-gray-900">{b.count}</span>
+                      </div>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">List price / person</span>
+                          <span className="font-semibold text-gray-800">{fmt(b.unitAmountCents)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Total at list price</span>
+                          <span className="font-semibold text-gray-800">{fmt(b.listPriceTotalCents)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Grand total */}
+                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-emerald-700 font-medium uppercase tracking-wide">Grand Total (all paid)</p>
+                      <p className="text-4xl font-extrabold text-emerald-800 mt-1">
+                        {fmt(paymentStats.totals.listPriceTotalCents)}
+                      </p>
+                      <p className="text-xs text-emerald-600 mt-1">at full list prices · no discounts applied</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-emerald-700 font-medium">Total registrations</p>
+                      <p className="text-4xl font-extrabold text-emerald-800 mt-1">{paymentStats.totals.count}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Summary table */}
+                <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <th className="text-left px-6 py-3 text-gray-600 font-semibold">Registration Type</th>
+                        <th className="text-right px-6 py-3 text-gray-600 font-semibold">Count</th>
+                        <th className="text-right px-6 py-3 text-gray-600 font-semibold">List Price</th>
+                        <th className="text-right px-6 py-3 text-gray-600 font-semibold">Total (no discount)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {paymentStats.breakdown.map((b) => (
+                        <tr key={b.type}>
+                          <td className="px-6 py-3 font-medium text-gray-800">{LABELS[b.type] ?? b.type.replace(/_/g, " ")}</td>
+                          <td className="px-6 py-3 text-right text-gray-700">{b.count}</td>
+                          <td className="px-6 py-3 text-right text-gray-700">{fmt(b.unitAmountCents)}</td>
+                          <td className="px-6 py-3 text-right font-semibold text-gray-800">{fmt(b.listPriceTotalCents)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot className="bg-emerald-50 border-t-2 border-emerald-200">
+                      <tr>
+                        <td className="px-6 py-3 font-bold text-emerald-800">Total</td>
+                        <td className="px-6 py-3 text-right font-bold text-emerald-800">{paymentStats.totals.count}</td>
+                        <td className="px-6 py-3"></td>
+                        <td className="px-6 py-3 text-right font-bold text-emerald-800">{fmt(paymentStats.totals.listPriceTotalCents)}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      )}
 
       {/* Job Requests Tab */}
       {activeTab === "job-requests" && (
