@@ -25,6 +25,14 @@ const PRICE_ENV_KEYS: Record<RegType, string> = {
   professional_online: "STRIPE_PRICE_PROFESSIONAL_ONLINE",
 };
 
+// Domains to exclude from all stats (QCF sponsors, comped entries, etc.)
+const EXCLUDED_DOMAINS = ["qcsa-ucla.org"];
+
+function isExcluded(email: string): boolean {
+  const lower = email.toLowerCase();
+  return EXCLUDED_DOMAINS.some((d) => lower.endsWith(`@${d}`));
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabaseUrl = process.env.SUPABASE_URL;
@@ -56,10 +64,10 @@ export async function POST(request: NextRequest) {
     const supabase = createClient(supabaseUrl, supabaseKey);
     const stripe = new Stripe(stripeKey, { apiVersion: "2026-01-28.clover" as any });
 
-    // Count paid registrations grouped by type
+    // Fetch all paid registrations with Stripe IDs
     const { data: rows, error } = await supabase
       .from("qdw_registrations")
-      .select("registration_type")
+      .select("email, registration_type, stripe_checkout_session_id, stripe_payment_intent_id")
       .eq("payment_status", "paid");
 
     if (error) {
@@ -67,12 +75,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to fetch stats" }, { status: 500 });
     }
 
-    // Tally counts
-    const counts: Record<string, number> = {};
-    for (const row of rows ?? []) {
-      const t = row.registration_type as string;
-      counts[t] = (counts[t] ?? 0) + 1;
-    }
+    // Filter out excluded domains (QCF sponsors)
+    const eligible = (rows ?? []).filter((r) => !isExcluded(r.email ?? ""));
+    const excludedCount = (rows ?? []).length - eligible.length;
 
     // Fetch list prices from Stripe for each known type
     const listPrices: Record<RegType, number | null> = {
@@ -95,29 +100,76 @@ export async function POST(request: NextRequest) {
       })
     );
 
+    // Resolve actual amount charged for each registration via Stripe
+    // Checkout session amount_total is the authoritative source (covers $0 coupons too)
+    const amountResults = await Promise.all(
+      eligible.map(async (row) => {
+        let actualCents = 0;
+        try {
+          if (row.stripe_checkout_session_id) {
+            const session = await stripe.checkout.sessions.retrieve(
+              row.stripe_checkout_session_id,
+              { expand: [] }
+            );
+            actualCents = session.amount_total ?? 0;
+          } else if (row.stripe_payment_intent_id) {
+            const pi = await stripe.paymentIntents.retrieve(row.stripe_payment_intent_id);
+            actualCents = pi.amount_received ?? 0;
+          } else {
+            actualCents = 0; // 100% coupon, no Stripe record
+          }
+        } catch (err) {
+          console.error("Failed to retrieve Stripe amount for", row.email, err);
+          actualCents = 0;
+        }
+        return {
+          type: row.registration_type as string,
+          actualCents,
+        };
+      })
+    );
+
+    // Aggregate per type
+    const countMap: Record<string, number> = {};
+    const actualRevenueMap: Record<string, number> = {};
+    const discountedCountMap: Record<string, number> = {}; // paid $0
+
+    for (const { type, actualCents } of amountResults) {
+      countMap[type] = (countMap[type] ?? 0) + 1;
+      actualRevenueMap[type] = (actualRevenueMap[type] ?? 0) + actualCents;
+      if (actualCents === 0) {
+        discountedCountMap[type] = (discountedCountMap[type] ?? 0) + 1;
+      }
+    }
+
     // Build per-type stats
     const breakdown = REG_TYPES.map((type) => {
-      const count = counts[type] ?? 0;
+      const count = countMap[type] ?? 0;
+      const discountedCount = discountedCountMap[type] ?? 0;
+      const paidCount = count - discountedCount;
       const unitCents = listPrices[type];
-      const listPriceTotalCents = unitCents !== null ? count * unitCents : null;
+      const actualRevenueCents = actualRevenueMap[type] ?? 0;
       return {
         type,
-        count,
+        count,           // all paid (including 100% discount)
+        paidCount,       // actually charged > $0
+        discountedCount, // comped / 100% discount
         unitAmountCents: unitCents,
-        listPriceTotalCents,
+        actualRevenueCents,
       };
     });
 
-    // Totals (only where list price is available)
     const totalCount = breakdown.reduce((s, b) => s + b.count, 0);
-    const totalListCents = breakdown.every((b) => b.listPriceTotalCents !== null)
-      ? breakdown.reduce((s, b) => s + (b.listPriceTotalCents ?? 0), 0)
-      : null;
+    const totalActualRevenueCents = breakdown.reduce((s, b) => s + b.actualRevenueCents, 0);
 
     return NextResponse.json({
       success: true,
       breakdown,
-      totals: { count: totalCount, listPriceTotalCents: totalListCents },
+      totals: {
+        count: totalCount,
+        actualRevenueCents: totalActualRevenueCents,
+      },
+      excludedCount,
     });
   } catch (err) {
     console.error("Error in payment-stats API:", err);

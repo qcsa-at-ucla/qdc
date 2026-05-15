@@ -57,13 +57,16 @@ export default function AdminDashboard() {
   // Payment stats
   interface PaymentBreakdown {
     type: string;
-    count: number;
+    count: number;           // all paid (incl. 100% discount)
+    paidCount: number;       // actually charged > $0
+    discountedCount: number; // comped / 100% discount
     unitAmountCents: number | null;
-    listPriceTotalCents: number | null;
+    actualRevenueCents: number;
   }
   interface PaymentStats {
     breakdown: PaymentBreakdown[];
-    totals: { count: number; listPriceTotalCents: number | null };
+    totals: { count: number; actualRevenueCents: number };
+    excludedCount: number;
   }
   const [paymentStats, setPaymentStats] = useState<PaymentStats | null>(null);
   const [paymentStatsLoading, setPaymentStatsLoading] = useState(false);
@@ -894,7 +897,7 @@ export default function AdminDashboard() {
             <div>
               <h2 className="text-2xl font-bold text-gray-900">Payment Statistics</h2>
               <p className="text-sm text-gray-500 mt-1">
-                Revenue figures show <strong>full list prices</strong> (before any discount codes).
+                Revenue = <strong>actual amounts charged by Stripe</strong>. People with 100% discount codes are counted but contribute $0. QCF sponsors (qcsa-ucla.org) are excluded.
               </p>
             </div>
             <button
@@ -906,15 +909,17 @@ export default function AdminDashboard() {
           </div>
 
           {paymentStatsLoading && (
-            <p className="text-gray-500">Loading…</p>
+            <p className="text-gray-500">Loading… (fetching Stripe data per registration, may take a moment)</p>
           )}
           {paymentStatsError && (
             <p className="text-red-600">{paymentStatsError}</p>
           )}
 
           {paymentStats && !paymentStatsLoading && (() => {
-            const fmt = (cents: number | null) =>
-              cents === null ? "N/A" : `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            const fmt = (cents: number) =>
+              `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            const fmtMaybe = (cents: number | null) =>
+              cents === null ? "N/A" : fmt(cents);
 
             const LABELS: Record<string, string> = {
               student_in_person: "Student — In Person",
@@ -939,6 +944,14 @@ export default function AdminDashboard() {
 
             return (
               <div className="space-y-4">
+                {/* Excluded sponsors notice */}
+                {paymentStats.excludedCount > 0 && (
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 text-sm text-gray-600 flex items-center gap-2">
+                    <span className="text-gray-400">ℹ</span>
+                    <span><strong>{paymentStats.excludedCount}</strong> QCF sponsor registration{paymentStats.excludedCount !== 1 ? "s" : ""} (qcsa-ucla.org) excluded from all figures below.</span>
+                  </div>
+                )}
+
                 {/* Breakdown cards */}
                 <div className="grid sm:grid-cols-2 gap-4">
                   {paymentStats.breakdown.map((b) => (
@@ -950,16 +963,29 @@ export default function AdminDashboard() {
                         <span className={`text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full ${BADGE_COLORS[b.type] ?? "bg-gray-100 text-gray-600"}`}>
                           {LABELS[b.type] ?? b.type.replace(/_/g, " ")}
                         </span>
-                        <span className="text-3xl font-extrabold text-gray-900">{b.count}</span>
+                        <div className="text-right">
+                          <span className="text-3xl font-extrabold text-gray-900">{b.count}</span>
+                          <p className="text-xs text-gray-400">total registered</p>
+                        </div>
                       </div>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
+                          <span className="text-gray-500">Paid full / partial price</span>
+                          <span className="font-semibold text-gray-800">{b.paidCount}</span>
+                        </div>
+                        {b.discountedCount > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">Comped (100% discount)</span>
+                            <span className="font-semibold text-orange-600">{b.discountedCount}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between pt-1 border-t border-black/10 mt-1">
                           <span className="text-gray-500">List price / person</span>
-                          <span className="font-semibold text-gray-800">{fmt(b.unitAmountCents)}</span>
+                          <span className="font-semibold text-gray-800">{fmtMaybe(b.unitAmountCents)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Total at list price</span>
-                          <span className="font-semibold text-gray-800">{fmt(b.listPriceTotalCents)}</span>
+                          <span className="text-gray-600 font-medium">Actual revenue</span>
+                          <span className="font-bold text-gray-900">{fmt(b.actualRevenueCents)}</span>
                         </div>
                       </div>
                     </div>
@@ -970,15 +996,16 @@ export default function AdminDashboard() {
                 <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-emerald-700 font-medium uppercase tracking-wide">Grand Total (all paid)</p>
+                      <p className="text-sm text-emerald-700 font-medium uppercase tracking-wide">Actual Revenue Collected</p>
                       <p className="text-4xl font-extrabold text-emerald-800 mt-1">
-                        {fmt(paymentStats.totals.listPriceTotalCents)}
+                        {fmt(paymentStats.totals.actualRevenueCents)}
                       </p>
-                      <p className="text-xs text-emerald-600 mt-1">at full list prices · no discounts applied</p>
+                      <p className="text-xs text-emerald-600 mt-1">real Stripe charges · excludes qcsa-ucla.org · comped registrations count as $0</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-emerald-700 font-medium">Total registrations</p>
                       <p className="text-4xl font-extrabold text-emerald-800 mt-1">{paymentStats.totals.count}</p>
+                      <p className="text-xs text-emerald-600 mt-1">incl. comped</p>
                     </div>
                   </div>
                 </div>
@@ -989,9 +1016,10 @@ export default function AdminDashboard() {
                     <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
                         <th className="text-left px-6 py-3 text-gray-600 font-semibold">Registration Type</th>
-                        <th className="text-right px-6 py-3 text-gray-600 font-semibold">Count</th>
+                        <th className="text-right px-6 py-3 text-gray-600 font-semibold">Total</th>
+                        <th className="text-right px-6 py-3 text-gray-600 font-semibold">Comped</th>
                         <th className="text-right px-6 py-3 text-gray-600 font-semibold">List Price</th>
-                        <th className="text-right px-6 py-3 text-gray-600 font-semibold">Total (no discount)</th>
+                        <th className="text-right px-6 py-3 text-gray-600 font-semibold">Actual Revenue</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -999,8 +1027,9 @@ export default function AdminDashboard() {
                         <tr key={b.type}>
                           <td className="px-6 py-3 font-medium text-gray-800">{LABELS[b.type] ?? b.type.replace(/_/g, " ")}</td>
                           <td className="px-6 py-3 text-right text-gray-700">{b.count}</td>
-                          <td className="px-6 py-3 text-right text-gray-700">{fmt(b.unitAmountCents)}</td>
-                          <td className="px-6 py-3 text-right font-semibold text-gray-800">{fmt(b.listPriceTotalCents)}</td>
+                          <td className="px-6 py-3 text-right text-orange-600 font-medium">{b.discountedCount > 0 ? b.discountedCount : "—"}</td>
+                          <td className="px-6 py-3 text-right text-gray-700">{fmtMaybe(b.unitAmountCents)}</td>
+                          <td className="px-6 py-3 text-right font-semibold text-gray-800">{fmt(b.actualRevenueCents)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1008,8 +1037,13 @@ export default function AdminDashboard() {
                       <tr>
                         <td className="px-6 py-3 font-bold text-emerald-800">Total</td>
                         <td className="px-6 py-3 text-right font-bold text-emerald-800">{paymentStats.totals.count}</td>
+                        <td className="px-6 py-3 text-right font-bold text-orange-700">
+                          {paymentStats.breakdown.reduce((s, b) => s + b.discountedCount, 0) > 0
+                            ? paymentStats.breakdown.reduce((s, b) => s + b.discountedCount, 0)
+                            : "—"}
+                        </td>
                         <td className="px-6 py-3"></td>
-                        <td className="px-6 py-3 text-right font-bold text-emerald-800">{fmt(paymentStats.totals.listPriceTotalCents)}</td>
+                        <td className="px-6 py-3 text-right font-bold text-emerald-800">{fmt(paymentStats.totals.actualRevenueCents)}</td>
                       </tr>
                     </tfoot>
                   </table>
