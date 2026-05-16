@@ -77,6 +77,9 @@ export default function QDW2026Info() {
     { name: 'Quantum Machines', logo: '/images/quantum_machine.png', tier: 'silver' },
     { name: 'Zurich Instruments', logo: '/images/zurich.png', tier: 'silver' },
     { name: 'Alice & Bob', logo: '/images/Alice-Bob.png', tier: 'silver' },
+    { name: 'Quantum Design', logo: '/images/quantum-design.png', tier: 'silver' },
+    { name: 'QoLab', logo: '/images/qolab.png', tier: 'silver' },
+    { name: 'Synopsys', logo: '/images/synopsys.png', tier: 'silver' },
   ];
 
   // Helper function to get border color based on tier
