@@ -58,11 +58,11 @@ body {
 }
 
 .animate-scroll-left {
-  animation: scrollLeft 12s linear infinite;
+  animation: scrollLeft 4s linear infinite;
 }
 
 .animate-scroll-right {
-  animation: scrollRight 12s linear infinite;
+  animation: scrollRight 4s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
