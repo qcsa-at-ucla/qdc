@@ -776,16 +776,18 @@ export default function QDW2026Info() {
               {sponsors.map((sponsor, index) => (
                 <div
                   key={index}
-                  className={`flex flex-col items-center justify-center h-28 w-48 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 ${getTierBorderClass(sponsor.tier)}`}
+                  className={`flex flex-col items-center justify-between w-44 sm:w-48 h-36 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 ${getTierBorderClass(sponsor.tier)} p-3 gap-2`}
                 >
-                  <Image
-                    src={sponsor.logo}
-                    alt={sponsor.name}
-                    width={160}
-                    height={96}
-                    className="object-contain object-center p-3"
-                  />
-                  <span className="text-xs text-gray-500 font-medium pb-1 text-center px-2 truncate w-full text-center">{sponsor.name}</span>
+                  <div className="relative w-full flex-1 min-h-0">
+                    <Image
+                      src={sponsor.logo}
+                      alt={sponsor.name}
+                      fill
+                      className="object-contain"
+                      sizes="192px"
+                    />
+                  </div>
+                  <span className="text-xs text-gray-500 font-medium text-center px-1 w-full truncate shrink-0">{sponsor.name}</span>
                 </div>
               ))}
             </div>
