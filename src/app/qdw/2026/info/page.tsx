@@ -10,6 +10,7 @@ export default function QDW2026Info() {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [speakerPage, setSpeakerPage] = useState(0);
   const [isSponsorsScrolling, setIsSponsorsScrolling] = useState(false);
+  const [showAllSponsors, setShowAllSponsors] = useState(false);
   const [isAcademicScrolling, setIsAcademicScrolling] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -739,54 +740,102 @@ export default function QDW2026Info() {
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-4">
             Sponsors
           </h2>
-          <p className="text-gray-500 text-center mb-8 text-sm">
-            {isSponsorsScrolling ? 'Click to stop scrolling' : 'Click to start scrolling'}
-          </p>
+          {/* View toggle */}
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <button
+              onClick={() => { setShowAllSponsors(false); }}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                !showAllSponsors
+                  ? 'bg-gray-800 text-white shadow'
+                  : 'bg-white text-gray-500 border border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              Carousel
+            </button>
+            <button
+              onClick={() => { setShowAllSponsors(true); setIsSponsorsScrolling(false); }}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                showAllSponsors
+                  ? 'bg-gray-800 text-white shadow'
+                  : 'bg-white text-gray-500 border border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              View All
+            </button>
+          </div>
+          {!showAllSponsors && (
+            <p className="text-gray-500 text-center mb-4 text-sm">
+              {isSponsorsScrolling ? 'Click to stop scrolling' : 'Click to start scrolling'}
+            </p>
+          )}
         </div>
-        <div className="w-full">
-          <div 
-            className="relative overflow-hidden cursor-pointer"
-            onClick={() => setIsSponsorsScrolling(!isSponsorsScrolling)}
-          >
-            {/* Enhanced gradient overlays */}
-            <div className="absolute left-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, rgb(249 250 251), transparent)' }}></div>
-            <div className="absolute right-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(to left, rgb(249 250 251), transparent)' }}></div>
-            
-            {/* Scrolling container */}
-            <div className={`flex ${isSponsorsScrolling && !reducedMotion ? 'animate-scroll-left' : ''}`}>
-              {/* First set */}
+
+        {showAllSponsors ? (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-wrap justify-center gap-6">
               {sponsors.map((sponsor, index) => (
                 <div
-                  key={`first-${index}`}
-                  className={`flex-shrink-0 mx-4 sm:mx-6 flex items-center justify-center h-24 w-40 sm:h-28 sm:w-48 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 ${getTierBorderClass(sponsor.tier)} [&_img]:max-w-[85%] [&_img]:max-h-[85%] [&_img]:object-contain [&_img]:object-center`}
+                  key={index}
+                  className={`flex flex-col items-center justify-center h-28 w-48 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 ${getTierBorderClass(sponsor.tier)}`}
                 >
                   <Image
                     src={sponsor.logo}
                     alt={sponsor.name}
                     width={160}
                     height={96}
-                    className="object-contain object-center p-3 bg-transparent"
+                    className="object-contain object-center p-3"
                   />
-                </div>
-              ))}
-              {/* Duplicate for seamless loop */}
-              {sponsors.map((sponsor, index) => (
-                <div
-                  key={`second-${index}`}
-                  className={`flex-shrink-0 mx-4 sm:mx-6 flex items-center justify-center h-24 w-40 sm:h-28 sm:w-48 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 ${getTierBorderClass(sponsor.tier)} [&_img]:max-w-[85%] [&_img]:max-h-[85%] [&_img]:object-contain [&_img]:object-center`}
-                >
-                  <Image
-                    src={sponsor.logo}
-                    alt=""
-                    width={160}
-                    height={96}
-                    className="object-contain object-center p-3 bg-transparent"
-                  />
+                  <span className="text-xs text-gray-500 font-medium pb-1 text-center px-2 truncate w-full text-center">{sponsor.name}</span>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="w-full">
+            <div
+              className="relative overflow-hidden cursor-pointer"
+              onClick={() => setIsSponsorsScrolling(!isSponsorsScrolling)}
+            >
+              {/* Enhanced gradient overlays */}
+              <div className="absolute left-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, rgb(249 250 251), transparent)' }}></div>
+              <div className="absolute right-0 top-0 w-16 sm:w-24 md:w-32 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(to left, rgb(249 250 251), transparent)' }}></div>
+
+              {/* Scrolling container */}
+              <div className={`flex ${isSponsorsScrolling && !reducedMotion ? 'animate-scroll-left' : ''}`}>
+                {/* First set */}
+                {sponsors.map((sponsor, index) => (
+                  <div
+                    key={`first-${index}`}
+                    className={`flex-shrink-0 mx-4 sm:mx-6 flex items-center justify-center h-24 w-40 sm:h-28 sm:w-48 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 ${getTierBorderClass(sponsor.tier)} [&_img]:max-w-[85%] [&_img]:max-h-[85%] [&_img]:object-contain [&_img]:object-center`}
+                  >
+                    <Image
+                      src={sponsor.logo}
+                      alt={sponsor.name}
+                      width={160}
+                      height={96}
+                      className="object-contain object-center p-3 bg-transparent"
+                    />
+                  </div>
+                ))}
+                {/* Duplicate for seamless loop */}
+                {sponsors.map((sponsor, index) => (
+                  <div
+                    key={`second-${index}`}
+                    className={`flex-shrink-0 mx-4 sm:mx-6 flex items-center justify-center h-24 w-40 sm:h-28 sm:w-48 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 ${getTierBorderClass(sponsor.tier)} [&_img]:max-w-[85%] [&_img]:max-h-[85%] [&_img]:object-contain [&_img]:object-center`}
+                  >
+                    <Image
+                      src={sponsor.logo}
+                      alt=""
+                      width={160}
+                      height={96}
+                      className="object-contain object-center p-3 bg-transparent"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Academic Groups Section */}
