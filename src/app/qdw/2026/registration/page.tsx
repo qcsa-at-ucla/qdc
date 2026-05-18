@@ -789,10 +789,10 @@ function RegistrationContent() {
 
             <div className="mb-8 p-4 bg-amber-50 border border-amber-300 rounded-xl text-center">
               <p className="text-amber-800 font-semibold">
-                Soft Deadline: May 16, 2026
+                Deadline: May 31, 2026
               </p>
               <p className="text-amber-700 text-sm mt-1">
-                Prices may increase after May 16th. Registrations are not guaranteed to remain open after this date, so register early to secure your spot!
+                Hard deadline after May 31st. Registrations are not guaranteed to remain open after this date, so register now to secure your spot!
               </p>
             </div>
 
