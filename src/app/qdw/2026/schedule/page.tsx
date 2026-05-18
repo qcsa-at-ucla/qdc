@@ -130,16 +130,16 @@ const trainingSchedule: TimeSlot[] = [
       { title: 'Intro to Layout', type: 'lecture', speaker: 'Murat Can Sarihan' },
       { title: 'Couplers & 2Q Gates', type: 'lecture', speaker: 'Michael Hatridge' },
       { title: 'Error Correction Basics', type: 'talk', speaker: 'Andreas Walraff' },
-      { title: 'Nanoacademic', type: 'talk', speaker: 'TBC', company: 'Nanoacademic' },
+      { title: 'Nanoacademic', type: 'talk', speaker: 'JJ Simulation', company: '' },
     ],
   },
   {
     time: '4:15 – 5:00 PM',
     days: [
       { title: 'Workshop – Design & Layout', type: 'workshop' },
-      { title: 'Workshop – Full Device Simulation', type: 'workshop', company: 'Synopsys / Qolab' },
+      { title: 'Workshop – Full Device Simulation', type: 'workshop', company: 'Synopsys / Qolab', speaker: 'Dane Thompson' },
       { title: 'Large Scale Quantum', type: 'talk', speaker: 'Reza Molavi' },
-      { title: 'Panel Discussion', type: 'panel', speaker: 'Zlatko Minev (Moderator)' },
+      { title: 'Panel Discussion', type: 'panel', speaker: 'Zlatko Minev (Moderator: begin at 4:30 PM)' },
     ],
   },
   {
@@ -187,7 +187,7 @@ const advancedSchedule: TimeSlot[] = [
       { title: 'Shuhei Tamate', type: 'lecture', company: 'RIKEN' },
       { title: 'Jeff Grover', type: 'lecture', company: 'MIT' },
       { title: 'Aziza Almanakly', type: 'lecture', company: 'NYU' },
-      { title: 'Mark Gyure', type: 'lecture', company: 'UCLA' },
+      { title: 'Alice & Bob', type: 'talk', company: 'Alice & Bob' },
     ],
   },
   {
@@ -223,7 +223,7 @@ const advancedSchedule: TimeSlot[] = [
       { title: 'Greg Peairs', type: 'talk', company: 'AWS' },
       { title: 'Kevin O\'Brien', type: 'lecture', company: 'MIT' },
       { title: 'Taylor Patti', type: 'talk', company: 'NVIDIA' },
-      { title: 'Alice & Bob', type: 'talk', company: 'Alice & Bob' },
+      { title: 'Mark Gyure', type: 'lecture', company: 'UCLA' },
     ],
   },
   {
@@ -232,7 +232,7 @@ const advancedSchedule: TimeSlot[] = [
       { title: 'Hugh Carson', type: 'talk', company: 'AWS' },
       { title: 'Wei Dai', type: 'lecture', company: 'Quantum Machines' },
       { title: 'Nicola Pancotti', type: 'talk', company: 'NVIDIA' },
-      { title: 'Nanoacademic', type: 'talk', company: 'Nanoacademic' },
+      { title: 'Nanoacademic', type: 'talk', company: 'Hybrid Simulation' },
     ],
   },
   {
@@ -247,8 +247,8 @@ const advancedSchedule: TimeSlot[] = [
   {
     time: '3:30 – 4:15 PM',
     days: [
-      { title: 'Rigetti', type: 'talk', company: 'Rigetti' },
-      { title: 'Rigetti', type: 'talk', company: 'Rigetti' },
+      { title: 'Prasad Sarangapani', type: 'talk', company: 'Rigetti' },
+      { title: 'Joseph Glick', type: 'talk', company: 'QBlox' },
       { title: 'Sadman Ahmed Shanto', type: 'lecture', company: 'USC' },
       { title: 'Quantum Design', type: 'talk', speaker: 'TBA' },
     ],
@@ -257,8 +257,8 @@ const advancedSchedule: TimeSlot[] = [
     time: '4:15 – 5:00 PM',
     days: [
       { title: 'Silvia Zorzetti', type: 'lecture', company: 'Fermilab' },
-      { title: 'Joseph Glick', type: 'talk', company: 'QBlox' },
-      { title: 'Taekwan Yoon', type: 'talk', company: 'Zurich Instruments' },
+      { title: 'Breakout: Business\n(Panel + Talk + Mini Workshop)', type: 'panel' },
+      { title: 'Edward Kluender', type: 'talk', company: 'Zurich Instruments' },
       { title: 'Panel Discussion', type: 'panel', speaker: 'Zlatko Minev (Moderator, begin 4:30)' },
     ],
   },
@@ -267,7 +267,7 @@ const advancedSchedule: TimeSlot[] = [
     days: [
       { title: 'Poster Session', type: 'poster' },
       { title: 'Quantum Beers', type: 'social' },
-      { title: 'Breakout: Business\n(Panel + Talk + Mini Workshop)', type: 'panel' },
+      { title: 'Career Session', type: 'social' },
       { title: 'Panel & Reception', type: 'panel' },
     ],
   },

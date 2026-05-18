@@ -366,7 +366,7 @@ function RegistrationContent() {
                       formData.registrationType === 'student_online';
     if (isStudent && !formData.studentIdPhoto) {
       setIsSubmitting(false);
-      setSubmitError('Student ID photo is required for student registration.');
+      setSubmitError('Student ID photo is required for student/postdoc registration.');
       return;
     }
 
@@ -832,8 +832,8 @@ function RegistrationContent() {
                     className="w-full h-12 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mt-2"
                     required
                   >
-                    <option value="student_in_person">Student — In Person ($60) </option>
-                    <option value="student_online">Student — Online ($30) </option>
+                    <option value="student_in_person">Student/Postdoc — In Person ($60) </option>
+                    <option value="student_online">Student/Postdoc — Online ($30) </option>
                     <option value="professional_in_person">Professional — In Person ($300) </option>
                     <option value="professional_online">Professional — Online ($150) </option>
                   </select>
@@ -935,7 +935,7 @@ function RegistrationContent() {
                 {isStudentRegistration && (
                   <div>
                     <label htmlFor="studentIdPhoto" className="block text-sm font-bold text-gray-900 mb-1">
-                      Student ID Photo <span className="font-normal text-gray-500">(required for students)</span>
+                      Student ID Photo <span className="font-normal text-gray-500">(required for students/postdocs)</span>
                     </label>
                     <p className="text-xs text-gray-500 mb-2">
                       Please upload a clear photo of your valid student ID to verify your student status.

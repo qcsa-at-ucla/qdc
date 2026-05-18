@@ -137,7 +137,7 @@ function QDW2026PaymentContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span className="text-sm font-semibold text-green-700">
-                Your student registration has been approved!
+                Your student/postdoc registration has been approved!
               </span>
             </div>
           </div>
@@ -146,7 +146,7 @@ function QDW2026PaymentContent() {
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Complete Your Payment</h1>
         <p className="text-gray-600 mb-8">
           {isApprovedStudent 
-            ? "Your student status has been verified. Click below to complete your registration payment."
+            ? "Your student/postdoc status has been verified. Click below to complete your registration payment."
             : "Click below to proceed to secure checkout."}
         </p>
 

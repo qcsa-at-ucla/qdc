@@ -63,7 +63,7 @@ const speakers: Speaker[] = [
     affiliation: 'Northwestern University',
     title: 'Associate Professor of Physics',
     image: '/images/Jens_Koch.jpeg',
-    bio: 'Jens Koch is an Associate Professor at Northwestern University and the co-inventor of the transmon qubit — today the most widely used superconducting qubit architecture. His theoretical research covers circuit QED, quantum engineering, open quantum systems, and the design of noise-protected qubits.',
+    bio: 'Jens Koch is an Associate Professor at Northwestern University and the co-inventor of the transmon qubit; today the most widely used superconducting qubit architecture. His theoretical research covers circuit QED, quantum engineering, open quantum systems, and the design of noise-protected qubits.',
   },
   {
     name: 'Mollie Schwartz',
@@ -176,13 +176,6 @@ const speakers: Speaker[] = [
     title: 'CEO & Co-founder',
     image: '/images/Felix_Beaudoin.jpg',
     bio: 'Félix Beaudoin is a physicist and CEO of Nanoacademic Technologies, leading the development of QTCAD and other quantum-technology modeling tools. His work enables accurate simulation and design of qubits and quantum devices, spanning spin qubits, superconducting qubits, and topological systems.',
-  },
-  {
-    name: 'Jens Koch',
-    affiliation: 'Northwestern University',
-    title: 'Associate Professor',
-    image: '/images/Jens_Koch.jpeg',
-    bio: 'Jens Koch is an Associate Professor of Physics at Northwestern University and co-inventor of the transmon qubit. His theoretical work on circuit QED and noise-protected qubits underpins much of modern superconducting quantum hardware.',
   },
   {
     name: 'Sadman Ahmed Shanto',

@@ -81,6 +81,9 @@ export default function QDW2026Info() {
     { name: 'Quantum Design', logo: '/images/quantum-design.png', tier: 'silver' },
     { name: 'QoLab', logo: '/images/qolab.png', tier: 'silver' },
     { name: 'Synopsys', logo: '/images/synopsys.png', tier: 'silver' },
+    { name: 'AWS', logo: '/images/aws.png', tier: 'silver' },
+    { name: 'LPS', logo: '/images/LPS.png', tier: 'silver' },
+    { name: 'Kiutra', logo: '/images/kiutra.png', tier: 'silver' },
   ];
 
   // Helper function to get border color based on tier
@@ -133,7 +136,7 @@ export default function QDW2026Info() {
       bio: 'Kevin P. O’Brien is a professor at MIT engineering quantum light-matter interactions and superconducting circuits for quantum technologies' 
     },
     {
-      name: 'Alp Siphahigil',
+      name: 'Alp Sipahigil',
       affiliation: 'UC Berkeley',
       image: '/images/Alp_Sipahigil.jpg',
       bio: 'Alp Sipahigil is a professor at UC Berkeley developing solid-state quantum hardware using superconducting circuits and quantum photonics.'
@@ -778,7 +781,7 @@ export default function QDW2026Info() {
                   key={index}
                   className={`flex flex-col items-center justify-between w-44 sm:w-48 h-36 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 ${getTierBorderClass(sponsor.tier)} p-3 gap-2`}
                 >
-                  <div className="relative w-full flex-1 min-h-0">
+                  <div className={`relative w-full flex-1 min-h-0${sponsor.name === 'qolab' ? ' p-3' : ''}`}>
                     <Image
                       src={sponsor.logo}
                       alt={sponsor.name}
@@ -815,7 +818,7 @@ export default function QDW2026Info() {
                       alt={sponsor.name}
                       width={160}
                       height={96}
-                      className="object-contain object-center p-3 bg-transparent"
+                      className={`object-contain object-center bg-transparent${sponsor.name === 'QoLab' ? ' p-6' : ' p-3'}`}
                     />
                   </div>
                 ))}
@@ -830,7 +833,7 @@ export default function QDW2026Info() {
                       alt=""
                       width={160}
                       height={96}
-                      className="object-contain object-center p-3 bg-transparent"
+                      className={`object-contain object-center bg-transparent${sponsor.name === 'QoLab' ? ' p-6' : ' p-3'}`}
                     />
                   </div>
                 ))}

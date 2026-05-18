@@ -47,7 +47,7 @@ export default function WaitingApprovalPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 mb-1">We're reviewing your registration</p>
-                  <p className="text-sm">Our admin team will verify your student status using the ID you provided.</p>
+                  <p className="text-sm">Our admin team will verify your student/postdoc status using the ID you provided.</p>
                 </div>
               </div>
 
@@ -67,7 +67,7 @@ export default function WaitingApprovalPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 mb-1">Complete payment</p>
-                  <p className="text-sm">Click the link in the email to pay with your verified student email address.</p>
+                  <p className="text-sm">Click the link in the email to pay with your verified student/postdoc email address.</p>
                 </div>
               </div>
             </div>

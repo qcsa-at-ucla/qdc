@@ -40,7 +40,7 @@ function UpgradeSuccessContent() {
 
   const typeLabel =
     newType === "student_in_person"
-      ? "Student In-Person"
+      ? "Student/Postdoc In-Person"
       : newType === "professional_in_person"
       ? "Professional In-Person"
       : "In-Person";
