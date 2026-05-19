@@ -354,8 +354,10 @@ function RegistrationContent() {
       return;
     }
 
-    // Validate CV is required
-    if (!formData.cvPdf) {
+    // Validate CV is required for students only
+    const isProfessional = formData.registrationType === 'professional_in_person' ||
+                           formData.registrationType === 'professional_online';
+    if (!isProfessional && !formData.cvPdf) {
       setIsSubmitting(false);
       setSubmitError('CV upload is required.');
       return;
@@ -502,8 +504,8 @@ function RegistrationContent() {
       } else {
         // NON-STUDENT FLOW: Store in sessionStorage and proceed to payment
         // Convert files to base64 for temporary storage (files will be uploaded AFTER payment)
-        const cvBase64 = await fileToBase64(formData.cvPdf);
-        const cvFileName = formData.cvPdf.name;
+        const cvBase64 = formData.cvPdf ? await fileToBase64(formData.cvPdf) : '';
+        const cvFileName = formData.cvPdf ? formData.cvPdf.name : '';
         let posterBase64 = '';
         let posterFileName = '';
         let studentIdBase64 = '';
@@ -1121,7 +1123,10 @@ function RegistrationContent() {
 
                     <div>
                       <label htmlFor="cvPdf" className="block text-sm font-bold text-gray-900 mb-1">
-                        CV PDF Upload <span className="font-normal text-gray-500">(required)</span>
+                        CV PDF Upload{' '}
+                        <span className="font-normal text-gray-500">
+                          {formData.registrationType === 'professional_in_person' || formData.registrationType === 'professional_online' ? '(optional)' : '(required)'}
+                        </span>
                       </label>
                       <p className="text-xs text-gray-500 mb-2">Upload your CV (PDF, max 15MB)</p>
                       <input
@@ -1130,7 +1135,7 @@ function RegistrationContent() {
                         name="cvPdf"
                         accept="application/pdf,.pdf"
                         onChange={handleCvFileChange}
-                        required
+                        required={formData.registrationType !== 'professional_in_person' && formData.registrationType !== 'professional_online'}
                         className="mt-2 block w-full text-sm text-gray-700
                                    file:mr-4 file:py-2 file:px-4
                                    file:rounded-full file:border-0
