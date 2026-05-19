@@ -27,11 +27,11 @@ export async function POST(req: Request) {
 
     const supabase = createClient(supabaseUrl, serviceKey);
 
-    // Check if user exists and has paid
+    // Check if user exists and has paid (ilike = case-insensitive exact match)
     const { data: user, error } = await supabase
       .from("qdw_registrations")
       .select("*")
-      .eq("email", email.toLowerCase())
+      .ilike("email", email.toLowerCase().replace(/%/g, "\\%").replace(/_/g, "\\_"))
       .eq("payment_status", "paid")
       .single();
 

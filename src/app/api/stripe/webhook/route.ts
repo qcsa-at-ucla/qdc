@@ -306,7 +306,7 @@ async function saveRegistration(
   const registrationData = {
     first_name: firstName,
     last_name: meta.lastName || "",
-    email,
+    email: email.toLowerCase(),
     designation: meta.designation || "",
     location: meta.location || "",
     registration_type: registrationType,
