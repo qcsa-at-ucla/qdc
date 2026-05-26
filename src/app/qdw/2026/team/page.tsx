@@ -98,6 +98,16 @@ const teamMembers: TeamMember[] = [
     linkedIn: "https://www.linkedin.com/in/sanskriti/",
   },
   {
+    id: 8,
+    name: "Nachiket Joshi",
+    role: "Research",
+    major: "Physics and Materials Engineering",
+    year: "2nd Year",
+    bio: "Nachiket is a second-year undergraduate student majoring in Physics and Materials Engineering. He currently works as a researcher in Device Research Laboratory under Prof. Kang L. Wang, where he contributes to research in condensed matter physics working towards developing topological qubits for scalable quantum computing. After graduation he hopes to pursue a PhD in Applied Physics and work in industry researching quantum hardware and devices. Apart from science, he is interested in weightlifting, rock-climbing, music, and poker.",
+    image: "/images/Nachiket.jpg",
+    linkedIn: "https://www.linkedin.com/in/nachjs/"
+  },
+  {
     id: 10,
     name: "Connor Engel",
     role: "Events & Advertisement",
@@ -146,6 +156,16 @@ const teamMembers: TeamMember[] = [
     bio: "Dhruv is a junior Computer Science student at UCLA with interests in software engineering, machine learning, and systems, and is actively involved in physics research, tutoring through Upsilon Pi Epsilon @ UCLA, and building impactful full-stack and AI projects.",
     image: "/images/dhruv.png",
     linkedIn: "https://www.linkedin.com/in/dhruv-saran/",
+  },
+  {
+    id: 22,
+    name: "Ivan Fang",
+    role: "Web Developer",
+    major: "Computer Science",
+    year: "1st Year",
+    bio: "Ivan is a Computer Science student at UCLA, originally from Singapore. As part of QCSA's tech team, he works on building and maintaining the club's various websites. Outside of QCSA, he's also a developer on UCLA's ACM Dev Team and on UCLA MentorSEAS, where he supports incoming engineering students. On the quantum side, he's more of a \"curious observer\" than researcher. When he's not writing code, he's probably eating in the dining halls.",
+    image: "/images/ivan.jpg",
+    linkedIn: "https://www.linkedin.com/in/ivan-fang-dev/"
   },
   {
     id: 14,
