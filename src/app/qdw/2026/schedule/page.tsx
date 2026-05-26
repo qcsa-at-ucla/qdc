@@ -110,7 +110,7 @@ const trainingSchedule: TimeSlot[] = [
     time: '2:15 – 3:00 PM',
     days: [
       { title: 'Intro to Readout', type: 'lecture', speaker: 'Daniel Sank' },
-      { title: 'Workshop – EM Simulations', type: 'workshop', speaker: 'Sadman Shanto' },
+      { title: 'Workshop – EM Simulations', type: 'workshop', speaker: 'Firas Abouzahr' },
       { title: 'Materials', type: 'lecture', speaker: 'Loren Alegria' },
       { title: 'Design Project', type: 'project' },
     ],
@@ -644,7 +644,7 @@ export default function SchedulePage() {
             <ul className="space-y-2 text-sm text-gray-300">
               <li>
                 <span className="font-semibold text-white">Firas Abouzahr</span>{' '}
-                <span className="text-gray-400">(Northwestern University)</span> — confirmed speaker; session details TBD.
+                <span className="text-gray-400">(Northwestern University)</span> — leads the Workshop – EM Simulations on Day 2 following Sara Sussman&apos;s lecture.
               </li>
             </ul>
           </motion.div>
