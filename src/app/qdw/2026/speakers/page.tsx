@@ -234,6 +234,13 @@ const speakers: Speaker[] = [
     bio: 'Wei Dai is a researcher at Quantum Machines working on quantum control systems, pulse-level programming, and the software-hardware interface for superconducting quantum processors. His work focuses on enabling precise, high-fidelity quantum operations through advanced control electronics and firmware.',
   },
   {
+    name: 'Firas Abouzahr',
+    affiliation: 'Northwestern University',
+    title: 'Researcher',
+    image: '/images/Firas Abouzahr.png',
+    bio: 'Firas Abouzahr is a researcher at Northwestern University working on superconducting quantum circuits and quantum device design. His research focuses on advancing qubit architectures and quantum hardware for scalable quantum computing.',
+  },
+  {
     name: 'Alice & Bob',
     affiliation: 'Alice & Bob',
     title: 'Quantum Computing Company',

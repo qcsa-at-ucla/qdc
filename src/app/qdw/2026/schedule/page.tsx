@@ -629,6 +629,27 @@ export default function SchedulePage() {
           </div>
         </section>
 
+        {/* Notes Section */}
+        <section className="px-4 sm:px-6 lg:px-8 py-12 max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="rounded-2xl border border-yellow-500/20 bg-yellow-900/10 p-6"
+          >
+            <h2 className="text-lg font-semibold text-yellow-300 mb-3 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-yellow-400 inline-block" />
+              Notes
+            </h2>
+            <ul className="space-y-2 text-sm text-gray-300">
+              <li>
+                <span className="font-semibold text-white">Firas Abouzahr</span>{' '}
+                <span className="text-gray-400">(Northwestern University)</span> — confirmed speaker; session details TBD.
+              </li>
+            </ul>
+          </motion.div>
+        </section>
+
         {/* Footer */}
         <footer className="border-t border-white/10 py-10 px-4 text-center">
           <p className="text-gray-600 text-sm">

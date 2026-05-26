@@ -299,6 +299,12 @@ export default function QDW2026Info() {
       image: '/images/Wei_Dai.png',
       bio: 'Wei Dai is a researcher at Quantum Machines working on quantum control systems and pulse-level programming for superconducting quantum processors.',
     },
+    {
+      name: 'Firas Abouzahr',
+      affiliation: 'Northwestern',
+      image: '/images/Firas Abouzahr.png',
+      bio: 'Firas Abouzahr is a researcher at Northwestern University working on superconducting quantum circuits and quantum device design.',
+    },
   ];
 
   return (
