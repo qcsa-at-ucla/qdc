@@ -80,6 +80,11 @@ export default function Footer() {
       <div className="mt-4 text-center text-xs text-neutral-500">
         © {new Date().getFullYear()} Quantum Device Consortium. All rights reserved.
       </div>
+      <div className="mt-2 text-center text-xs">
+        <Link href="/privacy-policy" className="text-neutral-500 hover:text-neutral-300 transition-colors">
+          Privacy Policy
+        </Link>
+      </div>
     </footer>
   );
 }

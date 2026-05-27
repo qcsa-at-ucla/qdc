@@ -954,6 +954,12 @@ export default function QDW2026Info() {
               </div>
             </div>
           </div>
+          {/* Privacy Policy */}
+          <div className="mt-6 text-center text-xs text-white/40">
+            <Link href="/privacy-policy" className="hover:text-white/70 transition-colors">
+              Privacy Policy
+            </Link>
+          </div>
         </div>
       </footer>
     </main>
