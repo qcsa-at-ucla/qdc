@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       <Header />
-      <AnnouncementBanner />
+      {/* <AnnouncementBanner /> */}
       <AboutUs />
       <QuantumNews />
       <MeetingCalendar />
