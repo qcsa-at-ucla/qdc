@@ -513,7 +513,7 @@ export default function AdminDashboard() {
 
   const exportStudentPosterCSV = (type: "student_online" | "student_in_person") => {
     const origin = window.location.origin;
-    const students = applicants.filter((app) => app.registrationType === type && app.paymentStatus === "paid" && app.posterUrl);
+    const students = applicants.filter((app) => app.registrationType === type && app.paymentStatus === "paid");
 
     const headers = [
       "First Name",
