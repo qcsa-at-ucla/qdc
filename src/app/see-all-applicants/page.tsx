@@ -466,6 +466,94 @@ export default function AdminDashboard() {
     window.URL.revokeObjectURL(url);
   };
 
+  const exportStudentsOnlineCSV = () => {
+    const onlineStudents = applicants.filter((app) => app.registrationType === "student_online");
+
+    const headers = [
+      "First Name",
+      "Last Name",
+      "Email",
+      "Designation",
+      "Location",
+      "Payment Status",
+      "Approval Status",
+      "Dietary Restriction",
+      "Project Title",
+      "Project Description",
+      "Registration Date",
+    ];
+
+    const csvData = onlineStudents.map((app) => [
+      app.firstName,
+      app.lastName,
+      app.email,
+      app.designation,
+      app.location,
+      app.paymentStatus,
+      app.approvalStatus || "",
+      app.dietaryRestriction || "",
+      app.projectTitle || "",
+      app.projectDescription || "",
+      new Date(app.createdAt).toLocaleDateString(),
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...csvData.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `qdw-2026-students-online-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const exportStudentPosterCSV = (type: "student_online" | "student_in_person") => {
+    const origin = window.location.origin;
+    const students = applicants.filter((app) => app.registrationType === type && app.posterUrl);
+
+    const headers = [
+      "First Name",
+      "Last Name",
+      "Email",
+      "Designation",
+      "Location",
+      "Project Title",
+      "Project Description",
+      "Poster URL",
+      "Registration Date",
+    ];
+
+    const csvData = students.map((app) => [
+      app.firstName,
+      app.lastName,
+      app.email,
+      app.designation,
+      app.location,
+      app.projectTitle || "",
+      app.projectDescription || "",
+      `${origin}/api/qdw/view-poster?email=${encodeURIComponent(app.email)}`,
+      new Date(app.createdAt).toLocaleDateString(),
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...csvData.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const label = type === "student_online" ? "online" : "in-person";
+    a.download = `qdw-2026-student-${label}-posters-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   // Filter applicants
   const filteredApplicants = applicants.filter((app) => {
     const matchesSearch =
@@ -594,6 +682,24 @@ export default function AdminDashboard() {
                 className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full transition-all font-medium"
               >
                 Export Paid CSV
+              </button>
+              <button
+                onClick={exportStudentsOnlineCSV}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-all font-medium"
+              >
+                Export Students Online CSV
+              </button>
+              <button
+                onClick={() => exportStudentPosterCSV("student_online")}
+                className="bg-violet-500 hover:bg-violet-600 text-white px-4 py-2 rounded-full transition-all font-medium"
+              >
+                Online Posters CSV
+              </button>
+              <button
+                onClick={() => exportStudentPosterCSV("student_in_person")}
+                className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-full transition-all font-medium"
+              >
+                In-Person Posters CSV
               </button>
               <button
                 onClick={handleLogout}
