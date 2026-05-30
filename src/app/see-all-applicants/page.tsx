@@ -467,7 +467,7 @@ export default function AdminDashboard() {
   };
 
   const exportStudentsOnlineCSV = () => {
-    const onlineStudents = applicants.filter((app) => app.registrationType === "student_online");
+    const onlineStudents = applicants.filter((app) => app.registrationType === "student_online" && app.paymentStatus === "paid");
 
     const headers = [
       "First Name",
@@ -513,7 +513,7 @@ export default function AdminDashboard() {
 
   const exportStudentPosterCSV = (type: "student_online" | "student_in_person") => {
     const origin = window.location.origin;
-    const students = applicants.filter((app) => app.registrationType === type && app.posterUrl);
+    const students = applicants.filter((app) => app.registrationType === type && app.paymentStatus === "paid" && app.posterUrl);
 
     const headers = [
       "First Name",
