@@ -98,6 +98,21 @@ function RegistrationContent() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [registrationUnlocked, setRegistrationUnlocked] = useState(false);
+  const [passcodeInput, setPasscodeInput] = useState('');
+  const [passcodeError, setPasscodeError] = useState('');
+
+  const VALID_PASSCODES = new Set(['SPONSOR26', 'ORGANIZERS26', 'SPEAKER26']);
+
+  const handlePasscodeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (VALID_PASSCODES.has(passcodeInput.trim().toUpperCase())) {
+      setRegistrationUnlocked(true);
+      setPasscodeError('');
+    } else {
+      setPasscodeError('Invalid code. Please try again.');
+    }
+  };
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Student ID reupload states
@@ -570,7 +585,7 @@ function RegistrationContent() {
 
   // Registration closed after May 31, 2026
   const registrationClosed = new Date() > new Date('2026-05-31T23:59:59');
-  if (registrationClosed) {
+  if (registrationClosed && !registrationUnlocked) {
     return (
       <main className="min-h-screen bg-white flex flex-col items-stretch px-4">
         <QDW2026Nav />
@@ -591,6 +606,28 @@ function RegistrationContent() {
             >
               Back to Event Info
             </Link>
+
+            <div className="mt-10 pt-8 border-t border-gray-200">
+              <p className="text-sm text-gray-500 mb-4">Sponsor, organizer, or speaker? Enter your access code below.</p>
+              <form onSubmit={handlePasscodeSubmit} className="flex flex-col items-center gap-3">
+                <input
+                  type="text"
+                  value={passcodeInput}
+                  onChange={(e) => { setPasscodeInput(e.target.value); setPasscodeError(''); }}
+                  placeholder="Enter access code"
+                  className="w-full max-w-xs h-11 px-4 border border-gray-300 rounded-full bg-gray-50 text-gray-900 text-center tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+                {passcodeError && (
+                  <p className="text-sm text-red-600">{passcodeError}</p>
+                )}
+                <button
+                  type="submit"
+                  className="bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold rounded-full px-6 py-2 transition-all"
+                >
+                  Unlock Registration
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </main>
