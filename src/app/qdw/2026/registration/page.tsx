@@ -568,6 +568,35 @@ function RegistrationContent() {
     }
   };
 
+  // Registration closed after May 31, 2026
+  const registrationClosed = new Date() > new Date('2026-05-31T23:59:59');
+  if (registrationClosed) {
+    return (
+      <main className="min-h-screen bg-white flex flex-col items-stretch px-4">
+        <QDW2026Nav />
+        <div className="flex-1 flex items-center justify-center py-20">
+          <div className="max-w-lg text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Registration is Closed</h2>
+            <p className="text-gray-600 mb-8">
+              The registration deadline was May 31, 2026. We are no longer accepting new registrations.
+            </p>
+            <Link
+              href="/qdw/2026/info"
+              className="inline-block bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-full px-8 py-3 transition-all duration-200 hover:scale-105"
+            >
+              Back to Event Info
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   if (isSubmitted) {
     return (
       <main className="min-h-screen bg-white flex flex-col items-stretch px-4">
