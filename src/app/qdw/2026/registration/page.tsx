@@ -102,7 +102,7 @@ function RegistrationContent() {
   const [passcodeInput, setPasscodeInput] = useState('');
   const [passcodeError, setPasscodeError] = useState('');
 
-  const VALID_PASSCODES = new Set(['SPONSOR26', 'ORGANIZERS26', 'SPEAKER26', 'maedeh26']);
+  const VALID_PASSCODES = new Set(['SPONSOR26', 'ORGANIZERS26', 'SPEAKER26', 'MAEDEH26']);
 
   const handlePasscodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
