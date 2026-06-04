@@ -32,7 +32,7 @@ const TRAINING_SCHEDULE: ScheduleSlot[] = [
   { time: '11:15 AM – 12:00 PM', days: [{ title: 'Intro to Circuits Part 2', type: 'lecture', speaker: 'Nik Zhelev' }, { title: 'Workshop – Circuit Analysis & Simulation', type: 'workshop' }, { title: 'EM Quantum Analysis Techniques', type: 'lecture', speaker: 'Alp Sipahigil' }, { title: 'Design Project', type: 'project' }] },
   { time: '12:00 – 1:30 PM', days: [{ title: 'Lunch', type: 'meal' }, { title: 'Lunch', type: 'meal' }, { title: 'Lunch', type: 'meal' }, { title: 'Lunch', type: 'meal' }] },
   { time: '1:30 – 2:15 PM', days: [{ title: 'Intro to Gates', type: 'lecture', speaker: 'Eli Levenson-Falk' }, { title: 'EM Simulations – Classical', type: 'lecture', speaker: 'Sara Sussman' }, { title: 'Workshop – EM & Circuit Analysis', type: 'workshop', speaker: 'TBD' }, { title: 'Designing for Foundries', type: 'talk', speaker: 'Mollie Schwartz' }] },
-  { time: '2:15 – 3:00 PM', days: [{ title: 'Intro to Readout', type: 'lecture', speaker: 'Daniel Sank' }, { title: 'Workshop – EM Simulations', type: 'workshop', speaker: 'Sadman Shanto' }, { title: 'Materials', type: 'lecture', speaker: 'Loren Alegria' }, { title: 'Design Project', type: 'project' }] },
+  { time: '2:15 – 3:00 PM', days: [{ title: 'Intro to Readout', type: 'lecture', speaker: 'Daniel Sank' }, { title: 'Workshop – EM Simulations', type: 'workshop', speaker: 'Firas Abouzahr' }, { title: 'Materials', type: 'lecture', speaker: 'Loren Alegria' }, { title: 'Design Project', type: 'project' }] },
   { time: '3:00 – 3:30 PM', days: [{ title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }, { title: 'Coffee Break', type: 'break' }] },
   { time: '3:30 – 4:15 PM', days: [{ title: 'Intro to Layout', type: 'lecture', speaker: 'Murat Can Sarihan' }, { title: 'Couplers & 2Q Gates', type: 'lecture', speaker: 'Michael Hatridge' }, { title: 'Error Correction Basics', type: 'talk', speaker: 'Andreas Walraff' }, { title: 'Nanoacademic', type: 'talk', speaker: 'JJ Simulation', company: '' }] },
   { time: '4:15 – 5:00 PM', days: [{ title: 'Workshop – Design & Layout', type: 'workshop' }, { title: 'Workshop – Full Device Simulation', type: 'workshop', company: 'Synopsys / Qolab', speaker: 'Dane Thompson' }, { title: 'Large Scale Quantum', type: 'talk', speaker: 'Reza Molavi' }, { title: 'Panel Discussion', type: 'panel', speaker: 'Zlatko Minev (Moderator: begin at 4:30 PM)' }] },
@@ -56,7 +56,7 @@ const ADVANCED_SCHEDULE: ScheduleSlot[] = [
   { time: '', days: [null, null, { title: 'QDC', type: 'social' }, { title: 'Reception', type: 'social' }] },
 ];
 
-const SCHEDULE_DAYS = ['Day 1 · Jun 15', 'Day 2 · Jun 16', 'Day 3 · Jun 17', 'Day 4 · Jun 18'];
+const SCHEDULE_DAYS = ['Day 1\nJune 15', 'Day 2\nJune 16', 'Day 3\nJune 17', 'Day 4\nJune 18'];
 
 function MemberScheduleCell({ s }: { s: ScheduleSession | null }) {
   if (!s) return <div className="min-h-[52px]" />;
@@ -64,7 +64,7 @@ function MemberScheduleCell({ s }: { s: ScheduleSession | null }) {
     <div className={`rounded-lg border px-2.5 py-2 min-h-[52px] flex flex-col justify-center gap-0.5 ${SESSION_STYLES[s.type]}`}>
       <div className="flex items-start gap-1.5">
         <span className={`mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 ${SESSION_DOTS[s.type]}`} />
-        <span className="text-[11px] sm:text-xs font-semibold leading-snug">{s.title}</span>
+        <span className="text-[11px] sm:text-xs font-semibold leading-snug whitespace-pre-line">{s.title}</span>
       </div>
       {s.speaker && <p className="text-[10px] opacity-70 pl-3">{s.speaker}</p>}
       {s.company && <p className="text-[10px] opacity-55 pl-3 italic">{s.company}</p>}
@@ -1553,7 +1553,7 @@ function ZoomRoomPanel({ trackName, room, accentColor, zoomMeetingUrl, schedule,
               <div className="px-3 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Time</div>
               {scheduleDays.map((d, i) => (
                 <div key={i} className="px-2 py-3 text-center">
-                  <p className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider ${accent.text}`}>{d}</p>
+                  <p className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider whitespace-pre-line ${accent.text}`}>{d}</p>
                 </div>
               ))}
             </div>
