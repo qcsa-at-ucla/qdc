@@ -12,6 +12,7 @@ interface PosterEntry {
   registrationType: string;
   projectTitle: string;
   projectDescription: string;
+  hasPoster?: boolean;
   approvedAt: string | null;
   createdAt: string;
 }
@@ -163,12 +164,14 @@ export default function QDW2026PostersPage() {
                     {entry.location && <p className="text-xs text-white/60">{entry.location}</p>}
                   </div>
                   <div className="w-32 h-20 shrink-0 rounded-lg border border-white/15 bg-black/40 overflow-hidden">
-                    <iframe
-                      title={`${entry.projectTitle} poster preview`}
-                      src={`/api/qdw/view-poster?id=${encodeURIComponent(entry.id)}#page=1&view=FitH`}
-                      className="w-full h-full pointer-events-none"
-                      loading="lazy"
-                    />
+                    {entry.hasPoster && (
+                      <iframe
+                        title={`${entry.projectTitle} poster preview`}
+                        src={`/api/qdw/view-poster?id=${encodeURIComponent(entry.id)}#page=1&view=FitH`}
+                        className="w-full h-full pointer-events-none"
+                        loading="lazy"
+                      />
+                    )}
                   </div>
                 </div>
 
