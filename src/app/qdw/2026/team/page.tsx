@@ -371,10 +371,10 @@ export default function QDW2026Team() {
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-white text-sm mb-0.5">{member.name}</h3>
                         <p className="text-purple-400 text-xs font-medium mb-0.5">{member.role}</p>
-                        <p className="text-gray-400 text-xs mb-3">{member.major} &bull; {member.year}</p>
-                        <p className="text-gray-300 text-xs leading-relaxed">{member.bio}</p>
+                        <p className="text-gray-400 text-xs">{member.major} &bull; {member.year}</p>
                       </div>
                     </div>
+                    <p className="mt-3 text-gray-300 text-xs leading-relaxed">{member.bio}</p>
                   </div>
                 )}
               </motion.div>
@@ -454,13 +454,13 @@ export default function QDW2026Team() {
                           <h3 className="font-bold text-white text-sm mb-0.5">{advisor.name}</h3>
                           <p className="text-purple-400 text-xs font-medium mb-0.5">{advisor.title}</p>
                           {advisor.affiliation && (
-                            <p className="text-gray-400 text-xs mb-3">{advisor.affiliation}</p>
-                          )}
-                          {advisor.bio && (
-                            <p className="text-gray-300 text-xs leading-relaxed">{advisor.bio}</p>
+                            <p className="text-gray-400 text-xs">{advisor.affiliation}</p>
                           )}
                         </div>
                       </div>
+                      {advisor.bio && (
+                        <p className="mt-3 text-gray-300 text-xs leading-relaxed">{advisor.bio}</p>
+                      )}
                     </div>
                   )}
                 </motion.div>
