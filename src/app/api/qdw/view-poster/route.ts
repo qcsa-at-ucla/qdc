@@ -20,20 +20,20 @@ export async function GET(request: NextRequest) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get email from query params
+    // Get identifier from query params
     const searchParams = request.nextUrl.searchParams;
     const email = searchParams.get("email");
+    const id = searchParams.get("id");
 
-    if (!email) {
-      return NextResponse.json({ error: "Email required" }, { status: 400 });
+    if (!email && !id) {
+      return NextResponse.json({ error: "Email or id required" }, { status: 400 });
     }
 
     // Fetch user's poster URL from database
-    const { data: userData, error: dbError } = await supabase
-      .from("qdw_registrations")
-      .select("poster_url")
-      .eq("email", email)
-      .single();
+    let query = supabase.from("qdw_registrations").select("poster_url");
+    query = id ? query.eq("id", id) : query.eq("email", email as string);
+
+    const { data: userData, error: dbError } = await query.single();
 
     if (dbError || !userData || !userData.poster_url) {
       return NextResponse.json({ error: "No poster found" }, { status: 404 });
