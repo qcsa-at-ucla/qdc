@@ -94,21 +94,10 @@ export default function QDW2026PostersPage() {
           <p className="text-white/80 max-w-3xl">
             Explore paid student poster submissions from QDW 2026 (in-person and online). You can search by name, title, research topic, lab, or location.
           </p>
+          <p className="text-white/70 max-w-3xl mt-3">
+            When our Poster Sessions are taking place during QDW, we'll open up a Zoom room for members to drop by and talk with Poster authors and attendees.
+          </p>
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-2xl border border-white/15 bg-white/5 px-5 py-4">
-              <p className="text-white/60 text-sm">Total Posters</p>
-              <p className="text-2xl font-bold">{posters.length}</p>
-            </div>
-            <div className="rounded-2xl border border-white/15 bg-white/5 px-5 py-4">
-              <p className="text-white/60 text-sm">Visible Results</p>
-              <p className="text-2xl font-bold">{filteredPosters.length}</p>
-            </div>
-            <div className="rounded-2xl border border-white/15 bg-white/5 px-5 py-4">
-              <p className="text-white/60 text-sm">Event</p>
-              <p className="text-2xl font-bold">QDW 2026</p>
-            </div>
-          </div>
         </div>
 
         <div className="mt-8">
@@ -167,10 +156,20 @@ export default function QDW2026PostersPage() {
                   {entry.projectDescription || 'No description provided.'}
                 </p>
 
-                <div className="mt-5 pt-4 border-t border-white/10 space-y-1">
-                  <p className="text-sm font-semibold text-white">{entry.name}</p>
-                  {entry.designation && <p className="text-xs text-white/70">{entry.designation}</p>}
-                  {entry.location && <p className="text-xs text-white/60">{entry.location}</p>}
+                <div className="mt-5 pt-4 border-t border-white/10 flex items-start justify-between gap-4">
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-white">{entry.name}</p>
+                    {entry.designation && <p className="text-xs text-white/70">{entry.designation}</p>}
+                    {entry.location && <p className="text-xs text-white/60">{entry.location}</p>}
+                  </div>
+                  <div className="w-32 h-20 shrink-0 rounded-lg border border-white/15 bg-black/40 overflow-hidden">
+                    <iframe
+                      title={`${entry.projectTitle} poster preview`}
+                      src={`/api/qdw/view-poster?id=${encodeURIComponent(entry.id)}#page=1&view=FitH`}
+                      className="w-full h-full pointer-events-none"
+                      loading="lazy"
+                    />
+                  </div>
                 </div>
 
                 <div className="mt-5 flex items-center justify-between">
