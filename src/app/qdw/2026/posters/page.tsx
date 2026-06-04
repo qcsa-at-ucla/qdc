@@ -164,7 +164,7 @@ export default function QDW2026PostersPage() {
                     {entry.location && <p className="text-xs text-white/60">{entry.location}</p>}
                   </div>
                   <div className="w-32 h-20 shrink-0 rounded-lg border border-white/15 bg-black/40 overflow-hidden">
-                    {entry.hasPoster && (
+                    {entry.hasPoster && !['abhishek rakshit', 'richard ho', 'varun ramaprasad'].includes(entry.name.toLowerCase()) && (
                       <iframe
                         title={`${entry.projectTitle} poster preview`}
                         src={`/api/qdw/view-poster?id=${encodeURIComponent(entry.id)}#page=1&view=FitH`}
@@ -176,14 +176,16 @@ export default function QDW2026PostersPage() {
                 </div>
 
                 <div className="mt-5 flex items-center justify-between">
-                  <Link
-                    href={`/api/qdw/view-poster?id=${encodeURIComponent(entry.id)}&t=${Date.now()}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center rounded-full bg-purple-500 hover:bg-purple-600 transition-colors px-4 py-2 text-sm font-semibold text-white"
-                  >
-                    View Poster PDF
-                  </Link>
+                  {!['abhishek rakshit', 'richard ho', 'varun ramaprasad'].includes(entry.name.toLowerCase()) && (
+                    <Link
+                      href={`/api/qdw/view-poster?id=${encodeURIComponent(entry.id)}&t=${Date.now()}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center rounded-full bg-purple-500 hover:bg-purple-600 transition-colors px-4 py-2 text-sm font-semibold text-white"
+                    >
+                      View Poster PDF
+                    </Link>
+                  )}
                 </div>
               </article>
             ))}
