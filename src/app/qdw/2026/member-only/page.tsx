@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import QDWPosterGallery, { type PosterEntry } from '@/components/QDWPosterGallery';
 
 // ── Schedule data ──────────────────────────────────────────────────────────────
 type SessionType = 'lecture' | 'workshop' | 'break' | 'social' | 'meal' | 'panel' | 'talk' | 'project' | 'poster';
@@ -72,6 +73,10 @@ function MemberScheduleCell({ s }: { s: ScheduleSession | null }) {
   );
 }
 
+interface PosterVoteState {
+  posterId: string;
+}
+
 export default function MemberOnlyPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -117,11 +122,27 @@ export default function MemberOnlyPage() {
   const [cvSuccess, setCvSuccess] = useState(false);
   const [cvError, setCvError] = useState("");
 
+  const [posters, setPosters] = useState<PosterEntry[]>([]);
+  const [postersLoading, setPostersLoading] = useState(false);
+  const [postersError, setPostersError] = useState("");
+  const [posterVoteLoading, setPosterVoteLoading] = useState(false);
+  const [posterVoteSuccess, setPosterVoteSuccess] = useState(false);
+  const [posterVoteError, setPosterVoteError] = useState("");
+  const [posterVote, setPosterVote] = useState<PosterVoteState>({
+    posterId: "",
+  });
+  const [posterFeedbackText, setPosterFeedbackText] = useState("");
+  const [posterFeedbackLoading, setPosterFeedbackLoading] = useState(false);
+  const [posterFeedbackSuccess, setPosterFeedbackSuccess] = useState(false);
+  const [posterFeedbackError, setPosterFeedbackError] = useState("");
+
+  const posterOptions = useMemo(() => posters, [posters]);
+
   // Schedule track toggle
   const [memberTrack, setMemberTrack] = useState<'training' | 'advanced'>('training');
 
   // Tab navigation
-  const [activeTab, setActiveTab] = useState<'info' | 'training' | 'advanced'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'training' | 'advanced' | 'poster'>('info');
 
   // Initialize form data when user data loads
   useEffect(() => {
@@ -137,6 +158,78 @@ export default function MemberOnlyPage() {
       });
     }
   }, [user]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+
+    let mounted = true;
+
+    const loadPosters = async () => {
+      setPostersLoading(true);
+      setPostersError("");
+
+      try {
+        const response = await fetch('/api/qdw/posters', {
+          method: 'GET',
+          cache: 'no-store',
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load posters');
+        }
+
+        if (mounted) {
+          setPosters(data.posters || []);
+        }
+      } catch (err: any) {
+        if (mounted) {
+          setPostersError(err.message || 'Failed to load posters');
+        }
+      } finally {
+        if (mounted) {
+          setPostersLoading(false);
+        }
+      }
+    };
+
+    loadPosters();
+
+    return () => {
+      mounted = false;
+    };
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.email) {
+      return;
+    }
+
+    let mounted = true;
+
+    const loadVote = async () => {
+      try {
+        const response = await fetch(`/api/qdw/poster-vote?email=${encodeURIComponent(user.email)}`, {
+          cache: 'no-store',
+        });
+        const data = await response.json();
+
+        if (response.ok && data.vote && mounted) {
+          setPosterVote({ posterId: data.vote.poster_id || '' });
+        }
+      } catch {
+        // Ignore - users can still vote without a preloaded selection.
+      }
+    };
+
+    loadVote();
+
+    return () => {
+      mounted = false;
+    };
+  }, [isAuthenticated, user?.email]);
 
   // Check if user is already logged in via session/cookie
   useEffect(() => {
@@ -263,6 +356,95 @@ export default function MemberOnlyPage() {
       setPosterError(err.message || "An error occurred. Please try again.");
     } finally {
       setPosterLoading(false);
+    }
+  };
+
+  const handlePosterVoteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPosterVoteLoading(true);
+    setPosterVoteError("");
+    setPosterVoteSuccess(false);
+
+    if (!user?.email) {
+      setPosterVoteError('You must be signed in to vote.');
+      setPosterVoteLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/qdw/poster-vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          voterEmail: user.email,
+          posterId: posterVote.posterId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save poster vote');
+      }
+
+      setPosterVoteSuccess(true);
+      setPosterVoteError("");
+      setTimeout(() => setPosterVoteSuccess(false), 4000);
+    } catch (err: any) {
+      setPosterVoteError(err.message || 'An error occurred. Please try again.');
+    } finally {
+      setPosterVoteLoading(false);
+    }
+  };
+
+  const handlePosterFeedbackSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPosterFeedbackLoading(true);
+    setPosterFeedbackError("");
+    setPosterFeedbackSuccess(false);
+
+    if (!user?.email) {
+      setPosterFeedbackError('You must be signed in to submit feedback.');
+      setPosterFeedbackLoading(false);
+      return;
+    }
+
+    if (!posterVote.posterId) {
+      setPosterFeedbackError('Please choose a poster first.');
+      setPosterFeedbackLoading(false);
+      return;
+    }
+
+    if (!posterFeedbackText.trim()) {
+      setPosterFeedbackError('Please enter feedback before submitting.');
+      setPosterFeedbackLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/qdw/poster-feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          voterEmail: user.email,
+          posterId: posterVote.posterId,
+          feedback: posterFeedbackText,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save feedback');
+      }
+
+      setPosterFeedbackText("");
+      setPosterFeedbackSuccess(true);
+      setTimeout(() => setPosterFeedbackSuccess(false), 4000);
+    } catch (err: any) {
+      setPosterFeedbackError(err.message || 'An error occurred. Please try again.');
+    } finally {
+      setPosterFeedbackLoading(false);
     }
   };
 
@@ -778,7 +960,8 @@ export default function MemberOnlyPage() {
               { id: 'info',     label: 'My Info',         icon: '' },
               { id: 'training', label: 'Training Track',   icon: '🟢' },
               { id: 'advanced', label: 'Advanced Track',   icon: '🟣' },
-            ] as { id: 'info' | 'training' | 'advanced'; label: string; icon: string }[]).map(tab => (
+              { id: 'poster',  label: 'Poster',           icon: '🩷' },
+            ] as { id: 'info' | 'training' | 'advanced' | 'poster'; label: string; icon: string }[]).map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -788,6 +971,8 @@ export default function MemberOnlyPage() {
                       ? 'border-green-500 text-green-300 bg-green-900/20'
                       : tab.id === 'advanced'
                       ? 'border-purple-500 text-purple-300 bg-purple-900/20'
+                      : tab.id === 'poster'
+                      ? 'border-pink-500 text-pink-300 bg-pink-900/20'
                       : 'border-indigo-400 text-indigo-200 bg-indigo-900/20'
                     : 'border-transparent text-gray-500 hover:text-gray-300 hover:bg-white/5'
                 }`}
@@ -1432,6 +1617,128 @@ export default function MemberOnlyPage() {
           schedule={ADVANCED_SCHEDULE}
           scheduleDays={SCHEDULE_DAYS}
         />
+      )}
+
+      {/* ── POSTER TAB ─────────────────────────────────────────────────── */}
+      {activeTab === 'poster' && (
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-pink-500/30 bg-pink-900/10 p-6 sm:p-8">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div>
+                <p className="text-pink-300 text-xs font-semibold tracking-widest uppercase mb-2">Poster Voting</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-white">Choose your favourites</h2>
+                <p className="text-gray-300 mt-3 max-w-3xl">
+                  Choose one poster for your vote. You can change your vote later, and you can submit as much feedback as you want.
+                </p>
+              </div>
+              <div className="rounded-full border border-pink-400/30 bg-pink-500/10 px-4 py-2 text-sm text-pink-200">
+                Voting opens June 15
+              </div>
+            </div>
+
+            {posterVoteSuccess && (
+              <div className="mt-5 rounded-xl border border-green-500/40 bg-green-500/10 px-4 py-3 text-green-200">
+                Your poster vote was saved.
+              </div>
+            )}
+
+            {posterVoteError && (
+              <div className="mt-5 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-red-200">
+                {posterVoteError}
+              </div>
+            )}
+
+            <div className="mt-6 grid gap-6 lg:grid-cols-2">
+              <form onSubmit={handlePosterVoteSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Your vote</label>
+                  <select
+                    value={posterVote.posterId}
+                    onChange={(e) => setPosterVote({ posterId: e.target.value })}
+                    className="w-full rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    required
+                  >
+                    <option value="">Select a poster</option>
+                    {posterOptions.map((poster) => (
+                      <option key={poster.id} value={poster.id}>
+                        {poster.name} - {poster.projectTitle}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-2 text-xs text-white/50">You can submit a new vote later to change your choice.</p>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="submit"
+                    disabled={posterVoteLoading || postersLoading || posterOptions.length === 0}
+                    className="rounded-full bg-pink-500 px-6 py-3 font-semibold text-white transition-colors hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {posterVoteLoading ? 'Saving...' : 'Save Poster Vote'}
+                  </button>
+                </div>
+              </form>
+
+              <form onSubmit={handlePosterFeedbackSubmit} className="space-y-5 rounded-2xl border border-white/10 bg-black/20 p-5">
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Feedback for the selected poster</label>
+                  <textarea
+                    value={posterFeedbackText}
+                    onChange={(e) => setPosterFeedbackText(e.target.value)}
+                    rows={6}
+                    placeholder="If you want, feel free to leave feedback or a message on the author's posters here. We'll pass it along!"
+                    className="w-full rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-white placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  />
+                </div>
+
+                {posterFeedbackSuccess && (
+                  <div className="rounded-xl border border-green-500/40 bg-green-500/10 px-4 py-3 text-green-200">
+                    Feedback submitted.
+                  </div>
+                )}
+
+                {posterFeedbackError && (
+                  <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-red-200">
+                    {posterFeedbackError}
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="submit"
+                    disabled={posterFeedbackLoading || postersLoading || !posterVote.posterId}
+                    className="rounded-full bg-white px-6 py-3 font-semibold text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {posterFeedbackLoading ? 'Sending...' : 'Submit Feedback'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPosterFeedbackText("")}
+                    className="rounded-full border border-white/15 bg-white/5 px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          {postersLoading && (
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-white/70">
+              Loading posters...
+            </div>
+          )}
+
+          {postersError && !postersLoading && (
+            <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-6 text-red-200">
+              {postersError}
+            </div>
+          )}
+
+          {!postersLoading && !postersError && (
+            <QDWPosterGallery posters={posters} emptyMessage="No posters available yet." />
+          )}
+        </div>
       )}
 
       </div>

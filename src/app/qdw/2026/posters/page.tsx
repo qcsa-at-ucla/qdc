@@ -1,27 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import QDW2026Nav from '@/components/QDW2026Nav';
-
-interface PosterEntry {
-  id: string;
-  name: string;
-  designation: string;
-  location: string;
-  registrationType: string;
-  projectTitle: string;
-  projectDescription: string;
-  hasPoster?: boolean;
-  approvedAt: string | null;
-  createdAt: string;
-}
-
-function formatRegistrationType(type: string): string {
-  if (type === 'student_in_person') return 'Student (In Person)';
-  if (type === 'student_online') return 'Student (Online)';
-  return 'Student';
-}
+import QDWPosterGallery, { type PosterEntry } from '@/components/QDWPosterGallery';
 
 export default function QDW2026PostersPage() {
   const [posters, setPosters] = useState<PosterEntry[]>([]);
@@ -90,13 +71,16 @@ export default function QDW2026PostersPage() {
       <QDW2026Nav />
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="rounded-3xl border border-purple-500/20 bg-gradient-to-br from-purple-950/40 via-black to-blue-950/30 p-8 sm:p-10">
-          <h1 className="text-3xl sm:text-4xl font-black mb-4">QDW 2026 Student Poster Section</h1>
-          <p className="text-white/80 max-w-3xl">
+        <div className="p-2 sm:p-4">
+          <h1 className="text-3xl sm:text-4xl font-black mb-4 text-left">QDW 2026 Student Poster Section</h1>
+          <p className="text-white/80 max-w-3xl text-left">
             Explore paid student poster submissions from QDW 2026 (in-person and online). You can search by name, title, research topic, lab, or location.
           </p>
-          <p className="text-white/70 max-w-3xl mt-3">
+          <p className="text-white/70 max-w-3xl mt-3 text-left">
             When our Poster Sessions are taking place during QDW, we'll open up a Zoom room for members to drop by and talk with Poster authors and attendees.
+          </p>
+          <p className="text-white/70 max-w-3xl mt-3 text-left">
+            We will open up voting for posters when the Poster Session starts on June 15. Vote for your favourite poster! We will announce winners at the end of the workshop.
           </p>
 
         </div>
@@ -127,68 +111,9 @@ export default function QDW2026PostersPage() {
           </div>
         )}
 
-        {!loading && !error && filteredPosters.length === 0 && (
-          <div className="mt-10 rounded-2xl border border-white/15 bg-white/5 p-8 text-center">
-            <p className="text-white/70">No posters found for this search.</p>
-          </div>
-        )}
-
-        {!loading && !error && filteredPosters.length > 0 && (
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredPosters.map((entry) => (
-              <article
-                key={entry.id}
-                className="rounded-2xl border border-white/15 bg-gradient-to-br from-white/10 to-white/5 p-6 backdrop-blur-sm"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <span className="inline-flex items-center rounded-full border border-purple-400/40 bg-purple-500/15 px-3 py-1 text-xs font-semibold text-purple-200">
-                    {formatRegistrationType(entry.registrationType)}
-                  </span>
-                  {entry.approvedAt && (
-                    <span className="text-xs text-white/50">
-                      Approved {new Date(entry.approvedAt).toLocaleDateString()}
-                    </span>
-                  )}
-                </div>
-
-                <h2 className="mt-4 text-xl font-bold text-white leading-tight">{entry.projectTitle}</h2>
-
-                <p className="mt-3 text-sm text-white/75 line-clamp-5 min-h-[7.5rem]">
-                  {entry.projectDescription || 'No description provided.'}
-                </p>
-
-                <div className="mt-5 pt-4 border-t border-white/10 flex items-start justify-between gap-4">
-                  <div className="space-y-1">
-                    <p className="text-sm font-semibold text-white">{entry.name}</p>
-                    {entry.designation && <p className="text-xs text-white/70">{entry.designation}</p>}
-                    {entry.location && <p className="text-xs text-white/60">{entry.location}</p>}
-                  </div>
-                  <div className="w-32 h-20 shrink-0 rounded-lg border border-white/15 bg-black/40 overflow-hidden">
-                    {entry.hasPoster && !['abhishek rakshit', 'richard ho', 'varun ramaprasad'].includes(entry.name.toLowerCase()) && (
-                      <iframe
-                        title={`${entry.projectTitle} poster preview`}
-                        src={`/api/qdw/view-poster?id=${encodeURIComponent(entry.id)}#page=1&view=FitH`}
-                        className="w-full h-full pointer-events-none"
-                        loading="lazy"
-                      />
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-5 flex items-center justify-between">
-                  {!['abhishek rakshit', 'richard ho', 'varun ramaprasad'].includes(entry.name.toLowerCase()) && (
-                    <Link
-                      href={`/api/qdw/view-poster?id=${encodeURIComponent(entry.id)}&t=${Date.now()}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center rounded-full bg-purple-500 hover:bg-purple-600 transition-colors px-4 py-2 text-sm font-semibold text-white"
-                    >
-                      View Poster PDF
-                    </Link>
-                  )}
-                </div>
-              </article>
-            ))}
+        {!loading && !error && (
+          <div className="mt-10">
+            <QDWPosterGallery posters={filteredPosters} />
           </div>
         )}
       </section>
