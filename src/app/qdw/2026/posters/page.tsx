@@ -20,6 +20,8 @@ interface PosterEntry {
 function formatRegistrationType(type: string): string {
   if (type === 'student_in_person') return 'Student (In Person)';
   if (type === 'student_online') return 'Student (Online)';
+  if (type === 'professional_in_person') return 'Professional (In Person)';
+  if (type === 'professional_online') return 'Professional (Online)';
   return 'Student';
 }
 
