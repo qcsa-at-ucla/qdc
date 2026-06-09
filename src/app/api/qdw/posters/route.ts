@@ -34,7 +34,7 @@ export async function GET() {
       .select(
         "id, first_name, last_name, designation, location, registration_type, project_title, project_description, poster_url, approved_at, created_at"
       )
-      .in("registration_type", ["student_in_person", "student_online"])
+      .in("registration_type", ["student_in_person", "student_online", "professional_in_person", "professional_online"])
       .eq("payment_status", "paid")
       .not("poster_url", "is", null)
       .order("approved_at", { ascending: false, nullsFirst: false })

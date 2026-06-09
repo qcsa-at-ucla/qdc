@@ -91,12 +91,15 @@ export default function QDW2026PostersPage() {
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="rounded-3xl border border-purple-500/20 bg-gradient-to-br from-purple-950/40 via-black to-blue-950/30 p-8 sm:p-10">
-          <h1 className="text-3xl sm:text-4xl font-black mb-4">QDW 2026 Student Poster Section</h1>
-          <p className="text-white/80 max-w-3xl">
-            Explore paid student poster submissions from QDW 2026 (in-person and online). You can search by name, title, research topic, lab, or location.
+          <h1 className="text-3xl sm:text-4xl font-black mb-4 text-left">QDW 2026 Student/Professional Poster Section</h1>
+          <p className="text-white/80 max-w-3xl text-left">
+            Explore student and professional poster submissions from QDW 2026 (in-person and online). You can search by name, title, research topic, lab, or location.
           </p>
           <p className="text-white/70 max-w-3xl mt-3">
             When our Poster Sessions are taking place during QDW, we'll open up a Zoom room for members to drop by and talk with Poster authors and attendees.
+          </p>
+          <p className="text-white/70 max-w-3xl mt-3 text-left">
+            We will open up voting for posters when the Poster Session starts on June 15. Vote for your favourite poster through your member portal! We will announce winners at the end of the workshop.
           </p>
 
         </div>
@@ -110,7 +113,7 @@ export default function QDW2026PostersPage() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by student name, project title, topic, or location"
+            placeholder="Search by name, project title, topic, or location"
             className="w-full rounded-xl border border-white/20 bg-black/50 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
         </div>
