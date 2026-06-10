@@ -257,7 +257,7 @@ const advancedSchedule: TimeSlot[] = [
     time: '4:15 – 5:00 PM',
     days: [
       { title: 'Silvia Zorzetti', type: 'lecture', company: 'Fermilab' },
-      { title: 'Breakout: Lecture\n', type: 'lecture', company: 'Google & QDC', speaker: 'Helge Gehring, Simon Bilodeaus, Bianca Hanley'},
+      { title: 'Lecture\n', type: 'lecture', company: 'Google & QDC', speaker: 'Helge Gehring, Simon Bilodeaus, Bianca Hanley'},
       { title: 'Edward Kluender', type: 'talk', company: 'Zurich Instruments' },
       { title: 'Panel Discussion', type: 'panel', speaker: 'Zlatko Minev (Moderator, begin 4:30)' },
     ],
@@ -344,7 +344,6 @@ export default function SchedulePage() {
 
       const imgData = canvas.toDataURL('image/png');
       const trackLabel = track === 'training' ? 'Training Track' : 'Advanced Track';
-      const accentHex = track === 'training' ? '#22c55e' : '#a855f7';
 
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a3' });
       const pW = pdf.internal.pageSize.getWidth();
@@ -390,9 +389,55 @@ export default function SchedulePage() {
       pdf.setLineWidth(0.3);
       pdf.line(0, headerH, pW, headerH);
 
+      // Legend metadata is used to reserve vertical space before drawing content.
+      const legendTypes: { type: SessionType; label: string; hex: [number, number, number] }[] = [
+        { type: 'lecture',  label: 'Lecture',           hex: [192, 132, 252] },
+        { type: 'workshop', label: 'Workshop',          hex: [74, 222, 128] },
+        { type: 'talk',     label: 'Industry Talk',     hex: [34, 211, 238] },
+        { type: 'panel',    label: 'Panel / Event',     hex: [129, 140, 248] },
+        { type: 'project',  label: 'Design Project',    hex: [52, 211, 153] },
+        { type: 'poster',   label: 'Poster Session',    hex: [244, 114, 182] },
+        { type: 'social',   label: 'Social / Network',  hex: [251, 191, 36] },
+        { type: 'break',    label: 'Break / Meal',      hex: [107, 114, 128] },
+      ];
+
+      const legendMarginX = 14;
+      const legendItemGap = 6;
+      const legendTextOffset = 4;
+      const legendFontSize = 6.5;
+      const legendLineHeight = 4.3;
+      const footerHeight = 12;
+      const contentBottomGap = 3;
+
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(legendFontSize);
+
+      const legendItemWidths = legendTypes.map(({ label }) => legendTextOffset + pdf.getTextWidth(label));
+      const legendUsableWidth = pW - legendMarginX * 2;
+
+      let legendLineCount = 1;
+      let legendCursor = 0;
+      legendItemWidths.forEach((itemWidth) => {
+        if (legendCursor === 0) {
+          legendCursor = itemWidth;
+          return;
+        }
+
+        if (legendCursor + legendItemGap + itemWidth > legendUsableWidth) {
+          legendLineCount += 1;
+          legendCursor = itemWidth;
+          return;
+        }
+
+        legendCursor += legendItemGap + itemWidth;
+      });
+
+      const legendHeight = legendLineCount * legendLineHeight + 1;
+
       // Schedule image
       const contentY = headerH + 3;
-      const availH = pH - contentY - 14;
+      const reservedBottom = legendHeight + footerHeight + contentBottomGap;
+      const availH = pH - contentY - reservedBottom;
       const imgAspect = canvas.width / canvas.height;
       const availW = pW - 24;
 
@@ -406,44 +451,48 @@ export default function SchedulePage() {
 
       pdf.addImage(imgData, 'PNG', drawX, contentY, drawW, drawH, undefined, 'FAST');
 
+      // Legend row(s) above footer
+      const footerTopY = pH - footerHeight;
+      const legendTopY = footerTopY - legendHeight;
+
+      let lx = legendMarginX;
+      let ly = legendTopY + 2.8;
+      legendTypes.forEach(({ label, hex }, idx) => {
+        const itemWidth = legendItemWidths[idx];
+
+        if (lx !== legendMarginX) {
+          if (lx + legendItemGap + itemWidth > pW - legendMarginX) {
+            lx = legendMarginX;
+            ly += legendLineHeight;
+          } else {
+            lx += legendItemGap;
+          }
+        }
+
+        pdf.setFillColor(...hex);
+        pdf.circle(lx + 1.2, ly - 0.8, 1.2, 'F');
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(legendFontSize);
+        pdf.setTextColor(160, 160, 180);
+        pdf.text(label, lx + legendTextOffset, ly);
+        lx += itemWidth;
+      });
+
       // Footer
-      const footerY = pH - 8;
+      const footerY = footerTopY + 4;
       pdf.setFillColor(12, 12, 28);
-      pdf.rect(0, pH - 12, pW, 12, 'F');
+      pdf.rect(0, footerTopY, pW, footerHeight, 'F');
       pdf.setDrawColor(50, 50, 80);
-      pdf.line(0, pH - 12, pW, pH - 12);
+      pdf.line(0, footerTopY, pW, footerTopY);
 
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(7);
       pdf.setTextColor(100, 100, 130);
-      pdf.text('Schedule subject to change · All times Pacific Time (PT) · quantumdeviceworkshop.com', pW / 2, footerY, { align: 'center' });
+      pdf.text('Schedule subject to change · All times Pacific Time (PT) · quantumdeviceworkshop.com', 14, footerY);
 
       const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
       pdf.setTextColor(80, 80, 100);
       pdf.text(`Generated ${dateStr}`, pW - 12, footerY, { align: 'right' });
-
-      // Legend row above footer
-      const legendY = pH - 19;
-      const legendTypes: { type: SessionType; label: string; hex: [number, number, number] }[] = [
-        { type: 'lecture',  label: 'Lecture',           hex: [192, 132, 252] },
-        { type: 'workshop', label: 'Workshop',          hex: [74, 222, 128] },
-        { type: 'talk',     label: 'Industry Talk',     hex: [34, 211, 238] },
-        { type: 'panel',    label: 'Panel / Event',     hex: [129, 140, 248] },
-        { type: 'project',  label: 'Design Project',    hex: [52, 211, 153] },
-        { type: 'poster',   label: 'Poster Session',    hex: [244, 114, 182] },
-        { type: 'social',   label: 'Social / Network',  hex: [251, 191, 36] },
-        { type: 'break',    label: 'Break / Meal',      hex: [107, 114, 128] },
-      ];
-      let lx = 14;
-      legendTypes.forEach(({ label, hex }) => {
-        pdf.setFillColor(...hex);
-        pdf.circle(lx + 1.2, legendY + 0.5, 1.2, 'F');
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(6.5);
-        pdf.setTextColor(160, 160, 180);
-        pdf.text(label, lx + 4, legendY + 1.2);
-        lx += label.length * 2.1 + 6;
-      });
 
       pdf.save(`QDW2026_Schedule_${track === 'training' ? 'Training' : 'Advanced'}.pdf`);
     } finally {
