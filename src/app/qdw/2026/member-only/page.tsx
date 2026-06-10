@@ -1416,7 +1416,7 @@ export default function MemberOnlyPage() {
           trackName="Training Track"
           room="Cohen Room: Engineering VI, UCLA"
           accentColor="green"
-          zoomMeetingUrl={null}
+          zoomMeetingUrl="https://usc.zoom.us/j/96492542084?pwd=CQm6oUnpDs5bPbwRRgc1CEa8IWb09F.1"
           schedule={TRAINING_SCHEDULE}
           scheduleDays={SCHEDULE_DAYS}
         />
@@ -1428,7 +1428,7 @@ export default function MemberOnlyPage() {
           trackName="Advanced Track"
           room="Mong Auditorium: Engineering VI, UCLA"
           accentColor="purple"
-          zoomMeetingUrl={null}
+          zoomMeetingUrl="https://usc.zoom.us/j/92046732590?pwd=hlE9n8yIirDaf4zg5lsrNbn3TuJaxu.1"
           schedule={ADVANCED_SCHEDULE}
           scheduleDays={SCHEDULE_DAYS}
         />
