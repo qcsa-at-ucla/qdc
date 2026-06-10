@@ -257,7 +257,7 @@ const advancedSchedule: TimeSlot[] = [
     time: '4:15 – 5:00 PM',
     days: [
       { title: 'Silvia Zorzetti', type: 'lecture', company: 'Fermilab' },
-      { title: 'Lecture\n', type: 'lecture', company: 'Google & QDC', speaker: 'Helge Gehring, Simon Bilodeaus, Bianca Hanley'},
+      { title: 'Helge Gehring, Simon Bilodeaus, Bianca Hanley (Lecture)', type: 'lecture', company: 'Google & QDC'},
       { title: 'Edward Kluender', type: 'talk', company: 'Zurich Instruments' },
       { title: 'Panel Discussion', type: 'panel', speaker: 'Zlatko Minev (Moderator, begin 4:30)' },
     ],
