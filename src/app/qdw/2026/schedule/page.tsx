@@ -488,7 +488,7 @@ export default function SchedulePage() {
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(7);
       pdf.setTextColor(100, 100, 130);
-      pdf.text('Schedule subject to change · All times Pacific Time (PT) · quantumdeviceworkshop.com', 14, footerY);
+      pdf.text('Schedule subject to change · All times Pacific Time (PT) · quantum.ucla@gmail.com', 14, footerY);
 
       const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
       pdf.setTextColor(80, 80, 100);
