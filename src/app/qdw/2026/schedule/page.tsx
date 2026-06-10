@@ -257,7 +257,7 @@ const advancedSchedule: TimeSlot[] = [
     time: '4:15 – 5:00 PM',
     days: [
       { title: 'Silvia Zorzetti', type: 'lecture', company: 'Fermilab' },
-      { title: 'Breakout: Business\n(Panel + Talk + Mini Workshop)', type: 'panel' },
+      { title: 'Breakout: Lecture\n', type: 'lecture', company: 'Google & QDC', speaker: 'Helge Gehring, Simon Bilodeaus, Bianca Hanley'},
       { title: 'Edward Kluender', type: 'talk', company: 'Zurich Instruments' },
       { title: 'Panel Discussion', type: 'panel', speaker: 'Zlatko Minev (Moderator, begin 4:30)' },
     ],
@@ -630,7 +630,7 @@ export default function SchedulePage() {
         </section>
 
         {/* Notes Section */}
-        <section className="px-4 sm:px-6 lg:px-8 py-12 max-w-4xl mx-auto">
+        {/* <section className="px-4 sm:px-6 lg:px-8 py-12 max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -648,7 +648,7 @@ export default function SchedulePage() {
               </li>
             </ul>
           </motion.div>
-        </section>
+        </section> */}
 
         {/* Footer */}
         <footer className="border-t border-white/10 py-10 px-4 text-center">
