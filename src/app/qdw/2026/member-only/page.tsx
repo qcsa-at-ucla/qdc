@@ -1211,7 +1211,7 @@ export default function MemberOnlyPage() {
                 </p>
               </div>
 
-              {/* Poster uploads are currently paused.
+              { 
               <div>
                 <label className="block text-sm font-bold text-white mb-1">
                   Update Poster PDF <span className="font-normal text-gray-500">(optional)</span>
@@ -1248,7 +1248,7 @@ export default function MemberOnlyPage() {
                   </p>
                 )}
               </div>
-              */}
+              }
 
               <div className="flex gap-3">
                 <button
