@@ -331,7 +331,7 @@ const speakers: Speaker[] = [
     name: 'Joseph Glick',
     affiliation: 'QBlox',
     title: 'Quantum Application Scientis',
-    image: '/images/QBlox_JosephGlick_002.jpeg',
+    image: '/images/Qblox_JosephGlick_002.jpeg',
     bio: 'Quantum error correction (QEC) is fundamentally a challenge of hardware latency and massive data throughput. As physical qubit counts scale, the sheer volume of continuous syndrome data creates a severe I/O and processing bottleneck. For device designers, the time budget to measure an ancilla qubit, digitize the signal, decode the logical error, and fire a corrective microwave or flux pulse is unforgiving—often strictly bounded under a single microsecond. If the control and decoding architectures cannot keep pace, errors accumulate faster than they can be suppressed, nullifying the fault-tolerance threshold. This talk details the recent integration of Qblox’s scalable quantum control electronics with Riverlane’s hardware-accelerated Deltaflow QEC decoders, and examines how this fast-feedback architecture can inform next-generation quantum device design. We will unpack the physical implementation of the Quantum Error Correction interface (QECi)—the ultra-low-latency data link connecting Qblox’s deterministic SYNQ and LINK network (capable of distributing measurement outcomes across modules in ~400 ns) directly into Riverlane’s FPGA-based Local Clustering Decoder (LCD). Crucially, we will explore how offloading decoding to a specialized real-time hardware layer fundamentally alters the constraints placed on the QPU itself.',
     sponsored: true,
   },
