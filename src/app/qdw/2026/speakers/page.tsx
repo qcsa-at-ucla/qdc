@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
-import Link from 'next/link';
-import QDW2026Nav from '@/components/QDW2026Nav';
+import QDW2026Nav from '@/components/QDW2026Nav'
+import { AnimatePresence, motion } from 'framer-motion'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useState } from 'react'
 
 interface Speaker {
-  name: string;
-  affiliation: string;
-  image: string;
-  bio: string;
-  title?: string;
-  sponsored?: boolean;
+  name: string
+  affiliation: string
+  image: string
+  bio: string
+  title?: string
+  sponsored?: boolean
 }
 
 const speakers: Speaker[] = [
@@ -73,11 +73,11 @@ const speakers: Speaker[] = [
     bio: 'Mollie Schwartz is a member of the Technical Staff at MIT Lincoln Laboratory where she develops superconducting quantum devices and integrated quantum systems. Her work focuses on qubit fabrication, multi-qubit processors, and the engineering challenges of scaling superconducting quantum hardware.',
   },
   {
-    name: 'Kevin O\'Brien',
+    name: "Kevin O'Brien",
     affiliation: 'MIT',
     title: 'Assistant Professor of EECS',
     image: '/images/Kevin_Brien.jpg',
-    bio: 'Kevin O\'Brien is an Assistant Professor at MIT EECS working on engineering quantum light-matter interactions and superconducting circuits for quantum technologies. His group develops new qubit architectures, quantum amplifiers, and hardware approaches to fault-tolerant quantum computing.',
+    bio: "Kevin O'Brien is an Assistant Professor at MIT EECS working on engineering quantum light-matter interactions and superconducting circuits for quantum technologies. His group develops new qubit architectures, quantum amplifiers, and hardware approaches to fault-tolerant quantum computing.",
   },
   {
     name: 'Alp Sipahigil',
@@ -105,7 +105,7 @@ const speakers: Speaker[] = [
     affiliation: 'Google Quantum AI',
     title: 'Research Scientist',
     image: '/images/Daniel_Sank.png',
-    bio: 'Daniel Sank is a Research Scientist at Google Quantum AI, where he has made key contributions to understanding and mitigating noise in superconducting qubits, including the discovery and characterization of two-level system defects. His work has been central to Google\'s advances in qubit coherence and quantum supremacy.',
+    bio: "Daniel Sank is a Research Scientist at Google Quantum AI, where he has made key contributions to understanding and mitigating noise in superconducting qubits, including the discovery and characterization of two-level system defects. His work has been central to Google's advances in qubit coherence and quantum supremacy.",
   },
   {
     name: 'Reza Molavi',
@@ -203,14 +203,14 @@ const speakers: Speaker[] = [
     affiliation: 'Google Quantum AI',
     title: 'Research Scientist',
     image: '/images/Murat_Can_Sarihan.jpeg',
-    bio: 'Murat Can Sarihan is a Research Scientist at Google Quantum AI focusing on superconducting qubit design and quantum error correction. His research contributes to Google\'s efforts to build large-scale, error-corrected quantum processors.',
+    bio: "Murat Can Sarihan is a Research Scientist at Google Quantum AI focusing on superconducting qubit design and quantum error correction. His research contributes to Google's efforts to build large-scale, error-corrected quantum processors.",
   },
   {
     name: 'Michael Hatridge',
-    affiliation: 'University of Pittsburgh',
+    affiliation: 'Yale University',
     title: 'Associate Professor of Physics',
     image: '/images/Michael_Hatridge.png',
-    bio: 'Michael Hatridge is an Associate Professor at the University of Pittsburgh whose research focuses on superconducting quantum circuits, quantum amplification, and the fundamentals of quantum measurement. His group develops Josephson parametric amplifiers and explores the physics of quantum backaction and feedback.',
+    bio: 'Michael Hatridge is an Associate Professor at the Yale University whose research focuses on superconducting quantum circuits, quantum amplification, and the fundamentals of quantum measurement. His group develops Josephson parametric amplifiers and explores the physics of quantum backaction and feedback.',
   },
   {
     name: 'Ani Nersisyan',
@@ -222,9 +222,10 @@ const speakers: Speaker[] = [
   {
     name: 'Nik Zhelev',
     affiliation: 'University of Oregon',
-    title: 'Research Assistant Professor & Director of Quantum Technology Master\'s Internship Program',
+    title:
+      "Research Assistant Professor & Director of Quantum Technology Master's Internship Program",
     image: '/images/Nik Zhelev.png',
-    bio: 'Nik Zhelev is a Research Assistant Professor at the University of Oregon\'s Materials Science Institute, affiliated with OMQ and the Physics department. He also serves as Director of the Quantum Technology Master\'s Internship Program. His research focuses on superconducting quantum circuits and quantum computing hardware.',
+    bio: "Nik Zhelev is a Research Assistant Professor at the University of Oregon's Materials Science Institute, affiliated with OMQ and the Physics department. He also serves as Director of the Quantum Technology Master's Internship Program. His research focuses on superconducting quantum circuits and quantum computing hardware.",
   },
   {
     name: 'Wei Dai',
@@ -278,9 +279,9 @@ const speakers: Speaker[] = [
   {
     name: 'Helge Gehring',
     affiliation: 'Google Quantum AI',
-    title: 'Researcher',
+    title: 'Hardware Engineer',
     image: '/images/Helge_Gehring.jpg',
-    bio: 'Helge Gehring is a Researcher at Google Quantum AI focused on open-source tooling for large-scale quantum device design. His work centers on the KLayout programmatic API and the GDSII format, building tooling that enables scalable layout of complex superconducting quantum processors.',
+    bio: 'Helge Gehring is a Hardware Engineer at Google Quantum AI focused on open-source tooling for large-scale quantum device design. His work centers on the KLayout programmatic API and the GDSII format, building tooling that enables scalable layout of complex superconducting quantum processors.',
   },
   {
     name: 'Simon Bilodeau',
@@ -327,7 +328,7 @@ const speakers: Speaker[] = [
     sponsored: true,
   },
 
-   {
+  {
     name: 'Joseph Glick',
     affiliation: 'QBlox',
     title: 'Quantum Application Scientis',
@@ -336,30 +337,30 @@ const speakers: Speaker[] = [
     sponsored: true,
   },
 
-    {
+  {
     name: 'Fadime Bekmambetova',
     affiliation: 'Nanoacademic Technologies LTD',
     title: 'Research Scientist',
     image: '/images/fadime.png',
-    bio: 'Hybrid quantum systems that couple semiconductor spin qubits to superconducting circuits are promising for the future of quantum technology, as they combine a compact qubit footprint and long coherence times with long-range connectivity. To support the rigorous multi-physics simulation of these complex architectures, we will conduct a live demonstration in which we will use QTCAD® to model the coupling between a multi-gate FinFET quantum dot and a microwave resonator. Using interactive Jupyter notebooks, we will walk through the 3D geometry construction of the semiconductor device and the subsequent calculation of its electrostatic potentials and quantum mechanical eigenstates by using QTCAD®’s Poisson and Schrödinger solvers. Furthermore, the demonstration will showcase resonator design by utilizing the Quantum Metal framework for layout generation alongside QTCAD®\'s Maxwell solver for eigenmode extraction. By bridging the gap between semiconductor physics and circuit QED, this session will equip attendees with the practical tools necessary to design and optimize next-generation hybrid hardware.',
+    bio: "Hybrid quantum systems that couple semiconductor spin qubits to superconducting circuits are promising for the future of quantum technology, as they combine a compact qubit footprint and long coherence times with long-range connectivity. To support the rigorous multi-physics simulation of these complex architectures, we will conduct a live demonstration in which we will use QTCAD® to model the coupling between a multi-gate FinFET quantum dot and a microwave resonator. Using interactive Jupyter notebooks, we will walk through the 3D geometry construction of the semiconductor device and the subsequent calculation of its electrostatic potentials and quantum mechanical eigenstates by using QTCAD®’s Poisson and Schrödinger solvers. Furthermore, the demonstration will showcase resonator design by utilizing the Quantum Metal framework for layout generation alongside QTCAD®'s Maxwell solver for eigenmode extraction. By bridging the gap between semiconductor physics and circuit QED, this session will equip attendees with the practical tools necessary to design and optimize next-generation hybrid hardware.",
     sponsored: true,
   },
-];
+]
 
 export default function QDW2026Speakers() {
-  const [selected, setSelected] = useState<Speaker | null>(null);
-  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<Speaker | null>(null)
+  const [search, setSearch] = useState('')
 
   const filtered = speakers.filter(
     (s) =>
       s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.affiliation.toLowerCase().includes(search.toLowerCase())
-  );
+      s.affiliation.toLowerCase().includes(search.toLowerCase()),
+  )
 
   // Deduplicate by name (Jens Koch appeared twice in source data)
   const unique = filtered.filter(
-    (s, i, arr) => arr.findIndex((t) => t.name === s.name) === i
-  );
+    (s, i, arr) => arr.findIndex((t) => t.name === s.name) === i,
+  )
 
   return (
     <>
@@ -390,7 +391,8 @@ export default function QDW2026Speakers() {
                 </span>
               </h1>
               <p className="text-gray-300 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
-                World-class researchers and engineers from leading quantum computing labs, universities, and industry.
+                World-class researchers and engineers from leading quantum
+                computing labs, universities, and industry.
               </p>
             </motion.div>
           </div>
@@ -400,8 +402,18 @@ export default function QDW2026Speakers() {
         <section className="px-4 sm:px-6 lg:px-8 pb-12">
           <div className="max-w-lg mx-auto">
             <div className="relative">
-              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
               <input
                 type="text"
@@ -429,7 +441,9 @@ export default function QDW2026Speakers() {
                   onClick={() => setSelected(speaker)}
                   className="group flex flex-col items-center text-center focus:outline-none"
                 >
-                  <div className={`relative w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full overflow-hidden border-2 transition-all duration-300 group-hover:scale-105 bg-gray-800 ${speaker.sponsored ? 'border-[#C0C0C0] group-hover:border-[#E8E8E8] group-hover:shadow-[0_0_24px_rgba(192,192,192,0.5)]' : 'border-white/10 group-hover:border-purple-400 group-hover:shadow-[0_0_24px_rgba(147,51,234,0.4)]'}`}>
+                  <div
+                    className={`relative w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full overflow-hidden border-2 transition-all duration-300 group-hover:scale-105 bg-gray-800 ${speaker.sponsored ? 'border-[#C0C0C0] group-hover:border-[#E8E8E8] group-hover:shadow-[0_0_24px_rgba(192,192,192,0.5)]' : 'border-white/10 group-hover:border-purple-400 group-hover:shadow-[0_0_24px_rgba(147,51,234,0.4)]'}`}
+                  >
                     <Image
                       src={speaker.image}
                       alt={speaker.name}
@@ -440,16 +454,22 @@ export default function QDW2026Speakers() {
                   <p className="mt-3 text-white font-semibold text-sm leading-snug group-hover:text-purple-300 transition-colors duration-200">
                     {speaker.name}
                   </p>
-                  <p className="text-purple-400 text-xs mt-0.5">{speaker.affiliation}</p>
+                  <p className="text-purple-400 text-xs mt-0.5">
+                    {speaker.affiliation}
+                  </p>
                   {speaker.title && (
-                    <p className="text-gray-500 text-xs mt-0.5 leading-tight">{speaker.title}</p>
+                    <p className="text-gray-500 text-xs mt-0.5 leading-tight">
+                      {speaker.title}
+                    </p>
                   )}
                 </motion.button>
               ))}
             </div>
 
             {unique.length === 0 && (
-              <p className="text-center text-gray-500 py-16">No speakers match your search.</p>
+              <p className="text-center text-gray-500 py-16">
+                No speakers match your search.
+              </p>
             )}
           </div>
         </section>
@@ -489,13 +509,27 @@ export default function QDW2026Speakers() {
                       />
                     </div>
                     <div className="min-w-0">
-                      <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">{selected.name}</h2>
+                      <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">
+                        {selected.name}
+                      </h2>
                       {selected.title && (
-                        <p className="text-purple-300 text-sm mt-1">{selected.title}</p>
+                        <p className="text-purple-300 text-sm mt-1">
+                          {selected.title}
+                        </p>
                       )}
                       <p className="text-gray-400 text-sm mt-0.5 flex items-center gap-1.5">
-                        <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        <svg
+                          className="w-3.5 h-3.5 flex-shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                          />
                         </svg>
                         {selected.affiliation}
                       </p>
@@ -522,16 +556,32 @@ export default function QDW2026Speakers() {
         <footer className="bg-[#1a1a2e] py-8 px-4 sm:px-6 lg:px-8 border-t border-white/10">
           <div className="max-w-7xl mx-auto text-center">
             <p className="text-gray-500 text-sm">
-              Quantum Device Workshop 2026 &bull; Quantum Computing Student Association, UCLA
+              Quantum Device Workshop 2026 &bull; Quantum Computing Student
+              Association, UCLA
             </p>
             <div className="flex justify-center gap-6 mt-4">
-              <Link href="/qdw/2026/info" className="text-purple-400 hover:text-purple-300 text-sm transition-colors">Workshop Info</Link>
-              <Link href="/qdw/2026/registration" className="text-purple-400 hover:text-purple-300 text-sm transition-colors">Register</Link>
-              <Link href="/qdw/2026/faq" className="text-purple-400 hover:text-purple-300 text-sm transition-colors">FAQ</Link>
+              <Link
+                href="/qdw/2026/info"
+                className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
+              >
+                Workshop Info
+              </Link>
+              <Link
+                href="/qdw/2026/registration"
+                className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
+              >
+                Register
+              </Link>
+              <Link
+                href="/qdw/2026/faq"
+                className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
+              >
+                FAQ
+              </Link>
             </div>
           </div>
         </footer>
       </main>
     </>
-  );
+  )
 }
