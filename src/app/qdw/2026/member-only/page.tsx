@@ -220,7 +220,6 @@ export default function MemberOnlyPage() {
     try {
       let posterUrl = user.poster_url;
 
-      /* Poster uploads are currently paused.
       // Upload new PDF if provided
       if (posterData.posterPdf) {
         const formData = new FormData();
@@ -241,7 +240,7 @@ export default function MemberOnlyPage() {
         const uploadData = await uploadRes.json();
         posterUrl = uploadData.url;
       }
-      */
+      
 
       // Update poster info in database
       const response = await fetch("/api/qdw/update-poster", {
@@ -282,7 +281,6 @@ export default function MemberOnlyPage() {
     }
   };
 
-  /* Poster uploads are currently paused.
   const handlePosterFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (!file) {
@@ -307,7 +305,7 @@ export default function MemberOnlyPage() {
     setPosterError("");
     setPosterData({ ...posterData, posterPdf: file });
   };
-  */
+  
 
   const handleStudentIdFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
