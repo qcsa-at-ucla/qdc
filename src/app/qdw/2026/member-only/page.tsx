@@ -58,6 +58,20 @@ const ADVANCED_SCHEDULE: ScheduleSlot[] = [
 
 const SCHEDULE_DAYS = ['Day 1\nJune 15', 'Day 2\nJune 16', 'Day 3\nJune 17', 'Day 4\nJune 18'];
 
+const HFSS_INSTALL_LINKS = [
+  {
+    label: 'Linux Ansys HFSS Install',
+    href: 'https://drive.google.com/file/d/1FRhhVNWzLXe06_J6H8apDq8DY0rIo74k/view?usp=sharing',
+  },
+  {
+    label: 'Windows Ansys HFSS Install',
+    href: 'https://drive.google.com/file/d/19uGOhgEDYTUvJrYYjWMa6pWxf0N-n_ql/view?usp=sharing',
+  },
+];
+
+type MemberTab = 'info' | 'training' | 'advanced' | 'hfss';
+type ZoomLink = { label: string; href: string };
+
 function MemberScheduleCell({ s }: { s: ScheduleSession | null }) {
   if (!s) return <div className="min-h-[52px]" />;
   return (
@@ -121,7 +135,7 @@ export default function MemberOnlyPage() {
   const [memberTrack, setMemberTrack] = useState<'training' | 'advanced'>('training');
 
   // Tab navigation
-  const [activeTab, setActiveTab] = useState<'info' | 'training' | 'advanced'>('info');
+  const [activeTab, setActiveTab] = useState<MemberTab>('info');
 
   // Initialize form data when user data loads
   useEffect(() => {
@@ -777,21 +791,24 @@ export default function MemberOnlyPage() {
           </div>
 
           {/* Tab bar */}
-          <div className="flex gap-1">
+          <div className="flex gap-1 overflow-x-auto">
             {([
               { id: 'info',     label: 'My Info',         icon: '' },
               { id: 'training', label: 'Training Track',   icon: '🟢' },
               { id: 'advanced', label: 'Advanced Track',   icon: '🟣' },
-            ] as { id: 'info' | 'training' | 'advanced'; label: string; icon: string }[]).map(tab => (
+              { id: 'hfss',     label: 'HFSS Install',     icon: '💿' },
+            ] as { id: MemberTab; label: string; icon: string }[]).map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-t-xl border-b-2 transition-all duration-200 ${
+                className={`flex flex-shrink-0 items-center gap-2 px-5 py-3 text-sm font-semibold rounded-t-xl border-b-2 transition-all duration-200 ${
                   activeTab === tab.id
                     ? tab.id === 'training'
                       ? 'border-green-500 text-green-300 bg-green-900/20'
                       : tab.id === 'advanced'
                       ? 'border-purple-500 text-purple-300 bg-purple-900/20'
+                      : tab.id === 'hfss'
+                      ? 'border-cyan-500 text-cyan-300 bg-cyan-900/20'
                       : 'border-indigo-400 text-indigo-200 bg-indigo-900/20'
                     : 'border-transparent text-gray-500 hover:text-gray-300 hover:bg-white/5'
                 }`}
@@ -1422,7 +1439,10 @@ export default function MemberOnlyPage() {
           trackName="Training Track"
           room="Cohen Room: Engineering VI, UCLA"
           accentColor="green"
-          zoomMeetingUrl="https://usc.zoom.us/j/96492542084?pwd=CQm6oUnpDs5bPbwRRgc1CEa8IWb09F.1"
+          zoomLinks={[
+            { label: 'Training track (morning sessions)', href: 'https://usc.zoom.us/webinar/register/WN_qj5sPJa_RSy2vYrBYecGAA' },
+            { label: 'Training track (afternoon sessions)', href: 'https://usc.zoom.us/webinar/register/WN_Ct7FKA9GTFWo5bbLZKju0Q' },
+          ]}
           schedule={TRAINING_SCHEDULE}
           scheduleDays={SCHEDULE_DAYS}
         />
@@ -1434,10 +1454,54 @@ export default function MemberOnlyPage() {
           trackName="Advanced Track"
           room="Mong Auditorium: Engineering VI, UCLA"
           accentColor="purple"
-          zoomMeetingUrl="https://usc.zoom.us/j/92046732590?pwd=hlE9n8yIirDaf4zg5lsrNbn3TuJaxu.1"
+          zoomLinks={[
+            { label: 'Advanced track and joint (morning sessions)', href: 'https://usc.zoom.us/webinar/register/WN_Dio3qenLTd2ccsLVoZj5yQ' },
+            { label: 'Advanced track and joint (afternoon sessions)', href: 'https://usc.zoom.us/webinar/register/WN_SeNDXKdMQqaN0xgxX5TIgg' },
+          ]}
           schedule={ADVANCED_SCHEDULE}
           scheduleDays={SCHEDULE_DAYS}
         />
+      )}
+
+      {/* ── HFSS INSTALL TAB ──────────────────────────────────────────── */}
+      {activeTab === 'hfss' && (
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="rounded-2xl border border-cyan-500/40 bg-white/[0.03] p-6 sm:p-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-cyan-900/20 text-cyan-300 flex-shrink-0">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-cyan-400 text-xs font-semibold tracking-widest uppercase mb-1">Software Setup</p>
+                <h2 className="text-2xl font-bold text-white">Ansys HFSS Install</h2>
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              {HFSS_INSTALL_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group rounded-2xl border border-white/10 bg-[#0d0d1f] p-5 transition-all hover:border-cyan-400/60 hover:bg-cyan-900/10"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-lg font-bold text-white group-hover:text-cyan-200 transition-colors">{link.label}</p>
+                      <p className="text-sm text-gray-500 mt-2">Open installation file in Google Drive.</p>
+                    </div>
+                    <svg className="w-5 h-5 text-cyan-300 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5M6 8.25V18h9.75" />
+                    </svg>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       </div>
@@ -1451,12 +1515,12 @@ interface ZoomRoomPanelProps {
   trackName: string;
   room: string;
   accentColor: 'green' | 'purple';
-  zoomMeetingUrl: string | null;
+  zoomLinks: ZoomLink[];
   schedule: ScheduleSlot[];
   scheduleDays: string[];
 }
 
-function ZoomRoomPanel({ trackName, room, accentColor, zoomMeetingUrl, schedule, scheduleDays }: ZoomRoomPanelProps) {
+function ZoomRoomPanel({ trackName, room, accentColor, zoomLinks, schedule, scheduleDays }: ZoomRoomPanelProps) {
   const isGreen = accentColor === 'green';
   const accent = isGreen
     ? { border: 'border-green-500/40', text: 'text-green-400', bg: 'bg-green-900/20', dot: 'bg-green-400', toggleBg: 'bg-green-600', badge: 'bg-green-500/20 text-green-300 border-green-500/30' }
@@ -1524,20 +1588,25 @@ function ZoomRoomPanel({ trackName, room, accentColor, zoomMeetingUrl, schedule,
               <div className="text-5xl mb-4">🎥</div>
               <h3 className="text-2xl font-bold text-white mb-2">Zoom Room</h3>
               <p className="text-gray-400 text-sm max-w-sm mx-auto leading-relaxed">
-                The live Zoom session for the <span className={accent.text + ' font-semibold'}>{trackName}</span> will be available here once the event begins. A meeting link and passcode will be emailed to you.
+                Register for the <span className={accent.text + ' font-semibold'}>{trackName}</span> morning and afternoon webinar sessions below.
               </p>
-              {zoomMeetingUrl ? (
-                <a
-                  href={zoomMeetingUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`inline-block mt-6 px-6 py-3 rounded-full text-white font-semibold text-sm ${accent.toggleBg} hover:opacity-90 transition-opacity`}
-                >
-                  Join Meeting →
-                </a>
+              {zoomLinks.length > 0 ? (
+                <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
+                  {zoomLinks.map((link) => (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`inline-flex items-center justify-center px-5 py-3 rounded-full text-white font-semibold text-sm ${accent.toggleBg} hover:opacity-90 transition-opacity`}
+                    >
+                      {link.label} 
+                    </a>
+                  ))}
+                </div>
               ) : (
                 <button disabled className="mt-6 px-6 py-3 rounded-full text-gray-500 font-semibold text-sm bg-white/5 border border-white/10 cursor-not-allowed">
-                  Join Meeting: Available Soon
+                  Registration Links: Available Soon
                 </button>
               )}
             </div>
