@@ -204,7 +204,7 @@ const advancedSchedule: TimeSlot[] = [
     days: [
       { title: 'Ebrahim Forati', type: 'lecture', company: 'Google' },
       { title: 'Kyle Serniak', type: 'lecture', company: 'MIT Lincoln Lab' },
-      { title: 'Anna Grassellino', type: 'lecture', company: 'Fermilab' },
+      { title: 'Yao Lu', type: 'lecture', company: 'Fermilab' },
       { title: 'Holly Stemp', type: 'lecture', company: 'MIT' },
     ],
   },

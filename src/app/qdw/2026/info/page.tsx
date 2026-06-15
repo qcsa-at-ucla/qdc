@@ -202,10 +202,10 @@ export default function QDW2026Info() {
       bio: 'Andrew Bestwick is a leading researcher in superconducting quantum computing, focusing on qubit design and scalable quantum architectures.',
     },
     {
-      name: 'Anna Grassellino',
+      name: 'Yao Lu',
       affiliation: 'Fermilab',
-      image: '/images/Anna_Grassellino.jpg',
-      bio: 'Anna Grassellino is a physicist at Fermilab, pioneering advances in superconducting radio-frequency cavities and quantum information science.',
+      image: '/images/Yao_lu.png',
+      bio: 'Yao Lu is Technology Thrust Deputy Leader, Systems Design Lead, and an Associate Scientist at Fermilab.',
     },
     {
       name: 'Eli Levenson-Falk',

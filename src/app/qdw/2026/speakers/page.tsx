@@ -24,11 +24,11 @@ const speakers: Speaker[] = [
     bio: 'Andrew Bestwick is a leading researcher in superconducting quantum computing at Rigetti Computing, focusing on qubit design, fabrication, and scalable quantum architectures. His work bridges materials science and device engineering to push the boundaries of coherent quantum systems.',
   },
   {
-    name: 'Anna Grassellino',
+    name: 'Yao Lu',
     affiliation: 'Fermilab',
-    title: 'Senior Scientist & SQMS Center Director',
-    image: '/images/Anna_Grassellino.jpg',
-    bio: 'Anna Grassellino is a Senior Scientist at Fermilab and Director of the Superconducting Quantum Materials and Systems (SQMS) Center. She is a world leader in superconducting radio-frequency (SRF) cavity science and quantum information technologies, pioneering advances that enable longer coherence times in superconducting systems.',
+    title: 'Technology Thrust Deputy Leader; Systems Design, Lead',
+    image: '/images/Yao_lu.png',
+    bio: 'Yao Lu is Technology Thrust Deputy Leader, Systems Design Lead, and an Associate Scientist at Fermilab.',
   },
   {
     name: 'Yvonne Gao',
