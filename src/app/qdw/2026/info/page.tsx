@@ -300,6 +300,13 @@ export default function QDW2026Info() {
       bio: 'Wei Dai is a researcher at Quantum Machines working on quantum control systems and pulse-level programming for superconducting quantum processors.',
     },
     {
+      name: 'Edward J. Kluender',
+      affiliation: 'Zurich Instruments',
+      title: 'Lead Application Scientists',
+      image: '/images/edward.png',
+      bio: 'Edward J. Kluender is Lead Application Scientists at Zurich Instruments.',
+    },
+    {
       name: 'Firas Abouzahr',
       affiliation: 'Northwestern',
       image: '/images/Firas Abouzahr.png',

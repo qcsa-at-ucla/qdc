@@ -234,6 +234,13 @@ const speakers: Speaker[] = [
     bio: 'Wei Dai is a researcher at Quantum Machines working on quantum control systems, pulse-level programming, and the software-hardware interface for superconducting quantum processors. His work focuses on enabling precise, high-fidelity quantum operations through advanced control electronics and firmware.',
   },
   {
+    name: 'Edward J. Kluender',
+    affiliation: 'Zurich Instruments',
+    title: 'Lead Application Scientists',
+    image: '/images/edward.png',
+    bio: 'Edward J. Kluender is Lead Application Scientists at Zurich Instruments.',
+  },
+  {
     name: 'Firas Abouzahr',
     affiliation: 'Northwestern University',
     title: 'Researcher',
