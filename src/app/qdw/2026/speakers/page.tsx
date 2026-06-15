@@ -247,12 +247,31 @@ const speakers: Speaker[] = [
     image: '/images/Firas Abouzahr.png',
     bio: 'Firas Abouzahr is a researcher at Northwestern University working on superconducting quantum circuits and quantum device design. His research focuses on advancing qubit architectures and quantum hardware for scalable quantum computing.',
   },
+
   {
     name: 'Alice & Bob',
     affiliation: 'Alice & Bob',
     title: 'Quantum Computing Company',
     image: '/images/Alice-Bob.png',
     bio: 'Alice & Bob is a French quantum computing company pioneering the cat qubit: a superconducting qubit architecture with built-in error correction that dramatically reduces the overhead required for fault-tolerant quantum computing. Their approach leverages the natural noise bias of cat qubits to build hardware-efficient, error-corrected quantum processors, with a roadmap toward the first universal fault-tolerant quantum computer.',
+    sponsored: true,
+  },
+
+   {
+    name: 'Joseph Glick',
+    affiliation: 'QBlox',
+    title: 'Quantum Application Scientis',
+    image: '/images/QBlox_JosephGlick_002.jpeg',
+    bio: 'Quantum error correction (QEC) is fundamentally a challenge of hardware latency and massive data throughput. As physical qubit counts scale, the sheer volume of continuous syndrome data creates a severe I/O and processing bottleneck. For device designers, the time budget to measure an ancilla qubit, digitize the signal, decode the logical error, and fire a corrective microwave or flux pulse is unforgiving—often strictly bounded under a single microsecond. If the control and decoding architectures cannot keep pace, errors accumulate faster than they can be suppressed, nullifying the fault-tolerance threshold. This talk details the recent integration of Qblox’s scalable quantum control electronics with Riverlane’s hardware-accelerated Deltaflow QEC decoders, and examines how this fast-feedback architecture can inform next-generation quantum device design. We will unpack the physical implementation of the Quantum Error Correction interface (QECi)—the ultra-low-latency data link connecting Qblox’s deterministic SYNQ and LINK network (capable of distributing measurement outcomes across modules in ~400 ns) directly into Riverlane’s FPGA-based Local Clustering Decoder (LCD). Crucially, we will explore how offloading decoding to a specialized real-time hardware layer fundamentally alters the constraints placed on the QPU itself.',
+    sponsored: true,
+  },
+
+    {
+    name: 'Fadime Bekmambetova',
+    affiliation: 'Nanoacademic Technologies LTD',
+    title: 'Research Scientist',
+    image: '/images/fadime.png',
+    bio: 'Hybrid quantum systems that couple semiconductor spin qubits to superconducting circuits are promising for the future of quantum technology, as they combine a compact qubit footprint and long coherence times with long-range connectivity. To support the rigorous multi-physics simulation of these complex architectures, we will conduct a live demonstration in which we will use QTCAD® to model the coupling between a multi-gate FinFET quantum dot and a microwave resonator. Using interactive Jupyter notebooks, we will walk through the 3D geometry construction of the semiconductor device and the subsequent calculation of its electrostatic potentials and quantum mechanical eigenstates by using QTCAD®’s Poisson and Schrödinger solvers. Furthermore, the demonstration will showcase resonator design by utilizing the Quantum Metal framework for layout generation alongside QTCAD®\'s Maxwell solver for eigenmode extraction. By bridging the gap between semiconductor physics and circuit QED, this session will equip attendees with the practical tools necessary to design and optimize next-generation hybrid hardware.',
     sponsored: true,
   },
 ];
