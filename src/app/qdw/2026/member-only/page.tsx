@@ -1588,7 +1588,7 @@ function RecordingsPanel({ sections, loading, error, updatedAt, onRefresh }: Rec
               <p className="text-blue-400 text-xs font-semibold tracking-widest uppercase mb-1">Session Archive</p>
               <h2 className="text-2xl font-bold text-white">QDW 2026 Recordings</h2>
               <p className="text-sm text-gray-500 mt-1">
-                Links are pulled from the recordings spreadsheet and refresh as the sheet is updated.
+                Links are pulled from the recordings spreadsheet and refresh as the sheet is updated. Please login with the account you registered to the zoom webinars. If that doesn't work, email us (quantum.ucla@gmail.com) your email address that works best 
               </p>
               {updatedAt && (
                 <p className="text-xs text-gray-600 mt-2">
