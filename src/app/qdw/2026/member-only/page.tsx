@@ -1484,8 +1484,8 @@ export default function MemberOnlyPage() {
           room="Cohen Room: Engineering VI, UCLA"
           accentColor="green"
           zoomLinks={[
-            { label: 'Training track (morning sessions)', href: 'https://usc.zoom.us/j/4906111009?pwd=Z0JublVQL1RycTRWWlBlUENidnh5QT09&omn=99206395972' },
-            { label: 'Training track (afternoon sessions)', href: 'https://usc.zoom.us/j/4906111009?pwd=Z0JublVQL1RycTRWWlBlUENidnh5QT09&omn=99206395972' },
+            { label: 'Training track (morning sessions)', href: 'https://usc.zoom.us/webinar/register/WN_qj5sPJa_RSy2vYrBYecGAA#/registration' },
+            { label: 'Training track (afternoon sessions)', href: 'https://usc.zoom.us/webinar/register/WN_Ct7FKA9GTFWo5bbLZKju0Q#/registration' },
           ]}
           schedule={TRAINING_SCHEDULE}
           scheduleDays={SCHEDULE_DAYS}
@@ -1499,7 +1499,7 @@ export default function MemberOnlyPage() {
           room="Mong Auditorium: Engineering VI, UCLA"
           accentColor="purple"
           zoomLinks={[
-            { label: 'Advanced track and joint (morning sessions)', href: 'https://usc.zoom.us/webinar/register/WN_Dio3qenLTd2ccsLVoZj5yQ#/' },
+            { label: 'Advanced track and joint (morning sessions)', href: 'https://ucla.zoom.us/j/91491907263' },
             { label: 'Advanced track and joint (afternoon sessions)', href: 'https://usc.zoom.us/w/94174707027?tk=unZ2vm1dMg_QhaJfgeRvfpX6qsBRAsPTxvZrrds9hKc.DQkAAAAV7T_9UxZtbWNiUHZlNFJMeVIxb3VRcllOSXl3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&pwd=Xan5BlAd3lq2Rw6iLa76Q4dLoUTxkB.1' },
           ]}
           schedule={ADVANCED_SCHEDULE}
