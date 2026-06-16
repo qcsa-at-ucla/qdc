@@ -13,6 +13,7 @@ const navLinks = [
   { label: 'FAQ', href: '/qdw/2026/faq' },
   { label: 'Design Tools', href: '/design-tools' },
   { label: 'Team', href: '/qdw/2026/team' },
+  { label: 'Member-only', href: '/qdw/2026/member-only' },
 ];
 
 export default function QDW2026Nav() {
