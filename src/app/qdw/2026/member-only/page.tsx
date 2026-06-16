@@ -1587,6 +1587,17 @@ function RecordingsPanel({ sections, loading, error, updatedAt, onRefresh }: Rec
             <div>
               <p className="text-blue-400 text-xs font-semibold tracking-widest uppercase mb-1">Session Archive</p>
               <h2 className="text-2xl font-bold text-white">QDW 2026 Recordings</h2>
+              <a
+                href="https://docs.google.com/spreadsheets/d/1-mXYkU3Fqjroz4veruTmNCRfBJx9GITJ8dYywqrZOIk/edit?gid=0#gid=0"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-blue-300 underline decoration-blue-400/40 underline-offset-4 transition-colors hover:text-blue-200"
+              >
+                Open recordings spreadsheet
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5M6 8.25V18h9.75" />
+                </svg>
+              </a>
               <p className="text-sm text-gray-500 mt-1">
                 Links are pulled from the recordings spreadsheet and refresh as the sheet is updated. Please login with the account you registered to the zoom webinars. If that doesn't work, email us (quantum.ucla@gmail.com) your email address that works best 
               </p>
