@@ -69,8 +69,13 @@ const HFSS_INSTALL_LINKS = [
   },
 ];
 
-type MemberTab = 'info' | 'training' | 'advanced' | 'hfss';
+type MemberTab = 'info' | 'training' | 'advanced' | 'recordings' | 'hfss';
 type ZoomLink = { label: string; href: string };
+type RecordingLink = { label: string; href: string; isUrl: boolean };
+type RecordingSection = {
+  track: string;
+  sessions: { session: string; links: RecordingLink[] }[];
+};
 
 function MemberScheduleCell({ s }: { s: ScheduleSession | null }) {
   if (!s) return <div className="min-h-[52px]" />;
@@ -136,6 +141,44 @@ export default function MemberOnlyPage() {
 
   // Tab navigation
   const [activeTab, setActiveTab] = useState<MemberTab>('info');
+  const [recordingSections, setRecordingSections] = useState<RecordingSection[]>([]);
+  const [recordingsLoading, setRecordingsLoading] = useState(false);
+  const [recordingsError, setRecordingsError] = useState("");
+  const [recordingsUpdatedAt, setRecordingsUpdatedAt] = useState<string | null>(null);
+
+  const fetchRecordings = async () => {
+    if (!user?.email) return;
+
+    setRecordingsLoading(true);
+    setRecordingsError("");
+
+    try {
+      const response = await fetch("/api/qdw/recordings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email }),
+        cache: "no-store",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to load recordings");
+      }
+
+      setRecordingSections(data.sections || []);
+      setRecordingsUpdatedAt(data.updatedAt || null);
+    } catch (err: any) {
+      setRecordingsError(err.message || "Failed to load recordings");
+    } finally {
+      setRecordingsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'recordings' && user?.email && recordingSections.length === 0 && !recordingsLoading) {
+      fetchRecordings();
+    }
+  }, [activeTab, user?.email]);
 
   // Initialize form data when user data loads
   useEffect(() => {
@@ -794,6 +837,7 @@ export default function MemberOnlyPage() {
               { id: 'info',     label: 'My Info',         icon: '' },
               { id: 'training', label: 'Training Track',   icon: '🟢' },
               { id: 'advanced', label: 'Advanced Track',   icon: '🟣' },
+              { id: 'recordings', label: 'Recordings',      icon: '🎥' },
               { id: 'hfss',     label: 'HFSS Install',     icon: '💿' },
             ] as { id: MemberTab; label: string; icon: string }[]).map(tab => (
               <button
@@ -805,6 +849,8 @@ export default function MemberOnlyPage() {
                       ? 'border-green-500 text-green-300 bg-green-900/20'
                       : tab.id === 'advanced'
                       ? 'border-purple-500 text-purple-300 bg-purple-900/20'
+                      : tab.id === 'recordings'
+                      ? 'border-blue-500 text-blue-300 bg-blue-900/20'
                       : tab.id === 'hfss'
                       ? 'border-cyan-500 text-cyan-300 bg-cyan-900/20'
                       : 'border-indigo-400 text-indigo-200 bg-indigo-900/20'
@@ -1461,6 +1507,17 @@ export default function MemberOnlyPage() {
         />
       )}
 
+      {/* ── RECORDINGS TAB ──────────────────────────────────────────── */}
+      {activeTab === 'recordings' && (
+        <RecordingsPanel
+          sections={recordingSections}
+          loading={recordingsLoading}
+          error={recordingsError}
+          updatedAt={recordingsUpdatedAt}
+          onRefresh={fetchRecordings}
+        />
+      )}
+
       {/* ── HFSS INSTALL TAB ──────────────────────────────────────────── */}
       {activeTab === 'hfss' && (
         <div className="max-w-4xl mx-auto space-y-6">
@@ -1503,6 +1560,125 @@ export default function MemberOnlyPage() {
       )}
 
       </div>
+      </div>
+    </div>
+  );
+}
+
+interface RecordingsPanelProps {
+  sections: RecordingSection[];
+  loading: boolean;
+  error: string;
+  updatedAt: string | null;
+  onRefresh: () => void;
+}
+
+function RecordingsPanel({ sections, loading, error, updatedAt, onRefresh }: RecordingsPanelProps) {
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div className="rounded-2xl border border-blue-500/40 bg-white/[0.03] p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-900/20 text-blue-300 flex-shrink-0">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.069A1 1 0 0121 8.868v6.264a1 1 0 01-1.447.901L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-blue-400 text-xs font-semibold tracking-widest uppercase mb-1">Session Archive</p>
+              <h2 className="text-2xl font-bold text-white">QDW 2026 Recordings</h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Links are pulled from the recordings spreadsheet and refresh as the sheet is updated.
+              </p>
+              {updatedAt && (
+                <p className="text-xs text-gray-600 mt-2">
+                  Last checked {new Date(updatedAt).toLocaleString()}
+                </p>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={onRefresh}
+            disabled={loading}
+            className="self-start rounded-full border border-blue-500/40 bg-blue-900/20 px-4 py-2 text-sm font-semibold text-blue-200 transition-all hover:bg-blue-900/35 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Refreshing..." : "Refresh"}
+          </button>
+        </div>
+      </div>
+
+      {loading && sections.length === 0 && (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-gray-400">
+          Loading recordings...
+        </div>
+      )}
+
+      {error && (
+        <div className="rounded-2xl border border-red-500/40 bg-red-900/20 p-6 text-red-200">
+          {error}
+        </div>
+      )}
+
+      {!loading && !error && sections.length === 0 && (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-gray-400">
+          No recordings are listed yet.
+        </div>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {sections.map((section) => (
+          <section
+            key={section.track}
+            className="rounded-2xl border border-white/10 bg-[#0d0d1f] overflow-hidden"
+          >
+            <div className="border-b border-white/10 bg-white/[0.04] px-5 py-4">
+              <h3 className="text-lg font-bold text-white">{section.track}</h3>
+              <p className="text-xs text-gray-500 mt-1">{section.sessions.length} session{section.sessions.length === 1 ? "" : "s"}</p>
+            </div>
+
+            <div className="divide-y divide-white/10">
+              {section.sessions.map((session) => (
+                <div key={`${section.track}-${session.session}`} className="p-5">
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wider">Session</p>
+                      <h4 className="text-base font-semibold text-white mt-1">{session.session}</h4>
+                    </div>
+                    <span className="rounded-full border border-blue-500/30 bg-blue-900/20 px-3 py-1 text-xs font-semibold text-blue-200">
+                      {session.links.length} link{session.links.length === 1 ? "" : "s"}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-3">
+                    {session.links.map((link) => (
+                      link.isUrl ? (
+                        <a
+                          key={`${session.session}-${link.href}`}
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-blue-700"
+                        >
+                          {link.label}
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5M6 8.25V18h9.75" />
+                          </svg>
+                        </a>
+                      ) : (
+                        <span
+                          key={`${session.session}-${link.href}`}
+                          className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-gray-300"
+                        >
+                          {link.label}
+                        </span>
+                      )
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
       </div>
     </div>
   );
