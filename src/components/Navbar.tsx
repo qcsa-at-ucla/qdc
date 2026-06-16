@@ -243,6 +243,17 @@ export default function Navbar() {
                         >
                           Posters
                         </Link>
+                         <Link
+                          href="/qdw/2026/sponsor"
+                          className="block px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150 text-sm"
+                          onClick={() => {
+                            setIsQdwDropdownOpen(false);
+                            setIsQdw2026SubOpen(false);
+                          }}
+                        >
+                          Sponsors
+                        </Link>
+
                         <Link
                           href="/qdw/2026/registration"
                           className="block px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150 text-sm"

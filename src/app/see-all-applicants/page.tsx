@@ -1390,7 +1390,7 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            {/* PDF download buttons */}
+            {/* PDF download buttons paused for now.
             <div className="flex flex-wrap gap-3 mb-4 items-center">
               <button
                 onClick={() => downloadPdf("cv")}
@@ -1410,6 +1410,7 @@ export default function AdminDashboard() {
                 <p className="text-sm text-gray-500 italic">Merging files from Supabase, this may take a minute…</p>
               )}
             </div>
+            */}
 
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-4 p-4">
               <input

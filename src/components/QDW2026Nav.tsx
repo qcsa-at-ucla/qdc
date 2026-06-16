@@ -8,6 +8,7 @@ const navLinks = [
   { label: 'Schedule', href: '/qdw/2026/schedule' },
   { label: 'Speakers', href: '/qdw/2026/speakers' },
   { label: 'Posters', href: '/qdw/2026/posters' },
+  { label: 'Sponsor', href: '/qdw/2026/sponsor' },
   { label: 'Registration', href: '/qdw/2026/registration' },
   { label: 'FAQ', href: '/qdw/2026/faq' },
   { label: 'Design Tools', href: '/design-tools' },
