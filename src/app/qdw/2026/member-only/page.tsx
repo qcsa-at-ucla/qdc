@@ -1500,7 +1500,7 @@ export default function MemberOnlyPage() {
           accentColor="purple"
           zoomLinks={[
             { label: 'Advanced track and joint (morning sessions)', href: 'https://usc.zoom.us/webinar/register/WN_Dio3qenLTd2ccsLVoZj5yQ#/' },
-            { label: 'Advanced track and joint (afternoon sessions)', href: 'https://usc.zoom.us/webinar/register/WN_SeNDXKdMQqaN0xgxX5TIgg#/' },
+            { label: 'Advanced track and joint (afternoon sessions)', href: 'https://usc.zoom.us/w/94174707027?tk=unZ2vm1dMg_QhaJfgeRvfpX6qsBRAsPTxvZrrds9hKc.DQkAAAAV7T_9UxZtbWNiUHZlNFJMeVIxb3VRcllOSXl3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&pwd=Xan5BlAd3lq2Rw6iLa76Q4dLoUTxkB.1' },
           ]}
           schedule={ADVANCED_SCHEDULE}
           scheduleDays={SCHEDULE_DAYS}
