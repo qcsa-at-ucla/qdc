@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import QDW2026Nav from '@/components/QDW2026Nav';
 
 type SessionType = 'lecture' | 'workshop' | 'break' | 'social' | 'meal' | 'panel' | 'talk' | 'project' | 'poster';
@@ -11,6 +11,8 @@ interface Session {
   type: SessionType;
   speaker?: string;
   company?: string;
+  talkTitle?: string;
+  abstract?: string;
 }
 
 interface TimeSlot {
@@ -175,19 +177,19 @@ const advancedSchedule: TimeSlot[] = [
   {
     time: '9:00 – 9:45 AM',
     days: [
-      { title: 'Ani Nersisyan', type: 'lecture', company: 'Google' },
-      { title: 'Michael Hatridge', type: 'lecture', company: 'Univ. of Pittsburgh' },
-      { title: 'Andreas Walraff', type: 'lecture', company: 'ETH Zurich' },
-      { title: 'Yvonne Gao', type: 'lecture', company: 'NUS' },
+      { title: 'Ani Nersisyan', type: 'lecture', company: 'Google', talkTitle: 'Designing the Next Generation Google Willow Processor', abstract: `This talk details the design and development lifecycle of Google's Willow processor, our latest 105-qubit superconducting architecture designed to advance our quantum error correction roadmap. We will explore the end-to-end engineering process, highlighting the design methodology that leverages programmatic layout and agentic workflows to manage the processor's complexity. Finally, we detail our rigorous post-processing and verification strategies—including automated LVS and DRC workflows—illustrating how this highly scalable pipeline is foundational to achieving the high-performance error correction essential for future quantum milestones.` },
+      { title: 'Michael Hatridge', type: 'lecture', company: 'Univ. of Pittsburgh', talkTitle: 'Applications and limits of parametric driving in superconducting circuits', abstract: `Parametric driving has long been used in very low quality factor, weakly nonlinear superconducting circuits to create nearly quantum-limited 'parametric' amplifiers, which are in wide use for the readout of superconducting qubits. However, the off-resonant terms we can activate with parametric driving are ubiquitous in Josephson-junction based circuits, and are increasingly used for a variety of gates and other controls in superconducting quantum information processors. In this talk, I'll focus on an important outstanding issue, which is our ability to explain and predict how hard we can parametrically drive our circuits before they break. I'll show recent results on matching theory and experiment on transmon qubits as parametric couplers, and discuss the prospects for extending this work to more complicated couplers and gates.` },
+      { title: 'Andreas Walraff', type: 'lecture', company: 'ETH Zurich', talkTitle: 'Microwave Crosstalk in Planar Superconducting Quantum Devices', abstract: `Microwave crosstalk poses a major challenge to scaling superconducting quantum devices as it introduces excess control errors. Although its magnitude and impact have been explored in various experimental settings, quantitative physical models capable of explaining measured crosstalk for a given device geometry remain scarce. Here, we address this gap by investigating microwave crosstalk in planar superconducting devices with crossovers. We identify two structures that can lead to strong crosstalk: a drive line routed in close proximity to another qubit, and a drive line crossing a qubit-qubit coupler using an air bridge. We design and characterize devices involving these structures and develop physical models that quantitatively explain the experimentally observed crosstalk. Based on these models, we discuss the design considerations for reducing microwave crosstalk. Our results provide practical guidance for low-crosstalk device layouts and establish a basis for the systematic investigation of weaker crosstalk mechanisms.` },
+      { title: 'Yvonne Gao', type: 'lecture', company: 'NUS', talkTitle: 'Robust flux-integration in bosonic cQED devices', abstract: `In this talk, I will present a series of studies from my group on developing robust hardware architectures that incorporate broadband flux tunability into high-Q bosonic cQED systems. I will highlight the evolution of these devices and their design considerations, as well as their corresponding performance. Finally, I will discuss how we use these devices to demonstrate control advantages and explore the physics of light-matter interactions.` },
     ],
   },
   {
     time: '9:45 – 10:30 AM',
     days: [
-      { title: 'Shuhei Tamate', type: 'lecture', company: 'RIKEN' },
-      { title: 'Jeff Grover', type: 'lecture', company: 'MIT' },
-      { title: 'Aziza Almanakly', type: 'lecture', company: 'NYU' },
-      { title: 'Alice & Bob', type: 'talk', company: 'Alice & Bob' },
+      { title: 'Shuhei Tamate', type: 'lecture', company: 'RIKEN', talkTitle: 'Building a scalable superconducting quantum computer with tileable qubit architecture', abstract: `Scaling a superconducting qubit device requires a systematic design of circuit parameters. In this talk, we will introduce the tileable qubit architecture that enables us to design a qubit chip as a periodic circuit in combination with our vertical wiring package. We will explain methods for designing a tileable qubit chip and discuss how to design a large-scale qubit chip by combining unit-cell electromagnetic simulation and circuit analysis.` },
+      { title: 'Jeff Grover', type: 'lecture', company: 'MIT', talkTitle: 'Designing qubits into the 3rd dimension', abstract: `Planar arrays of superconducting qubits can carry you quite far, but at a certain scale complications invariably arise: signal-routing constraints, high crosstalk, local connectivity, yield limitations, etc. One way to circumvent these is to break out of the plane and utilize all 3 dimensions, revealing a richer design space. In this talk, we will discuss 3D-integration (3DI) techniques—such as flip-chip bump bonding and through-silicon vias (TSVs)—and design considerations when moving to 3D. We will also present new capabilities enabled by 3DI, like high-rate qLDPC codes.` },
+      { title: 'Aziza Almanakly', type: 'lecture', company: 'NYU', talkTitle: 'Designing Giant Artificial Atoms', abstract: `Giant atoms are large in physical size compared to the interacting wavelength of light, resulting in quantum interference effects between different coupling points. We can realize a giant atom by coupling a superconducting artificial atom multiple times to the same waveguide. Multiple giant atoms along a waveguide exhibit interactions that depend on the physical distances between the coupling points and the qubit frequencies. Here, we exploit these interactions to implement driven-dissipative remote entanglement generation using frequency-tunable individual and correlated dissipation.` },
+      { title: 'Alice & Bob', type: 'talk', company: 'Alice & Bob', speaker: 'Wes Roberts', talkTitle: 'Cat quits: design of noise-biased systems for FTQC', abstract: `The cat qubit is a superconducting quantum computing modality based on a noise-biased bosonic code. The noise bias allows one to suppress one type of error - bit flips, say - at the hardware level, leaving the remaining type of error for active error correction. This has the effect of reducing the overhead of quantum error correction, and thus has promising implications for the scalability of cat qubit-based fault-tolerant quantum computing platforms. This talk will explore the design of a dynamically stabilized cat qubit at the level of the superconducting circuit. We will focus particularly on the coupling of the memory mode to a lossy, driven buffer, and how the details of this interaction give rise to a qubit that is stabilized against one kind of error, at the cost of a relatively small increase in the other kind. While the talk will focus on the case of cat qubits, it will introduce general tools for considering the dynamics of quantum systems to engineer stability at the hardware level.` },
     ],
   },
   {
@@ -202,10 +204,10 @@ const advancedSchedule: TimeSlot[] = [
   {
     time: '11:15 AM – 12:00 PM',
     days: [
-      { title: 'Ebrahim Forati', type: 'lecture', company: 'Google' },
-      { title: 'Kyle Serniak', type: 'lecture', company: 'MIT Lincoln Lab' },
-      { title: 'Yao Lu', type: 'lecture', company: 'Fermilab' },
-      { title: 'Holly Stemp', type: 'lecture', company: 'MIT' },
+      { title: 'Ebrahim Forati', type: 'lecture', company: 'Google', talkTitle: 'Electromagnetic modeling techniques for large scale', abstract: `The engineering of next-generation superconducting quantum processors necessitates a rigorous reliance on precise numerical electromagnetic modeling. This presentation will first explore the evolving landscape of numerical methodologies, addressing the specific computational challenges inherent in large-scale processor design. The latter portion of the talk will focus on high-fidelity techniques for extracting critical circuit and Hamiltonian parameters, illustrated through practical implementation examples.` },
+      { title: 'Kyle Serniak', type: 'lecture', company: 'MIT Lincoln Lab', talkTitle: 'Beyond transmons: some design considerations for fluxonium qubits', abstract: `Transmon qubits are the backbone of many state-of-the-art superconducting quantum processors for a reason - they perform well and are relatively simple circuits to simulate, fabricate, and operate. However, advantages may be found by integrating slightly more complex qubit circuits in which quantum information is encoded in degrees of freedom less sensitive to environmental perturbations. The fluxonium qubit represents one step in this direction. This talk will highlight some additional considerations required to design and understand noise in fluxonium-based architectures that stem from the breakdown of common assumptions.` },
+      { title: 'Yao Lu', type: 'lecture', company: 'Fermilab', talkTitle: 'Systematic Construction of Time-Dependent Hamiltonians for Microwave-Driven Josephson Circuits', abstract: `Microwave drives are essential for controlling superconducting Josephson circuits, but in realistic devices the connection between a physical drive port and the Hamiltonian parameter it modulates is often nontrivial. Packages, filters, flux lines, multi-junction loops, and distributed modes can all reshape how charge and flux drives enter the quantum model. In this talk, I will describe numerical methods for constructing time-dependent Hamiltonians directly from circuit layouts and classical microwave response. I will introduce three complementary approaches: an irrotational-gauge method for flux-driven multi-junction circuits, a displaced-frame method for parametric processes, and a field-overlap method for distributed multimode layouts. I will also show how the same response functions can map voltage noise from lossy drive ports into Hamiltonian perturbations, enabling estimates of many important decoherence rates such as the driven Purcell decay and measurement-induced dephasing. Finally, I will discuss how these tools can guide practical device design, including ongoing SQMS work on flux-driven tunable couplers for high-fidelity bosonic operations.` },
+      { title: 'Holly Stemp', type: 'lecture', company: 'MIT', talkTitle: 'An Introduction to Hybrid Qubit Architectures: Coupling Superconducting and Semiconductor Spin Qubits', abstract: `Gate-defined quantum dots represent a promising candidate for a scalable qubit platform. A key advantage of quantum dots is their small physical footprint, which could enable the integration of many millions of qubits on a single chip. However, this high qubit density creates challenges in routing the on-chip classical control signals needed to scale these systems to a size capable of solving problems of real-world relevance. One promising solution is to develop long-range coupling mechanisms that utilize superconducting circuits to mediate long-range interactions between distant quantum dot spin qubits. In this talk, I will explore the motivation for combining superconducting and spin qubit technologies, highlighting the potential advantages of a hybrid qubit infrastructure and the role superconducting circuits can play in mediating long-range spin interactions. I will provide an overview of the underlying coupling mechanisms, discuss the practical engineering considerations involved in building hybrid devices, and examine how established techniques from the superconducting qubit community can be adapted to semiconductor systems. I will also discuss experimental challenges and opportunities in realizing hybrid architectures, including approaches to integrating superconducting and quantum dot devices through advanced packaging and 3D integration techniques.` },
     ],
   },
   {
@@ -220,19 +222,19 @@ const advancedSchedule: TimeSlot[] = [
   {
     time: '1:30 – 2:15 PM',
     days: [
-      { title: 'Greg Peairs', type: 'talk', company: 'AWS' },
-      { title: 'Kevin O\'Brien', type: 'lecture', company: 'MIT' },
-      { title: 'Taylor Patti', type: 'talk', company: 'NVIDIA' },
-      { title: 'Mark Gyure', type: 'lecture', company: 'UCLA' },
+      { title: 'Greg Peairs', type: 'talk', company: 'AWS', talkTitle: 'Schematic-Driven Design of a Quantum Processor with DeviceLayout.jl', abstract: `DeviceLayout.jl is a package developed at the Amazon Center for Quantum Computing (CQC) for computer-aided design of quantum integrated circuits. At the CQC, we use DeviceLayout.jl to design superconducting quantum devices on our path to building a fault-tolerant quantum computer—devices we've used for experiments like Demonstrating a Long-Coherence Dual-Rail Erasure Qubit Using Tunable Transmons and Hardware-efficient error correction using concatenated bosonic qubits. We developed it to allow designers to produce and iterate on device layouts quickly and easily, with an emphasis on scalability in support of both larger quantum processors and a larger, collaborative team. As examples, we'll highlight how we can use a schematic-driven workflow for layout of a 17-qubit processor in a modular, reproducible project; we'll then show how it works together with Palace, an open-source tool for electromagnetic finite-element analysis also developed at the CQC. Finally, we'll highlight how user can leverage the Julia package manager to maintain a library of versioned process technologies and components for portable, reproducible layout scripts. We have released DeviceLayout.jl on GitHub as an open-source project, where it joins Palace as part of an open-source toolchain for electronic design automation for quantum integrated circuits and other electromagnetic devices.` },
+      { title: 'Kevin O\'Brien', type: 'lecture', company: 'MIT', talkTitle: 'Full System Microwave Modeling of Quantum Computers', abstract: `Superconducting quantum computers are extraordinarily complex microwave systems. Significant modeling and design effort is devoted to both quantum processors and parametric amplifier, yet the rest of the system is modelled with either (1) simple quantum models which neglect real-world effects like reflections and other parametric processes or (2) classical microwave engineering tools which may not include relevant quantum effects. In this talk, we merge the toolbox of gaussian bosonic quantum systems such as symplectic transformations, completely positive trace preserving maps, and dilation of noisy quantum systems with loss or gain, with the scattering parameter, X-parameter, and noise covariance matrix analysis techniques of microwave engineering. This enables full system modeling of the microwave environment of quantum computers based on data from scattering parameter and noise measurements, datasheets, and models. We provide open-source software and worked examples to implement the analysis techniques described above.` },
+      { title: 'Taylor Patti', type: 'talk', company: 'NVIDIA', talkTitle: 'GPU Simulation and AI for the Design of Quantum Devices and Protocols', abstract: `Designing quantum devices, and figuring out how to best operate them, can be an unintuitive and time-consuming process. GPU simulations and AI assisted design can combat these challenges, greatly accelerating the parameter-to-output timeline and proposing data-driven device and control parameters. In this talk, we introduce these concepts and overview various such implementations.` },
+      { title: 'Mark Gyure', type: 'lecture', company: 'UCLA', speaker: 'Mark Gyure / Chris Anderson', talkTitle: 'Device simulation of semiconductor spin qubits and applications to coupled semiconductor-superconductor systems', abstract: `Gate-defined quantum dots in silicon and germanium have shown great potential as an alternative solid state-based platform for scalable quantum computing systems. The potential of combining semiconductor qubits with superconducting elements, whether passive elements such as resonators, or superconducting qubits, has been explored recently in a few different contexts and is an area with plenty of room for further exploration, particularly as semiconductor qubits continue to mature rapidly. The aim of this talk is to educate the audience on the state of the art in simulation of spin qubits and give some examples of how these simulations can be used to aid in the design coupled super-semi hybrid systems.` },
     ],
   },
   {
     time: '2:15 – 3:00 PM',
     days: [
-      { title: 'Hugh Carson', type: 'talk', company: 'AWS' },
-      { title: 'Wei Dai', type: 'lecture', company: 'Quantum Machines' },
-      { title: 'Nicola Pancotti', type: 'talk', company: 'NVIDIA' },
-      { title: 'Nanoacademic', type: 'talk', company: 'Hybrid Simulation' },
+      { title: 'Hugh Carson', type: 'talk', company: 'AWS', talkTitle: 'Palace: Parallel Large-scale Computational Electromagnetics', abstract: `The Palace solver is a 3D finite element electromagnetics solver built within the Amazon Center for Quantum Computing (CQC) to facilitate the design of superconducting quantum devices, and making use of the MFEM and libCEED projects for efficient large-scale solving. In this talk we will discuss Palace, some features within the solver of particular relevance for quantum device designers, and some recent developments within the library to improve the overall capability and performance.` },
+      { title: 'Wei Dai', type: 'lecture', company: 'Quantum Machines', talkTitle: 'Co-design of QPU and I/O lines with controller', abstract: `As superconducting quantum processing units (QPUs) scale, systematic optimization across the superconducting circuit device, the input/output (I/O) signal chain, and the controller becomes essential. Design choices on the QPU chip — both architectural decisions and quantitative port-coupling strengths — ultimately set the requirements for room-temperature controllers. Trade-offs grow sharper at scale, where the fridge cooling-power budget tightens. Conversely, certain controller features can relax constraints on the QPU design or motivate design choices that exploit them. In this talk I will walk through co-design considerations. I will review transmon sensitivity to the different noise channels, backed by experimental results from noise-injection studies. I then discuss the implications for informed design choices and I/O line configurations that make the most of available controller specifications. I close with how QPU-design-aware modeling can assist calibration and operation of the controller.` },
+      { title: 'Nicola Pancotti', type: 'talk', company: 'NVIDIA', talkTitle: 'Digital Twins for Quantum Computing', abstract: `Designing a quantum processor today means stitching together many tools and simulators by hand, and most intermediate results don't make it into the next iteration. This talk presents a digital-twin framework that helps automate the chain end-to-end. The framework has three parts. (1) Accelerated solvers at each stage of the simulation chain, plus AI surrogates trained on the accumulated runs to short-circuit the expensive inner loops. (2) Explicit, machine-readable contracts between hierarchical layers — physics, quantum error correction, applications — so noise models, codes, and resource estimates can flow between them automatically. (3) Curated data pipelines that keep every artifact addressable, every dataset versioned, and every decision replayable, so calibration and experiment keep refining the twin over the lifetime of a chip. The framework is designed to build on the tools the community has already developed, not to replace them.` },
+      { title: 'Nanoacademic', type: 'talk', company: 'Hybrid Simulation', speaker: 'Fadime Bekmambetova', talkTitle: 'Technology Computer-Aided Design modeling of circuit QED with semiconductor quantum dots', abstract: `Hybrid quantum systems that couple semiconductor spin qubits to superconducting circuits are promising for the future of quantum technology, as they combine a compact qubit footprint and long coherence times with long-range connectivity. To support the rigorous multi-physics simulation of these complex architectures, we will conduct a live demonstration in which we will use QTCAD® to model the coupling between a multi-gate FinFET quantum dot and a microwave resonator. Using interactive Jupyter notebooks, we will walk through the 3D geometry construction of the semiconductor device and the subsequent calculation of its electrostatic potentials and quantum mechanical eigenstates by using QTCAD®'s Poisson and Schrödinger solvers. Furthermore, the demonstration will showcase resonator design by utilizing the Quantum Metal framework for layout generation alongside QTCAD®'s Maxwell solver for eigenmode extraction. By bridging the gap between semiconductor physics and circuit QED, this session will equip attendees with the practical tools necessary to design and optimize next-generation hybrid hardware.` },
     ],
   },
   {
@@ -247,18 +249,18 @@ const advancedSchedule: TimeSlot[] = [
   {
     time: '3:30 – 4:15 PM',
     days: [
-      { title: 'Prasad Sarangapani', type: 'talk', company: 'Rigetti' },
-      { title: 'Joseph Glick', type: 'talk', company: 'QBlox' },
-      { title: 'Sadman Ahmed Shanto', type: 'lecture', company: 'USC' },
-      { title: 'Quantum Design', type: 'talk', speaker: 'TBA' },
+      { title: 'Prasad Sarangapani', type: 'talk', company: 'Rigetti', talkTitle: 'Loss Characterization and Calibration in Multi-Die Superconducting Qubit Architectures', abstract: `Superconducting qubit architectures based on flip-chip and multi-die designs introduce multiple Purcell loss channels, including charge lines, flux lines, readout ports, and tunable coupler ports. In addition, qubits on individual dies experience distinct intra- and inter-die loss environments, complicating systematic characterization. We present the Resonant-Continuum Mode Coupling (RCMC) framework, which enables channel-wise loss decomposition with efficient parametric representation for general bath circuits, accommodating both lumped and distributed elements. While RCMC broadly captures both intentional and unintentional loss, we focus here on the calibration and optimization of intentional loss channels — qubit coupling to charge and flux (XYZ) drive lines and resonator decay rates to feedlines. We demonstrate direct and quantitative bridge between experimental observables and simulated loss rates, providing a general calibration methodology for intentional loss channels across varying designs and multi-die layouts.` },
+      { title: 'Joseph Glick', type: 'talk', company: 'QBlox', talkTitle: 'Signal to Syndrome: The Hardware Reality of Real-Time Decoding', abstract: `Quantum error correction (QEC) is fundamentally a challenge of hardware latency and massive data throughput. As physical qubit counts scale, the sheer volume of continuous syndrome data creates a severe I/O and processing bottleneck. For device designers, the time budget to measure an ancilla qubit, digitize the signal, decode the logical error, and fire a corrective microwave or flux pulse is unforgiving—often strictly bounded under a single microsecond. If the control and decoding architectures cannot keep pace, errors accumulate faster than they can be suppressed, nullifying the fault-tolerance threshold. This talk details the recent integration of Qblox's scalable quantum control electronics with Riverlane's hardware-accelerated Deltaflow QEC decoders, and examines how this fast-feedback architecture can inform next-generation quantum device design. We will unpack the physical implementation of the Quantum Error Correction interface (QECi)—the ultra-low-latency data link connecting Qblox's deterministic SYNQ and LINK network (capable of distributing measurement outcomes across modules in ~400 ns) directly into Riverlane's FPGA-based Local Clustering Decoder (LCD). Crucially, we will explore how offloading decoding to a specialized real-time hardware layer fundamentally alters the constraints placed on the QPU itself.` },
+      { title: 'Sadman Ahmed Shanto', type: 'lecture', company: 'USC', talkTitle: 'Generalizable Machine Learning Models for Superconducting Quantum Device Design', abstract: `Designing superconducting quantum devices is a complex workflow with numerous costly iterative loops. Achieving target performance metrics often depends on repeated electromagnetic (EM) simulations during layout optimization which form a severe bottleneck in the design process. This talk explores how machine learning (ML) can reduce the cost of these iterations and accelerate the design cycle. We discuss methods to alleviate the EM-simulation bottleneck, including simulation surrogates and interpretable symbolic regression. Further, we also address the field's fundamental challenge of data scarcity through layout embeddings that enable more generalizable and useful ML models.` },
+      { title: 'Quantum Design', type: 'talk', speaker: 'Alex LeBon', talkTitle: 'What the Fridge: a primer on Dilution Refrigeration, Experimental Workflow, & Large Capital Equipment', abstract: `Once Superconducting Qubit packages are designed, they must be integrated into a suitable cryogenic environment. Today's dilution refrigerators do more than just get cold, they interact with every aspect of running a successful laboratory. From procurement, to fabrication, to investigation, this talk will run through some principles and best practices that will help you get the most out of your chips, your fridge, and—most importantly—your budget.` },
     ],
   },
   {
     time: '4:15 – 5:00 PM',
     days: [
-      { title: 'Silvia Zorzetti', type: 'lecture', company: 'Fermilab' },
-      { title: 'Helge Gehring, Simon Bilodeaus, Bianca Hanley (Lecture)', type: 'lecture', company: 'Google & QDC'},
-      { title: 'Edward Kluender', type: 'talk', company: 'Zurich Instruments' },
+      { title: 'Silvia Zorzetti', type: 'lecture', company: 'Fermilab', talkTitle: 'Coherent Quantum Transduction with SRF Cavities', abstract: `A key frontier in Quantum Information Science is establishing low-noise fiber-optic links between superconducting radio-frequency (SRF) quantum devices. High-efficiency microwave-optical transduction is therefore an enabling capability for distributed quantum computing and sensor networks. This presentation reviews quantum transduction based on coupling SRF cavities to electro-optic resonators for efficient microwave-to-optical photon conversion. Using full-wave and quantum dynamical simulations, we evaluate a hybrid architecture in which a transmon-based microwave cavity interacts with the low-frequency microwave mode of an electro-optic crystal. Our results show that this architecture can coherently mediate quantum information transfer from superconducting quantum devices over photonic quantum networks.` },
+      { title: 'Helge Gehring, Simon Bilodeaus, Bianca Hanley (Lecture)', type: 'lecture', company: 'Google & QDC', speaker: 'Helge Gehring, Simon Bilodeau, Bianca Hanly', talkTitle: 'Advanced open-source layout and design', abstract: `As superconducting quantum processors increase in complexity, practices sufficient for taping out small-scale designs become bottlenecks. At the same time, the field is still evolving fast enough to eschew the standardization seen in the CMOS industry. Consequently, the flexibility of open-source tooling is attractive. In this short tripartite presentation, we will dive deeper into the open-source engines KLayout and OpenCascade/GMSH. We will first review the quirks of the GDSII format, which is ubiquitous for communicating device layouts to foundries, and present tooling built around the KLayout programmatic API that enables large-scale design. Since device layouts require physical-level modeling, we will then cover OpenCascade/GMSH, and present tooling to efficiently render and mesh 2.5D polygon-based geometries. Finally, we will review the KLayout verification engine, showing how to use it to implement and run Design vs Layout (DRC) and Layout-vs-Schematic (LvS) verification.` },
+      { title: 'Edward Kluender', type: 'talk', company: 'Zurich Instruments', talkTitle: 'Designing control systems from the qubit up: co-design requirements for scaling superconducting QPUs', abstract: `Scaling superconducting QPUs beyond hundreds of qubits places demands on the control stack that generic, universal instrumentation was never designed to meet. Device designers face a fundamental tension: the control system must be flexible enough to characterize and calibrate individual qubits and couplers yet tightly integrated enough to operate at the scale and speed required for quantum error correction. Resolving this tension requires co-designing control hardware and software alongside the QPU as a core part of the device development process. Thoughtful co-design unlocks solutions to challenges that cannot be addressed effectively any other way. Examples include customized automated calibration workflows that reduce device bring-up from days to minutes; analog signal performance carefully matched to the coherence and fidelity requirements of the physical qubits; and deterministic timing across thousands of control channels coupled with real-time feedback capabilities essential for logical qubit operation. In this talk, we show through a series of co-design collaborations spanning academia and industry how this approach delivers results in practice: automated calibration, high-throughput device bring-up, custom two-qubit gate calibration, and end-to-end quantum error correction workflows.` },
       { title: 'Panel Discussion', type: 'panel', speaker: 'Zlatko Minev (Moderator, begin 4:30)' },
     ],
   },
@@ -295,17 +297,23 @@ const legend: { type: SessionType; label: string }[] = [
   { type: 'break',    label: 'Break / Meal' },
 ];
 
-function SessionCell({ session }: { session: Session | null }) {
+function SessionCell({ session, onSelect }: { session: Session | null; onSelect?: (s: Session) => void }) {
   if (!session) return <div className="h-full min-h-[60px]" />;
 
   const styles = sessionStyles[session.type];
   const dot = sessionDotStyles[session.type];
+  const hasAbstract = Boolean(session.abstract);
 
-  return (
-    <div className={`rounded-xl border px-3 py-2 h-full min-h-[64px] flex flex-col justify-center gap-0.5 ${styles}`}>
+  const inner = (
+    <>
       <div className="flex items-start gap-1.5">
         <span className={`mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${dot}`} />
         <span className="text-xs sm:text-sm font-semibold leading-snug whitespace-pre-line">{session.title}</span>
+        {hasAbstract && (
+          <svg className="ml-auto mt-0.5 w-3.5 h-3.5 flex-shrink-0 opacity-50" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        )}
       </div>
       {session.speaker && (
         <p className="text-[10px] sm:text-xs opacity-70 pl-3">{session.speaker}</p>
@@ -313,13 +321,38 @@ function SessionCell({ session }: { session: Session | null }) {
       {session.company && (
         <p className="text-[10px] sm:text-xs opacity-60 pl-3 italic">{session.company}</p>
       )}
-    </div>
+    </>
+  );
+
+  if (!hasAbstract) {
+    return (
+      <div className={`rounded-xl border px-3 py-2 h-full min-h-[64px] flex flex-col justify-center gap-0.5 ${styles}`}>
+        {inner}
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect?.(session)}
+      title={session.talkTitle}
+      className={`group relative text-left w-full rounded-xl border px-3 py-2 h-full min-h-[64px] flex flex-col justify-center gap-0.5 cursor-pointer transition-all duration-200 hover:brightness-125 hover:ring-2 hover:ring-white/30 ${styles}`}
+    >
+      {inner}
+      {/* Hover tooltip: talk title preview */}
+      <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-40 hidden group-hover:block w-56 rounded-lg bg-[#0f0f1a] border border-white/15 px-3 py-2 text-[11px] font-medium text-white shadow-xl whitespace-normal leading-snug">
+        {session.talkTitle}
+        <span className="block mt-1 text-[10px] font-normal text-purple-300">Click to read the abstract →</span>
+      </span>
+    </button>
   );
 }
 
 export default function SchedulePage() {
   const [track, setTrack] = useState<'training' | 'advanced'>('training');
   const [exporting, setExporting] = useState(false);
+  const [selected, setSelected] = useState<Session | null>(null);
   const scheduleRef = useRef<HTMLDivElement>(null);
   const schedule = track === 'training' ? trainingSchedule : advancedSchedule;
 
@@ -657,7 +690,7 @@ export default function SchedulePage() {
                       </div>
                       {slot.days.map((session, colIdx) => (
                         <div key={colIdx} className="px-2 py-2">
-                          <SessionCell session={session} />
+                          <SessionCell session={session} onSelect={setSelected} />
                         </div>
                       ))}
                     </motion.div>
@@ -673,10 +706,62 @@ export default function SchedulePage() {
               transition={{ duration: 0.5, delay: 0.5 }}
               className="text-center text-gray-600 text-xs mt-6"
             >
+              {track === 'advanced'
+                ? 'Tip: hover or tap an Advanced Track talk to see its title and abstract. '
+                : ''}
               Schedule subject to change. All times Pacific Time (PT). Both tracks share the same venue.
             </motion.p>
           </div>
         </section>
+
+        {/* Abstract Modal */}
+        <AnimatePresence>
+          {selected && (
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+              onClick={() => setSelected(null)}
+            >
+              <motion.div
+                key="modal"
+                initial={{ opacity: 0, scale: 0.94, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.94, y: 20 }}
+                transition={{ duration: 0.22 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-[#0f0f1a] border border-white/10 rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto"
+              >
+                <div className="h-1.5 w-full bg-gradient-to-r from-purple-600 via-indigo-500 to-purple-600 sticky top-0" />
+                <div className="p-6 sm:p-8">
+                  <p className="text-purple-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                    Advanced Track Talk
+                  </p>
+                  <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">
+                    {selected.talkTitle}
+                  </h2>
+                  <p className="text-gray-300 text-sm mt-2">
+                    <span className="font-semibold text-white">{selected.speaker || selected.title}</span>
+                    {selected.company && <span className="text-gray-500"> &middot; {selected.company}</span>}
+                  </p>
+                  <div className="mt-4 h-px bg-white/10" />
+                  <p className="mt-4 text-gray-300 text-sm leading-relaxed whitespace-pre-line">
+                    {selected.abstract}
+                  </p>
+                  <button
+                    onClick={() => setSelected(null)}
+                    className="mt-6 w-full bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-white font-semibold rounded-full py-2.5 text-sm transition-all duration-200"
+                  >
+                    Close
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Notes Section */}
         {/* <section className="px-4 sm:px-6 lg:px-8 py-12 max-w-4xl mx-auto">
