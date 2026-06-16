@@ -211,12 +211,12 @@ const advancedSchedule: TimeSlot[] = [
     ],
   },
   {
-    time: '12:00 – 1:50 PM',
+    time: '12:00 – 1:30 PM',
     days: [
       { title: 'Lunch', type: 'meal' },
       { title: 'Lunch', type: 'meal' },
       { title: 'Lunch', type: 'meal' },
-      { title: 'Lunch', type: 'meal' },
+      { title: 'Lunch (Extended to 1:50)', type: 'meal' },
     ],
   },
   {
