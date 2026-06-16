@@ -31,6 +31,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [exportingPaidAttendees, setExportingPaidAttendees] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all"); // all, pending, approved, paid
@@ -52,7 +53,7 @@ export default function AdminDashboard() {
   const [emailError, setEmailError] = useState("");
 
   // Admin tabs
-  const [activeTab, setActiveTab] = useState<"applicants" | "job-requests" | "payment-stats">("applicants");
+  const [activeTab, setActiveTab] = useState<"applicants" | "job-requests" | "payment-stats" | "attendees-cvs">("applicants");
 
   // Payment stats
   interface PaymentBreakdown {
@@ -85,6 +86,7 @@ export default function AdminDashboard() {
   const [paymentStatsError, setPaymentStatsError] = useState("");
   const [detailFilter, setDetailFilter] = useState<"all" | "comped" | "paid">("all");
   const [detailTypeFilter, setDetailTypeFilter] = useState("all");
+  const [cvTabSearch, setCvTabSearch] = useState("");
 
   const fetchPaymentStats = async (key: string, email: string) => {
     setPaymentStatsLoading(true);
@@ -420,50 +422,39 @@ export default function AdminDashboard() {
     window.URL.revokeObjectURL(url);
   };
 
-  const exportPaidCSV = () => {
-    const paidApplicants = applicants.filter((app) => app.paymentStatus === "paid");
+  const exportPaidCSV = async () => {
+    setExportingPaidAttendees(true);
+    setError("");
 
-    const headers = [
-      "First Name",
-      "Last Name",
-      "Email",
-      "Registration Type",
-      "Designation",
-      "Location",
-      "Dietary Restriction",
-      "Project Title",
-      "Project Description",
-      "Registration Date",
-      "CV URL",
-    ];
+    try {
+      const response = await fetch("/api/qdw/admin/export-paid-attendees", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey, adminEmail }),
+        cache: "no-store",
+      });
 
-    const origin = window.location.origin;
-    const csvData = paidApplicants.map((app) => [
-      app.firstName,
-      app.lastName,
-      app.email,
-      app.registrationType,
-      app.designation,
-      app.location,
-      app.dietaryRestriction || "",
-      app.projectTitle || "",
-      app.projectDescription || "",
-      new Date(app.createdAt).toLocaleDateString(),
-      app.cvUrl ? `${origin}/api/qdw/view-cv?email=${encodeURIComponent(app.email)}` : "",
-    ]);
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to export paid attendees");
+      }
 
-    const csvContent = [
-      headers.join(","),
-      ...csvData.map((row) => row.map((cell) => `"${cell}"`).join(",")),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `qdw-2026-paid-users-${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get("Content-Disposition") || "";
+      const filenameMatch = contentDisposition.match(/filename="?([^";]+)"?/);
+      const filename = filenameMatch?.[1] || `qdw-2026-paid-attendees-${new Date().toISOString().split("T")[0]}.csv`;
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert("Error: " + err.message);
+      setError(err.message);
+    } finally {
+      setExportingPaidAttendees(false);
+    }
   };
 
   const exportStudentsOnlineCSV = () => {
@@ -679,9 +670,10 @@ export default function AdminDashboard() {
               </button>
               <button
                 onClick={exportPaidCSV}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full transition-all font-medium"
+                disabled={exportingPaidAttendees}
+                className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-full transition-all font-medium"
               >
-                Export Paid CSV
+                {exportingPaidAttendees ? "Exporting..." : "Export Paid + CVs"}
               </button>
               <button
                 onClick={exportStudentsOnlineCSV}
@@ -734,6 +726,12 @@ export default function AdminDashboard() {
               className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${activeTab === "payment-stats" ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
             >
               💰 Payment Stats
+            </button>
+            <button
+              onClick={() => setActiveTab("attendees-cvs")}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${activeTab === "attendees-cvs" ? "bg-purple-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+            >
+              📋 Attendees &amp; CVs
             </button>
           </div>
         </div>
@@ -1334,6 +1332,132 @@ export default function AdminDashboard() {
           ))}
         </div>
       )}
+
+      {/* Attendees & CVs Tab */}
+      {activeTab === "attendees-cvs" && (() => {
+        const paidAttendees = applicants.filter(a => a.paymentStatus === "paid");
+        const filtered = cvTabSearch.trim()
+          ? paidAttendees.filter(a =>
+              `${a.firstName} ${a.lastName}`.toLowerCase().includes(cvTabSearch.toLowerCase()) ||
+              a.email.toLowerCase().includes(cvTabSearch.toLowerCase()) ||
+              (a.projectTitle || "").toLowerCase().includes(cvTabSearch.toLowerCase())
+            )
+          : paidAttendees;
+        return (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Paid Attendees &amp; CVs</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  {paidAttendees.length} paid attendees
+                  {" · "}{paidAttendees.filter(a => a.cvUrl).length} with CV
+                  {" · "}{paidAttendees.filter(a => a.posterUrl).length} with poster
+                </p>
+              </div>
+              <button
+                onClick={() => fetchApplicants(apiKey, adminEmail)}
+                className="text-sm text-purple-600 hover:text-purple-800 font-medium"
+              >
+                ↻ Refresh
+              </button>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-4 p-4">
+              <input
+                type="text"
+                value={cvTabSearch}
+                onChange={e => setCvTabSearch(e.target.value)}
+                placeholder="Search by name, email, or project title…"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold whitespace-nowrap">#</th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold whitespace-nowrap">Name</th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold whitespace-nowrap">Email</th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold whitespace-nowrap">Type</th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold whitespace-nowrap">Designation</th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold whitespace-nowrap">Location</th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold whitespace-nowrap">Dietary</th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold whitespace-nowrap">Project</th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold whitespace-nowrap">Registered</th>
+                      <th className="text-center px-4 py-3 text-gray-600 font-semibold whitespace-nowrap">CV</th>
+                      <th className="text-center px-4 py-3 text-gray-600 font-semibold whitespace-nowrap">Poster</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {filtered.map((app, i) => (
+                      <tr key={app.id} className="hover:bg-purple-50/30 transition-colors">
+                        <td className="px-4 py-3 text-gray-400 text-xs">{i + 1}</td>
+                        <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{app.firstName} {app.lastName}</td>
+                        <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                          <a href={`mailto:${app.email}`} className="hover:text-purple-600">{app.email}</a>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span className="text-xs font-semibold px-2 py-1 rounded-full bg-purple-100 text-purple-700 capitalize">
+                            {app.registrationType.replace(/_/g, " ")}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-gray-600 capitalize whitespace-nowrap">{app.designation || "—"}</td>
+                        <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{app.location || "—"}</td>
+                        <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{app.dietaryRestriction || "—"}</td>
+                        <td className="px-4 py-3 text-gray-700 max-w-[180px]">
+                          {app.projectTitle
+                            ? <span title={app.projectTitle} className="block truncate">{app.projectTitle}</span>
+                            : <span className="text-gray-400">—</span>
+                          }
+                        </td>
+                        <td className="px-4 py-3 text-gray-500 whitespace-nowrap text-xs">
+                          {new Date(app.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {app.cvUrl ? (
+                            <a
+                              href={`/api/qdw/view-cv?email=${encodeURIComponent(app.email)}&t=${Date.now()}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-2.5 py-1.5 rounded-full transition-colors whitespace-nowrap"
+                            >
+                              📄 View
+                            </a>
+                          ) : (
+                            <span className="text-gray-300 text-xs">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {app.posterUrl ? (
+                            <a
+                              href={`/api/qdw/view-poster?email=${encodeURIComponent(app.email)}&t=${Date.now()}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1.5 rounded-full transition-colors whitespace-nowrap"
+                            >
+                              🖼 View
+                            </a>
+                          ) : (
+                            <span className="text-gray-300 text-xs">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {filtered.length === 0 && (
+                  <p className="text-center text-gray-400 py-8 text-sm">No paid attendees match your search.</p>
+                )}
+              </div>
+              <div className="px-4 py-2 border-t border-gray-100 text-xs text-gray-400">
+                Showing {filtered.length} of {paidAttendees.length} paid attendees
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Reject Confirmation Modal */}
       {showRejectModal && (
