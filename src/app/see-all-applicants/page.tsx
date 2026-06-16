@@ -32,6 +32,7 @@ export default function AdminDashboard() {
   const [error, setError] = useState("");
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [exportingPaidAttendees, setExportingPaidAttendees] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState<null | "cv" | "cv-and-poster">(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all"); // all, pending, approved, paid
@@ -454,6 +455,33 @@ export default function AdminDashboard() {
       setError(err.message);
     } finally {
       setExportingPaidAttendees(false);
+    }
+  };
+
+  const downloadPdf = async (mode: "cv" | "cv-and-poster") => {
+    setDownloadingPdf(mode);
+    try {
+      const res = await fetch("/api/qdw/admin/export-attendees-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey, adminEmail, mode }),
+        cache: "no-store",
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as { error?: string }).error || "Failed to generate PDF");
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `qdw-2026-attendees-${mode === "cv-and-poster" ? "cv-poster" : "cv"}-${new Date().toISOString().split("T")[0]}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    } finally {
+      setDownloadingPdf(null);
     }
   };
 
@@ -1360,6 +1388,27 @@ export default function AdminDashboard() {
               >
                 ↻ Refresh
               </button>
+            </div>
+
+            {/* PDF download buttons */}
+            <div className="flex flex-wrap gap-3 mb-4 items-center">
+              <button
+                onClick={() => downloadPdf("cv")}
+                disabled={downloadingPdf !== null}
+                className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2 rounded-full transition-all"
+              >
+                {downloadingPdf === "cv" ? "Generating PDF…" : " Download CVs PDF"}
+              </button>
+              <button
+                onClick={() => downloadPdf("cv-and-poster")}
+                disabled={downloadingPdf !== null}
+                className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2 rounded-full transition-all"
+              >
+                {downloadingPdf === "cv-and-poster" ? "Generating PDF…" : " Download CVs + Posters PDF"}
+              </button>
+              {downloadingPdf && (
+                <p className="text-sm text-gray-500 italic">Merging files from Supabase, this may take a minute…</p>
+              )}
             </div>
 
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-4 p-4">
