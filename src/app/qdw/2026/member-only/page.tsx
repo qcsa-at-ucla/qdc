@@ -69,13 +69,15 @@ const HFSS_INSTALL_LINKS = [
   },
 ];
 
-type MemberTab = 'info' | 'training' | 'advanced' | 'recordings' | 'hfss';
+type MemberTab = 'info' | 'training' | 'advanced' | 'recordings' | 'slides' | 'hfss';
 type ZoomLink = { label: string; href: string };
 type RecordingLink = { label: string; href: string; isUrl: boolean; isVideo?: boolean };
 type RecordingSection = {
   track: string;
   sessions: { session: string; links: RecordingLink[] }[];
 };
+type SlideItem = { title: string; filename: string; href: string };
+type SlideSection = { track: string; slides: SlideItem[] };
 
 function MemberScheduleCell({ s }: { s: ScheduleSession | null }) {
   if (!s) return <div className="min-h-[52px]" />;
@@ -145,6 +147,10 @@ export default function MemberOnlyPage() {
   const [recordingsLoading, setRecordingsLoading] = useState(false);
   const [recordingsError, setRecordingsError] = useState("");
   const [recordingsUpdatedAt, setRecordingsUpdatedAt] = useState<string | null>(null);
+  const [slideSections, setSlideSections] = useState<SlideSection[]>([]);
+  const [slidesLoading, setSlidesLoading] = useState(false);
+  const [slidesError, setSlidesError] = useState("");
+  const [slidesUpdatedAt, setSlidesUpdatedAt] = useState<string | null>(null);
 
   const fetchRecordings = async () => {
     if (!user?.email) return;
@@ -174,9 +180,43 @@ export default function MemberOnlyPage() {
     }
   };
 
+  const fetchSlides = async () => {
+    if (!user?.email) return;
+
+    setSlidesLoading(true);
+    setSlidesError("");
+
+    try {
+      const response = await fetch("/api/qdw/slides", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email }),
+        cache: "no-store",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to load slides");
+      }
+
+      setSlideSections(data.sections || []);
+      setSlidesUpdatedAt(data.updatedAt || null);
+    } catch (err: any) {
+      setSlidesError(err.message || "Failed to load slides");
+    } finally {
+      setSlidesLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 'recordings' && user?.email && recordingSections.length === 0 && !recordingsLoading) {
       fetchRecordings();
+    }
+  }, [activeTab, user?.email]);
+
+  useEffect(() => {
+    if (activeTab === 'slides' && user?.email && slideSections.length === 0 && !slidesLoading) {
+      fetchSlides();
     }
   }, [activeTab, user?.email]);
 
@@ -838,6 +878,7 @@ export default function MemberOnlyPage() {
               { id: 'training', label: 'Training Track',   icon: '🟢' },
               { id: 'advanced', label: 'Advanced Track',   icon: '🟣' },
               { id: 'recordings', label: 'Recordings',      icon: '🎥' },
+              { id: 'slides',   label: 'Slides',           icon: '📄' },
               { id: 'hfss',     label: 'HFSS Install',     icon: '💿' },
             ] as { id: MemberTab; label: string; icon: string }[]).map(tab => (
               <button
@@ -851,6 +892,8 @@ export default function MemberOnlyPage() {
                       ? 'border-purple-500 text-purple-300 bg-purple-900/20'
                       : tab.id === 'recordings'
                       ? 'border-blue-500 text-blue-300 bg-blue-900/20'
+                      : tab.id === 'slides'
+                      ? 'border-amber-500 text-amber-300 bg-amber-900/20'
                       : tab.id === 'hfss'
                       ? 'border-cyan-500 text-cyan-300 bg-cyan-900/20'
                       : 'border-indigo-400 text-indigo-200 bg-indigo-900/20'
@@ -1518,6 +1561,17 @@ export default function MemberOnlyPage() {
         />
       )}
 
+      {/* ── SLIDES TAB ──────────────────────────────────────────── */}
+      {activeTab === 'slides' && (
+        <SlidesPanel
+          sections={slideSections}
+          loading={slidesLoading}
+          error={slidesError}
+          updatedAt={slidesUpdatedAt}
+          onRefresh={fetchSlides}
+        />
+      )}
+
       {/* ── HFSS INSTALL TAB ──────────────────────────────────────────── */}
       {activeTab === 'hfss' && (
         <div className="max-w-4xl mx-auto space-y-6">
@@ -1647,6 +1701,120 @@ function VideoLink({ link }: { link: RecordingLink }) {
           </video>
         </div>
       )}
+    </div>
+  );
+}
+
+interface SlidesPanelProps {
+  sections: SlideSection[];
+  loading: boolean;
+  error: string;
+  updatedAt: string | null;
+  onRefresh: () => void;
+}
+
+function SlidesPanel({ sections, loading, error, updatedAt, onRefresh }: SlidesPanelProps) {
+  const hasSlides = sections.some((section) => section.slides.length > 0);
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div className="rounded-2xl border border-amber-500/40 bg-white/[0.03] p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-amber-900/20 text-amber-300 flex-shrink-0">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 3h7l5 5v13H7V3zM14 3v6h5M9 14h6M9 17h6M9 11h2" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-amber-400 text-xs font-semibold tracking-widest uppercase mb-1">Slide Library</p>
+              <h2 className="text-2xl font-bold text-white">QDW 2026 Slides</h2>
+              <p className="text-sm text-gray-500 mt-1">
+                PDF slide decks are pulled from the Training and Advanced folders in the member-only slides bucket.
+              </p>
+              {updatedAt && (
+                <p className="text-xs text-gray-600 mt-2">
+                  Last checked {new Date(updatedAt).toLocaleString()}
+                </p>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={onRefresh}
+            disabled={loading}
+            className="self-start rounded-full border border-amber-500/40 bg-amber-900/20 px-4 py-2 text-sm font-semibold text-amber-200 transition-all hover:bg-amber-900/35 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Refreshing..." : "Refresh"}
+          </button>
+        </div>
+      </div>
+
+      {loading && sections.length === 0 && (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-gray-400">
+          Loading slides...
+        </div>
+      )}
+
+      {error && (
+        <div className="rounded-2xl border border-red-500/40 bg-red-900/20 p-6 text-red-200">
+          {error}
+        </div>
+      )}
+
+      {!loading && !error && sections.length === 0 && (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-gray-400">
+          No slide folders are listed yet.
+        </div>
+      )}
+
+      {!loading && !error && sections.length > 0 && !hasSlides && (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-gray-400">
+          No PDF slides are uploaded yet.
+        </div>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {sections.map((section) => (
+          <section
+            key={section.track}
+            className="rounded-2xl border border-white/10 bg-[#0d0d1f] overflow-hidden"
+          >
+            <div className="border-b border-white/10 bg-white/[0.04] px-5 py-4">
+              <h3 className="text-lg font-bold text-white">{section.track}</h3>
+              <p className="text-xs text-gray-500 mt-1">{section.slides.length} PDF{section.slides.length === 1 ? "" : "s"}</p>
+            </div>
+
+            <div className="divide-y divide-white/10">
+              {section.slides.length === 0 ? (
+                <div className="p-5 text-sm text-gray-500">No PDFs uploaded in this folder yet.</div>
+              ) : (
+                section.slides.map((slide) => (
+                  <div key={`${section.track}-${slide.filename}`} className="p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-wider">PDF Slides</p>
+                        <h4 className="text-base font-semibold text-white mt-1">{slide.title}</h4>
+                        <p className="text-xs text-gray-600 mt-1">{slide.filename}</p>
+                      </div>
+                      <a
+                        href={slide.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-amber-700"
+                      >
+                        Open PDF
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5M6 8.25V18h9.75" />
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }
