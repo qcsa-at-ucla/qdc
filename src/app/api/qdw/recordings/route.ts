@@ -132,7 +132,7 @@ function formatStorageName(name: string): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function listBucketVideos(supabase: any): Promise<RecordingSection[]> {
+async function listBucketVideos(supabase: any, email: string): Promise<RecordingSection[]> {
   const BUCKET = 'QDW-Videos';
 
   const { data: rootItems } = await supabase.storage
@@ -167,24 +167,16 @@ async function listBucketVideos(supabase: any): Promise<RecordingSection[]> {
 
   if (files.length === 0) return [];
 
-  const { data: signedUrls } = await supabase.storage
-    .from(BUCKET)
-    .createSignedUrls(files.map((f) => f.path), 3600);
-
-  if (!signedUrls) return [];
-
   const sectionMap = new Map<string, RecordingSession[]>();
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const signed = signedUrls[i];
-    if (!signed?.signedUrl) continue;
+  for (const file of files) {
     const trackName = file.folder
       ? formatStorageName(file.folder)
       : 'QDW 2026 Video Recordings';
     if (!sectionMap.has(trackName)) sectionMap.set(trackName, []);
+    const proxyUrl = `/api/qdw/video?path=${encodeURIComponent(file.path)}&email=${encodeURIComponent(email)}`;
     sectionMap.get(trackName)!.push({
       session: formatStorageName(file.filename),
-      links: [{ label: 'Watch Recording', href: signed.signedUrl, isUrl: true, isVideo: true }],
+      links: [{ label: 'Watch Recording', href: proxyUrl, isUrl: true, isVideo: true }],
     });
   }
 
@@ -232,7 +224,7 @@ export async function POST(request: NextRequest) {
 
     const csv = await sheetResponse.text();
     const csvSections = recordingsFromCsv(csv);
-    const videoSections = await listBucketVideos(supabase);
+    const videoSections = await listBucketVideos(supabase, email);
     const sections = [...csvSections, ...videoSections];
 
     return NextResponse.json({
