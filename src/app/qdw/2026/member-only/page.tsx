@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 // ── Schedule data ──────────────────────────────────────────────────────────────
@@ -1567,27 +1567,81 @@ export default function MemberOnlyPage() {
 
 function VideoLink({ link }: { link: RecordingLink }) {
   const [open, setOpen] = useState(false);
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
+  const [tokenLoading, setTokenLoading] = useState(false);
+  const [tokenError, setTokenError] = useState("");
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleOpen = async () => {
+    if (open) {
+      setOpen(false);
+      return;
+    }
+    setTokenLoading(true);
+    setTokenError("");
+    try {
+      const res = await fetch(link.href, { cache: "no-store" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to load video");
+      setVideoSrc(data.url);
+      setOpen(true);
+    } catch (err: any) {
+      setTokenError(err.message || "Failed to load video");
+    } finally {
+      setTokenLoading(false);
+    }
+  };
+
+  const handleFullscreen = () => {
+    const el = videoRef.current;
+    if (!el) return;
+    if (el.requestFullscreen) el.requestFullscreen();
+  };
+
   return (
     <div className="w-full">
       <button
-        onClick={() => setOpen((o) => !o)}
-        className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-blue-700"
+        onClick={handleOpen}
+        disabled={tokenLoading}
+        className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-          <path d={open ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z"} />
-        </svg>
-        {open ? 'Hide Video' : link.label}
+        {tokenLoading ? (
+          <svg className="w-4 h-4 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+          </svg>
+        ) : (
+          <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+            <path d={open ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z"} />
+          </svg>
+        )}
+        {tokenLoading ? "Loading…" : open ? "Hide Video" : link.label}
       </button>
-      {open && (
+      {tokenError && (
+        <p className="mt-2 text-xs text-red-400">{tokenError}</p>
+      )}
+      {open && videoSrc && (
         <div className="mt-3 rounded-xl overflow-hidden border border-white/10 bg-black">
+          <div className="flex items-center justify-end px-3 py-1.5 bg-black/60 border-b border-white/10 gap-2">
+            <button
+              onClick={handleFullscreen}
+              className="inline-flex items-center gap-1.5 rounded-full bg-white/10 hover:bg-white/20 px-3 py-1 text-xs font-semibold text-white transition-all"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              </svg>
+              Fullscreen
+            </button>
+          </div>
           <video
+            ref={videoRef}
             controls
             autoPlay
             playsInline
             controlsList="nodownload"
             onContextMenu={(e) => e.preventDefault()}
             className="w-full max-h-[480px]"
-            src={link.href}
+            src={videoSrc}
           >
             Your browser does not support video playback.
           </video>
