@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 const BUCKET = "QDW-Videos";
 // Signed URLs are valid for 4 hours — enough for long recordings without re-fetching.
-const SIGNED_URL_TTL = 7200;
+const SIGNED_URL_TTL = 14400;
 
 export async function GET(request: NextRequest) {
   try {
