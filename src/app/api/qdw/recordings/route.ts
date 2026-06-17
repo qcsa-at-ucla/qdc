@@ -230,7 +230,7 @@ export async function POST(request: NextRequest) {
     const csv = await sheetResponse.text();
     const csvSections = recordingsFromCsv(csv);
     const videoSections = await listBucketVideos(supabase, email);
-    const sections = [...csvSections, ...videoSections];
+    const sections = [...videoSections, ...csvSections];
 
     return NextResponse.json({
       success: true,
