@@ -5,8 +5,6 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const BUCKET = "QDW-SLIDES";
-// should be 8 hours to cover the entire conference duration without needing to re-fetch URLs, but can be adjusted as needed.
-const SIGNED_URL_TTL = 28800;
 
 const SLIDE_FOLDERS = [
   { folder: "Training", track: "Training Slides" },
@@ -32,7 +30,7 @@ function formatSlideTitle(filename: string): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function listPdfSlides(supabase: any): Promise<SlideSection[]> {
+async function listPdfSlides(supabase: any, email: string): Promise<SlideSection[]> {
   const sections: SlideSection[] = [];
 
   for (const { folder, track } of SLIDE_FOLDERS) {
@@ -57,25 +55,13 @@ async function listPdfSlides(supabase: any): Promise<SlideSection[]> {
       continue;
     }
 
-    const { data: signedUrls, error: signError } = await supabase.storage
-      .from(BUCKET)
-      .createSignedUrls(pdfs.map((pdf: { path: string }) => pdf.path), SIGNED_URL_TTL);
-
-    if (signError || !signedUrls) {
-      console.error(`Failed to sign ${track}:`, signError);
-      sections.push({ track, slides: [] });
-      continue;
-    }
-
     sections.push({
       track,
-      slides: pdfs
-        .map((pdf: { filename: string }, index: number) => ({
-          title: formatSlideTitle(pdf.filename),
-          filename: pdf.filename,
-          href: signedUrls[index]?.signedUrl || "",
-        }))
-        .filter((slide: SlideItem) => Boolean(slide.href)),
+      slides: pdfs.map((pdf: { filename: string; path: string }) => ({
+        title: formatSlideTitle(pdf.filename),
+        filename: pdf.filename,
+        href: `/api/qdw/slide?path=${encodeURIComponent(pdf.path)}&email=${encodeURIComponent(email)}`,
+      })),
     });
   }
 
@@ -114,7 +100,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Slides are only available to paid attendees" }, { status: 401 });
     }
 
-    const sections = await listPdfSlides(supabase);
+    const sections = await listPdfSlides(supabase, email);
 
     return NextResponse.json({
       success: true,
