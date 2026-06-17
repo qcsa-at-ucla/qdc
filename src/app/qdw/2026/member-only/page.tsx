@@ -1641,8 +1641,8 @@ function VideoLink({ link }: { link: RecordingLink }) {
             controlsList="nodownload"
             onContextMenu={(e) => e.preventDefault()}
             className="w-full max-h-[480px]"
-            src={videoSrc}
           >
+            <source src={videoSrc} type="video/mp4" />
             Your browser does not support video playback.
           </video>
         </div>

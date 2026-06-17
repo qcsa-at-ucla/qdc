@@ -4,9 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 export const dynamic = "force-dynamic";
 
 const BUCKET = "QDW-Videos";
-// Signed URLs are valid for 10 minutes — enough to watch without re-fetching,
-// short enough to be useless if copied.
-const SIGNED_URL_TTL = 600;
+// Signed URLs are valid for 4 hours — enough for long recordings without re-fetching.
+const SIGNED_URL_TTL = 7200;
 
 export async function GET(request: NextRequest) {
   try {
