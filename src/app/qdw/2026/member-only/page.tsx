@@ -1584,6 +1584,8 @@ function VideoLink({ link }: { link: RecordingLink }) {
             controls
             autoPlay
             playsInline
+            controlsList="nodownload"
+            onContextMenu={(e) => e.preventDefault()}
             className="w-full max-h-[480px]"
             src={link.href}
           >
