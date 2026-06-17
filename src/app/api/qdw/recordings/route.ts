@@ -180,7 +180,12 @@ async function listBucketVideos(supabase: any, email: string): Promise<Recording
     });
   }
 
-  return Array.from(sectionMap.entries()).map(([track, sessions]) => ({ track, sessions }));
+  const trackOrder = (name: string) =>
+    name.toLowerCase().includes('training') ? 0 : name.toLowerCase().includes('advanced') ? 1 : 2;
+
+  return Array.from(sectionMap.entries())
+    .sort(([a], [b]) => trackOrder(a) - trackOrder(b))
+    .map(([track, sessions]) => ({ track, sessions }));
 }
 
 export async function POST(request: NextRequest) {
