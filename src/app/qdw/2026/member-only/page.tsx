@@ -71,7 +71,7 @@ const HFSS_INSTALL_LINKS = [
 
 type MemberTab = 'info' | 'training' | 'advanced' | 'recordings' | 'hfss';
 type ZoomLink = { label: string; href: string };
-type RecordingLink = { label: string; href: string; isUrl: boolean };
+type RecordingLink = { label: string; href: string; isUrl: boolean; isVideo?: boolean };
 type RecordingSection = {
   track: string;
   sessions: { session: string; links: RecordingLink[] }[];
@@ -1565,6 +1565,36 @@ export default function MemberOnlyPage() {
   );
 }
 
+function VideoLink({ link }: { link: RecordingLink }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="w-full">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-blue-700"
+      >
+        <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+          <path d={open ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z"} />
+        </svg>
+        {open ? 'Hide Video' : link.label}
+      </button>
+      {open && (
+        <div className="mt-3 rounded-xl overflow-hidden border border-white/10 bg-black">
+          <video
+            controls
+            autoPlay
+            playsInline
+            className="w-full max-h-[480px]"
+            src={link.href}
+          >
+            Your browser does not support video playback.
+          </video>
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface RecordingsPanelProps {
   sections: RecordingSection[];
   loading: boolean;
@@ -1660,31 +1690,36 @@ function RecordingsPanel({ sections, loading, error, updatedAt, onRefresh }: Rec
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap gap-3">
-                    {session.links.map((link) => (
-                      link.isUrl ? (
-                        <a
-                          key={`${session.session}-${link.href}`}
-                          href={link.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-blue-700"
-                        >
-                          {link.label}
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5M6 8.25V18h9.75" />
-                          </svg>
-                        </a>
-                      ) : (
-                        <span
-                          key={`${session.session}-${link.href}`}
-                          className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-gray-300"
-                        >
-                          {link.label}
-                        </span>
-                      )
-                    ))}
-                  </div>
+                  {session.links.some(l => !l.isVideo) && (
+                    <div className="flex flex-wrap gap-3 mb-3">
+                      {session.links.filter(l => !l.isVideo).map((link) => (
+                        link.isUrl ? (
+                          <a
+                            key={`${session.session}-${link.href}`}
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-blue-700"
+                          >
+                            {link.label}
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5M6 8.25V18h9.75" />
+                            </svg>
+                          </a>
+                        ) : (
+                          <span
+                            key={`${session.session}-${link.href}`}
+                            className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-gray-300"
+                          >
+                            {link.label}
+                          </span>
+                        )
+                      ))}
+                    </div>
+                  )}
+                  {session.links.filter(l => l.isVideo).map((link) => (
+                    <VideoLink key={`${session.session}-${link.href}`} link={link} />
+                  ))}
                 </div>
               ))}
             </div>

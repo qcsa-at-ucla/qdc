@@ -11,6 +11,7 @@ type RecordingLink = {
   label: string;
   href: string;
   isUrl: boolean;
+  isVideo?: boolean;
 };
 
 type RecordingSession = {
@@ -123,6 +124,73 @@ function recordingsFromCsv(csv: string): RecordingSection[] {
   return sections.filter((section) => section.sessions.length > 0);
 }
 
+function formatStorageName(name: string): string {
+  return name
+    .replace(/\.[^.]+$/, '')
+    .replace(/[-_]+/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function listBucketVideos(supabase: any): Promise<RecordingSection[]> {
+  const BUCKET = 'QDW-Videos';
+
+  const { data: rootItems } = await supabase.storage
+    .from(BUCKET)
+    .list('', { limit: 1000, sortBy: { column: 'name', order: 'asc' } });
+
+  if (!rootItems) return [];
+
+  interface FileEntry { path: string; folder: string; filename: string; }
+  const files: FileEntry[] = [];
+  const folders: string[] = [];
+
+  for (const item of rootItems) {
+    if (item.id === null) {
+      folders.push(item.name);
+    } else if (item.name.toLowerCase().endsWith('.mp4')) {
+      files.push({ path: item.name, folder: '', filename: item.name });
+    }
+  }
+
+  for (const folder of folders) {
+    const { data: folderItems } = await supabase.storage
+      .from(BUCKET)
+      .list(folder, { limit: 1000, sortBy: { column: 'name', order: 'asc' } });
+    if (!folderItems) continue;
+    for (const item of folderItems) {
+      if (item.id !== null && item.name.toLowerCase().endsWith('.mp4')) {
+        files.push({ path: `${folder}/${item.name}`, folder, filename: item.name });
+      }
+    }
+  }
+
+  if (files.length === 0) return [];
+
+  const { data: signedUrls } = await supabase.storage
+    .from(BUCKET)
+    .createSignedUrls(files.map((f) => f.path), 3600);
+
+  if (!signedUrls) return [];
+
+  const sectionMap = new Map<string, RecordingSession[]>();
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const signed = signedUrls[i];
+    if (!signed?.signedUrl) continue;
+    const trackName = file.folder
+      ? formatStorageName(file.folder)
+      : 'QDW 2026 Video Recordings';
+    if (!sectionMap.has(trackName)) sectionMap.set(trackName, []);
+    sectionMap.get(trackName)!.push({
+      session: formatStorageName(file.filename),
+      links: [{ label: 'Watch Recording', href: signed.signedUrl, isUrl: true, isVideo: true }],
+    });
+  }
+
+  return Array.from(sectionMap.entries()).map(([track, sessions]) => ({ track, sessions }));
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabaseUrl = process.env.SUPABASE_URL;
@@ -163,7 +231,9 @@ export async function POST(request: NextRequest) {
     }
 
     const csv = await sheetResponse.text();
-    const sections = recordingsFromCsv(csv);
+    const csvSections = recordingsFromCsv(csv);
+    const videoSections = await listBucketVideos(supabase);
+    const sections = [...csvSections, ...videoSections];
 
     return NextResponse.json({
       success: true,
