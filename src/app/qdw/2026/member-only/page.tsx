@@ -1853,7 +1853,8 @@ function RecordingsPanel({ sections, loading, error, updatedAt, onRefresh }: Rec
                 </svg>
               </a>
               <p className="text-sm text-gray-500 mt-1">
-                Links are pulled from the recordings spreadsheet and refresh as the sheet is updated. Please login with the account you registered to the zoom webinars. If that doesn't work, email us (quantum.ucla@gmail.com) your email address that works best 
+                Links are pulled from the recordings spreadsheet and refresh as the sheet is updated. Please login with the account you registered to the zoom webinars. If that doesn't work, email us (quantum.ucla@gmail.com) your email address that works best.
+                Also, the password for one of the wednesday sessions is Xe.P*+%2. 
               </p>
               {updatedAt && (
                 <p className="text-xs text-gray-600 mt-2">
