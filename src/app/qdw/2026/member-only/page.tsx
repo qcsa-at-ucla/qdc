@@ -69,7 +69,7 @@ const HFSS_INSTALL_LINKS = [
   },
 ];
 
-type MemberTab = 'info' | 'training' | 'advanced' | 'recordings' | 'slides' | 'hfss';
+type MemberTab = 'info' | 'training' | 'advanced' | 'recordings' | 'slides' | 'certificate' | 'hfss';
 type ZoomLink = { label: string; href: string };
 type RecordingLink = { label: string; href: string; isUrl: boolean; isVideo?: boolean };
 type RecordingSection = {
@@ -879,6 +879,7 @@ export default function MemberOnlyPage() {
               { id: 'advanced', label: 'Advanced Track',   icon: '🟣' },
               { id: 'recordings', label: 'Recordings',      icon: '🎥' },
               { id: 'slides',   label: 'Slides',           icon: '📄' },
+              { id: 'certificate', label: 'Certificate',    icon: '🏅' },
               { id: 'hfss',     label: 'HFSS Install',     icon: '💿' },
             ] as { id: MemberTab; label: string; icon: string }[]).map(tab => (
               <button
@@ -894,6 +895,8 @@ export default function MemberOnlyPage() {
                       ? 'border-blue-500 text-blue-300 bg-blue-900/20'
                       : tab.id === 'slides'
                       ? 'border-amber-500 text-amber-300 bg-amber-900/20'
+                      : tab.id === 'certificate'
+                      ? 'border-orange-500 text-orange-300 bg-orange-900/20'
                       : tab.id === 'hfss'
                       ? 'border-cyan-500 text-cyan-300 bg-cyan-900/20'
                       : 'border-indigo-400 text-indigo-200 bg-indigo-900/20'
@@ -1572,6 +1575,11 @@ export default function MemberOnlyPage() {
         />
       )}
 
+      {/* ── CERTIFICATE TAB ──────────────────────────────────────────── */}
+      {activeTab === 'certificate' && (
+        <CertificatePanel user={user} />
+      )}
+
       {/* ── HFSS INSTALL TAB ──────────────────────────────────────────── */}
       {activeTab === 'hfss' && (
         <div className="max-w-4xl mx-auto space-y-6">
@@ -1615,6 +1623,55 @@ export default function MemberOnlyPage() {
 
       </div>
       </div>
+    </div>
+  );
+}
+
+function CertificatePanel({ user }: { user: any }) {
+  const [imageError, setImageError] = useState(false);
+  const certificateUrl = `/api/qdw/certificate?email=${encodeURIComponent(user.email)}`;
+  const downloadUrl = `${certificateUrl}&download=true`;
+  const fullName = `${user?.first_name || ""} ${user?.last_name || ""}`.trim();
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div className="rounded-2xl border border-orange-500/40 bg-white/[0.03] p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-orange-900/20 text-orange-300 flex-shrink-0">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15.75l-4.243 2.231.81-4.724-3.432-3.345 4.743-.689L12 4.93l2.122 4.293 4.743.689-3.432 3.345.81 4.724L12 15.75z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-orange-400 text-xs font-semibold tracking-widest uppercase mb-1">Completion Certificate</p>
+              <h2 className="text-2xl font-bold text-white">QDW 2026 Certificate</h2>
+              <p className="text-sm text-gray-500 mt-1">Generated for {fullName} from the paid registration record.</p>
+            </div>
+          </div>
+          <a
+            href={downloadUrl}
+            className="self-start rounded-full bg-orange-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-orange-700"
+          >
+            Download PNG
+          </a>
+        </div>
+      </div>
+
+      {imageError ? (
+        <div className="rounded-2xl border border-red-500/40 bg-red-900/20 p-6 text-red-200">
+          Certificate preview could not be loaded. Please try downloading it again.
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-white/10 bg-[#0d0d1f] p-3 sm:p-4">
+          <img
+            src={certificateUrl}
+            alt={`QDW 2026 completion certificate for ${fullName}`}
+            className="w-full rounded-xl bg-white"
+            onError={() => setImageError(true)}
+          />
+        </div>
+      )}
     </div>
   );
 }
