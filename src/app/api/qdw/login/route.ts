@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
+import { createCertificateToken } from "@/lib/qdwCertificateToken";
 
 export const runtime = "nodejs";
 
@@ -74,6 +75,10 @@ export async function POST(req: Request) {
           project_description: user.project_description,
           poster_url: user.poster_url,
           cv_url: user.cv_url,
+          certificate_token: createCertificateToken({
+            email: user.email,
+            registrationId: String(user.id),
+          }),
           student_id_photo_url: user.student_id_photo_url,
           approval_status: user.approval_status,
           created_at: user.created_at,

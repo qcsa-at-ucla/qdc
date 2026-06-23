@@ -1,23 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { existsSync, readFileSync } from "fs";
+import { existsSync } from "fs";
 import path from "path";
-import * as opentype from "opentype.js";
 import sharp from "sharp";
+import { verifyCertificateToken } from "@/lib/qdwCertificateToken";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const DEFAULT_CERTIFICATE_BUCKET = "QDW-Certificate";
 const NAME_TEXT_COLOR = "#d69756";
+const NAME_FONT_FAMILY = "Georgia, 'Times New Roman', serif";
 const NAME_CENTER_X_RATIO = 0.5;
 const NAME_CENTER_Y_RATIO = 0.475;
-const NAME_MAX_WIDTH_RATIO = 0.44;
+const NAME_MAX_WIDTH_RATIO = 0.55;
 const BASE_FONT_SIZE_RATIO = 0.075;
 const MIN_FONT_SIZE_RATIO = 0.035;
-const NAME_FONT_PATH = path.join(process.cwd(), "public", "fonts", "great-vibes-latin-400-normal.woff");
-
-let cachedNameFont: opentype.Font | null = null;
 
 function escapedLikeEmail(email: string): string {
   return email.toLowerCase().replace(/%/g, "\\%").replace(/_/g, "\\_");
@@ -69,42 +67,15 @@ function escapeSvgText(value: string): string {
     .replace(/'/g, "&apos;");
 }
 
-function nameFont(): opentype.Font {
-  if (cachedNameFont) return cachedNameFont;
-
-  if (!existsSync(NAME_FONT_PATH)) {
-    throw new Error(`Certificate name font not found: ${NAME_FONT_PATH}`);
-  }
-
-  const fontBuffer = readFileSync(NAME_FONT_PATH);
-  const fontData = fontBuffer.buffer.slice(fontBuffer.byteOffset, fontBuffer.byteOffset + fontBuffer.byteLength);
-  cachedNameFont = opentype.parse(fontData);
-  return cachedNameFont;
-}
-
-function fittedFontSize(name: string, imageWidth: number, font: opentype.Font): number {
+function fittedFontSize(name: string, imageWidth: number): number {
   const baseSize = imageWidth * BASE_FONT_SIZE_RATIO;
   const minSize = imageWidth * MIN_FONT_SIZE_RATIO;
   const maxWidth = imageWidth * NAME_MAX_WIDTH_RATIO;
+  const estimatedWidth = name.length * baseSize * 0.5;
 
-  for (let fontSize = baseSize; fontSize >= minSize; fontSize -= 4) {
-    if (font.getAdvanceWidth(name, fontSize) <= maxWidth) return fontSize;
-  }
+  if (estimatedWidth <= maxWidth) return baseSize;
 
-  return minSize;
-}
-
-function namePathData(name: string, imageWidth: number, imageHeight: number): string {
-  const font = nameFont();
-  const fontSize = fittedFontSize(name, imageWidth, font);
-  const originPath = font.getPath(name, 0, 0, fontSize);
-  const bounds = originPath.getBoundingBox();
-  const textWidth = bounds.x2 - bounds.x1;
-  const textHeight = bounds.y2 - bounds.y1;
-  const x = imageWidth * NAME_CENTER_X_RATIO - textWidth / 2 - bounds.x1;
-  const y = imageHeight * NAME_CENTER_Y_RATIO - textHeight / 2 - bounds.y1;
-
-  return font.getPath(name, x, y, fontSize).toPathData(2);
+  return Math.max(minSize, Math.floor(maxWidth / Math.max(name.length * 0.5, 1)));
 }
 
 async function generateCertificatePng(name: string, templatePath: string): Promise<Buffer> {
@@ -115,10 +86,22 @@ async function generateCertificatePng(name: string, templatePath: string): Promi
     throw new Error("Certificate template dimensions could not be read");
   }
 
-  const pathData = namePathData(name, metadata.width, metadata.height);
+  const fontSize = fittedFontSize(name, metadata.width);
+  const centerX = metadata.width * NAME_CENTER_X_RATIO;
+  const centerY = metadata.height * NAME_CENTER_Y_RATIO;
   const svg = `
     <svg width="${metadata.width}" height="${metadata.height}" xmlns="http://www.w3.org/2000/svg">
-      <path d="${pathData}" fill="${NAME_TEXT_COLOR}" />
+      <text
+        x="${centerX}"
+        y="${centerY}"
+        fill="${NAME_TEXT_COLOR}"
+        font-family="${NAME_FONT_FAMILY}"
+        font-size="${fontSize}"
+        font-style="italic"
+        font-weight="700"
+        text-anchor="middle"
+        dominant-baseline="middle"
+      >${escapeSvgText(name)}</text>
     </svg>
   `;
 
@@ -130,11 +113,16 @@ async function generateCertificatePng(name: string, templatePath: string): Promi
 
 export async function GET(request: NextRequest) {
   try {
-    const email = request.nextUrl.searchParams.get("email")?.trim();
+    const token = request.nextUrl.searchParams.get("token")?.trim();
     const shouldDownload = request.nextUrl.searchParams.get("download") === "true";
 
-    if (!email) {
-      return new NextResponse("Email is required", { status: 400 });
+    if (!token) {
+      return new NextResponse("Certificate token is required", { status: 400 });
+    }
+
+    const tokenPayload = verifyCertificateToken(token);
+    if (!tokenPayload) {
+      return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const supabaseUrl = process.env.SUPABASE_URL;
@@ -149,7 +137,8 @@ export async function GET(request: NextRequest) {
     const { data: member, error: memberError } = await supabase
       .from("qdw_registrations")
       .select("id, first_name, last_name")
-      .ilike("email", escapedLikeEmail(email))
+      .eq("id", tokenPayload.registrationId)
+      .ilike("email", escapedLikeEmail(tokenPayload.email))
       .eq("payment_status", "paid")
       .maybeSingle();
 

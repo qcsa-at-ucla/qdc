@@ -1629,9 +1629,14 @@ export default function MemberOnlyPage() {
 
 function CertificatePanel({ user }: { user: any }) {
   const [imageError, setImageError] = useState(false);
-  const certificateUrl = `/api/qdw/certificate?email=${encodeURIComponent(user.email)}`;
-  const downloadUrl = `${certificateUrl}&download=true`;
+  const certificateToken = user?.certificate_token || "";
+  const certificateUrl = certificateToken ? `/api/qdw/certificate?token=${encodeURIComponent(certificateToken)}` : "";
+  const downloadUrl = certificateToken ? `${certificateUrl}&download=true` : "#";
   const fullName = `${user?.first_name || ""} ${user?.last_name || ""}`.trim();
+
+  useEffect(() => {
+    setImageError(false);
+  }, [certificateToken]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -1651,6 +1656,7 @@ function CertificatePanel({ user }: { user: any }) {
           </div>
           <a
             href={downloadUrl}
+            aria-disabled={!certificateToken}
             className="self-start rounded-full bg-orange-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-orange-700"
           >
             Download PNG
@@ -1658,9 +1664,9 @@ function CertificatePanel({ user }: { user: any }) {
         </div>
       </div>
 
-      {imageError ? (
+      {!certificateToken || imageError ? (
         <div className="rounded-2xl border border-red-500/40 bg-red-900/20 p-6 text-red-200">
-          Certificate preview could not be loaded. Please try downloading it again.
+          Certificate preview could not be loaded. Please sign out and sign in again.
         </div>
       ) : (
         <div className="rounded-2xl border border-white/10 bg-[#0d0d1f] p-3 sm:p-4">
