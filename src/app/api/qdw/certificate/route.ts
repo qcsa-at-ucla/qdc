@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import path from "path";
+import * as opentype from "opentype.js";
 import sharp from "sharp";
 
 export const runtime = "nodejs";
@@ -14,6 +15,9 @@ const NAME_CENTER_Y_RATIO = 0.475;
 const NAME_MAX_WIDTH_RATIO = 0.44;
 const BASE_FONT_SIZE_RATIO = 0.075;
 const MIN_FONT_SIZE_RATIO = 0.035;
+const NAME_FONT_PATH = path.join(process.cwd(), "public", "fonts", "great-vibes-latin-400-normal.woff");
+
+let cachedNameFont: opentype.Font | null = null;
 
 function escapedLikeEmail(email: string): string {
   return email.toLowerCase().replace(/%/g, "\\%").replace(/_/g, "\\_");
@@ -65,15 +69,42 @@ function escapeSvgText(value: string): string {
     .replace(/'/g, "&apos;");
 }
 
-function fittedFontSize(name: string, imageWidth: number): number {
+function nameFont(): opentype.Font {
+  if (cachedNameFont) return cachedNameFont;
+
+  if (!existsSync(NAME_FONT_PATH)) {
+    throw new Error(`Certificate name font not found: ${NAME_FONT_PATH}`);
+  }
+
+  const fontBuffer = readFileSync(NAME_FONT_PATH);
+  const fontData = fontBuffer.buffer.slice(fontBuffer.byteOffset, fontBuffer.byteOffset + fontBuffer.byteLength);
+  cachedNameFont = opentype.parse(fontData);
+  return cachedNameFont;
+}
+
+function fittedFontSize(name: string, imageWidth: number, font: opentype.Font): number {
   const baseSize = imageWidth * BASE_FONT_SIZE_RATIO;
   const minSize = imageWidth * MIN_FONT_SIZE_RATIO;
   const maxWidth = imageWidth * NAME_MAX_WIDTH_RATIO;
-  const estimatedWidth = name.length * baseSize * 0.48;
 
-  if (estimatedWidth <= maxWidth) return baseSize;
+  for (let fontSize = baseSize; fontSize >= minSize; fontSize -= 4) {
+    if (font.getAdvanceWidth(name, fontSize) <= maxWidth) return fontSize;
+  }
 
-  return Math.max(minSize, Math.floor((maxWidth / Math.max(name.length * 0.48, 1))));
+  return minSize;
+}
+
+function namePathData(name: string, imageWidth: number, imageHeight: number): string {
+  const font = nameFont();
+  const fontSize = fittedFontSize(name, imageWidth, font);
+  const originPath = font.getPath(name, 0, 0, fontSize);
+  const bounds = originPath.getBoundingBox();
+  const textWidth = bounds.x2 - bounds.x1;
+  const textHeight = bounds.y2 - bounds.y1;
+  const x = imageWidth * NAME_CENTER_X_RATIO - textWidth / 2 - bounds.x1;
+  const y = imageHeight * NAME_CENTER_Y_RATIO - textHeight / 2 - bounds.y1;
+
+  return font.getPath(name, x, y, fontSize).toPathData(2);
 }
 
 async function generateCertificatePng(name: string, templatePath: string): Promise<Buffer> {
@@ -84,21 +115,10 @@ async function generateCertificatePng(name: string, templatePath: string): Promi
     throw new Error("Certificate template dimensions could not be read");
   }
 
-  const fontSize = fittedFontSize(name, metadata.width);
-  const centerX = metadata.width * NAME_CENTER_X_RATIO;
-  const centerY = metadata.height * NAME_CENTER_Y_RATIO;
+  const pathData = namePathData(name, metadata.width, metadata.height);
   const svg = `
     <svg width="${metadata.width}" height="${metadata.height}" xmlns="http://www.w3.org/2000/svg">
-      <style>
-        .name {
-          fill: ${NAME_TEXT_COLOR};
-          font-family: "Brush Script MT", "Segoe Script", "Snell Roundhand", "Apple Chancery", cursive;
-          font-size: ${fontSize}px;
-          font-style: italic;
-          font-weight: 400;
-        }
-      </style>
-      <text class="name" x="${centerX}" y="${centerY}" text-anchor="middle" dominant-baseline="middle">${escapeSvgText(name)}</text>
+      <path d="${pathData}" fill="${NAME_TEXT_COLOR}" />
     </svg>
   `;
 
