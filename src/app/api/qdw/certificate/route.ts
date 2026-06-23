@@ -11,6 +11,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const execFileAsync = promisify(execFile);
+const DEFAULT_CERTIFICATE_BUCKET = "QDW-Certificate";
 
 function escapedLikeEmail(email: string): string {
   return email.toLowerCase().replace(/%/g, "\\%").replace(/_/g, "\\_");
@@ -78,9 +79,9 @@ export async function GET(request: NextRequest) {
 
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
-    const certificateBucket = process.env.QDW_CERTIFICATE_BUCKET;
+    const certificateBucket = process.env.QDW_CERTIFICATE_BUCKET || DEFAULT_CERTIFICATE_BUCKET;
 
-    if (!supabaseUrl || !supabaseKey || !certificateBucket) {
+    if (!supabaseUrl || !supabaseKey) {
       return new NextResponse("Server misconfigured", { status: 500 });
     }
 
