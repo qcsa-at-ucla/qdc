@@ -103,7 +103,10 @@ function namePathData(name: string, imageWidth: number, imageHeight: number): st
     const position = run.positions[index];
     const glyphX = cursorX + position.xOffset * scale;
     const glyphY = baselineY + position.yOffset * scale;
-    paths.push(glyph.path.scale(scale, -scale).translate(glyphX, glyphY).toSVG());
+    const pathInSvgCoordinates = (glyph.path.scale(scale) as fontkit.GlyphPath & {
+      transform(m0: number, m1: number, m2: number, m3: number, m4: number, m5: number): fontkit.GlyphPath;
+    }).transform(1, 0, 0, -1, glyphX, glyphY);
+    paths.push(pathInSvgCoordinates.toSVG());
     cursorX += position.xAdvance * scale;
   }
 
