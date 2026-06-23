@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import path from "path";
 import sharp from "sharp";
 import { verifyCertificateToken } from "@/lib/qdwCertificateToken";
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 const DEFAULT_CERTIFICATE_BUCKET = "QDW-Certificate";
 const NAME_TEXT_COLOR = "#d69756";
-const NAME_FONT_FAMILY = "Georgia, 'Times New Roman', serif";
+const NAME_FONT_FAMILY = "GreatVibes, Georgia, 'Times New Roman', serif";
 const NAME_CENTER_X_RATIO = 0.5;
 const NAME_CENTER_Y_RATIO = 0.475;
 const NAME_MAX_WIDTH_RATIO = 0.55;
@@ -78,6 +78,15 @@ function fittedFontSize(name: string, imageWidth: number): number {
   return Math.max(minSize, Math.floor(maxWidth / Math.max(name.length * 0.5, 1)));
 }
 
+function loadFontBase64(): string | null {
+  try {
+    const fontPath = path.join(process.cwd(), "public", "fonts", "GreatVibes-Regular.ttf");
+    return readFileSync(fontPath).toString("base64");
+  } catch {
+    return null;
+  }
+}
+
 async function generateCertificatePng(name: string, templatePath: string): Promise<Buffer> {
   const image = sharp(templatePath);
   const metadata = await image.metadata();
@@ -89,16 +98,23 @@ async function generateCertificatePng(name: string, templatePath: string): Promi
   const fontSize = fittedFontSize(name, metadata.width);
   const centerX = metadata.width * NAME_CENTER_X_RATIO;
   const centerY = metadata.height * NAME_CENTER_Y_RATIO;
+
+  const fontBase64 = loadFontBase64();
+  const fontFaceBlock = fontBase64
+    ? `<defs><style>@font-face{font-family:'GreatVibes';src:url('data:font/truetype;base64,${fontBase64}')format('truetype');font-style:normal;font-weight:normal;}</style></defs>`
+    : "";
+
   const svg = `
     <svg width="${metadata.width}" height="${metadata.height}" xmlns="http://www.w3.org/2000/svg">
+      ${fontFaceBlock}
       <text
         x="${centerX}"
         y="${centerY}"
         fill="${NAME_TEXT_COLOR}"
         font-family="${NAME_FONT_FAMILY}"
         font-size="${fontSize}"
-        font-style="italic"
-        font-weight="700"
+        font-style="normal"
+        font-weight="normal"
         text-anchor="middle"
         dominant-baseline="middle"
       >${escapeSvgText(name)}</text>
