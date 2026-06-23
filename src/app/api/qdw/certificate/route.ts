@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { execFile } from "child_process";
-import { randomUUID } from "crypto";
-import { existsSync, promises as fs } from "fs";
-import os from "os";
+import { existsSync } from "fs";
 import path from "path";
-import { promisify } from "util";
+import sharp from "sharp";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const execFileAsync = promisify(execFile);
 const DEFAULT_CERTIFICATE_BUCKET = "QDW-Certificate";
+const NAME_TEXT_COLOR = "#d69756";
+const NAME_CENTER_X_RATIO = 0.5;
+const NAME_CENTER_Y_RATIO = 0.475;
+const NAME_MAX_WIDTH_RATIO = 0.44;
+const BASE_FONT_SIZE_RATIO = 0.075;
+const MIN_FONT_SIZE_RATIO = 0.035;
 
 function escapedLikeEmail(email: string): string {
   return email.toLowerCase().replace(/%/g, "\\%").replace(/_/g, "\\_");
@@ -45,18 +47,6 @@ function displayName(firstName: string | null, lastName: string | null): string 
     .join(" ");
 }
 
-function pythonCommand(): string {
-  if (process.env.QDW_CERTIFICATE_PYTHON) return process.env.QDW_CERTIFICATE_PYTHON;
-
-  const localVenvPython = process.platform === "win32"
-    ? path.join(process.cwd(), ".venv", "Scripts", "python.exe")
-    : path.join(process.cwd(), ".venv", "bin", "python");
-
-  if (existsSync(localVenvPython)) return localVenvPython;
-
-  return process.platform === "win32" ? "python" : "python3";
-}
-
 function certificateTemplatePath(): string {
   if (process.env.QDW_CERTIFICATE_TEMPLATE) return process.env.QDW_CERTIFICATE_TEMPLATE;
 
@@ -66,9 +56,59 @@ function certificateTemplatePath(): string {
   return path.join(process.cwd(), "example_certificate.png");
 }
 
-export async function GET(request: NextRequest) {
-  const tmpPath = path.join(os.tmpdir(), `qdw-certificate-${randomUUID()}.png`);
+function escapeSvgText(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
 
+function fittedFontSize(name: string, imageWidth: number): number {
+  const baseSize = imageWidth * BASE_FONT_SIZE_RATIO;
+  const minSize = imageWidth * MIN_FONT_SIZE_RATIO;
+  const maxWidth = imageWidth * NAME_MAX_WIDTH_RATIO;
+  const estimatedWidth = name.length * baseSize * 0.48;
+
+  if (estimatedWidth <= maxWidth) return baseSize;
+
+  return Math.max(minSize, Math.floor((maxWidth / Math.max(name.length * 0.48, 1))));
+}
+
+async function generateCertificatePng(name: string, templatePath: string): Promise<Buffer> {
+  const image = sharp(templatePath);
+  const metadata = await image.metadata();
+
+  if (!metadata.width || !metadata.height) {
+    throw new Error("Certificate template dimensions could not be read");
+  }
+
+  const fontSize = fittedFontSize(name, metadata.width);
+  const centerX = metadata.width * NAME_CENTER_X_RATIO;
+  const centerY = metadata.height * NAME_CENTER_Y_RATIO;
+  const svg = `
+    <svg width="${metadata.width}" height="${metadata.height}" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        .name {
+          fill: ${NAME_TEXT_COLOR};
+          font-family: "Brush Script MT", "Segoe Script", "Snell Roundhand", "Apple Chancery", cursive;
+          font-size: ${fontSize}px;
+          font-style: italic;
+          font-weight: 400;
+        }
+      </style>
+      <text class="name" x="${centerX}" y="${centerY}" text-anchor="middle" dominant-baseline="middle">${escapeSvgText(name)}</text>
+    </svg>
+  `;
+
+  return image
+    .composite([{ input: Buffer.from(svg), top: 0, left: 0 }])
+    .png()
+    .toBuffer();
+}
+
+export async function GET(request: NextRequest) {
   try {
     const email = request.nextUrl.searchParams.get("email")?.trim();
     const shouldDownload = request.nextUrl.searchParams.get("download") === "true";
@@ -107,16 +147,8 @@ export async function GET(request: NextRequest) {
       return new NextResponse("Registration name is missing", { status: 400 });
     }
 
-    const scriptPath = path.join(process.cwd(), "scripts", "generate_certificate.py");
     const templatePath = certificateTemplatePath();
-
-    await execFileAsync(
-      pythonCommand(),
-      [scriptPath, "--name", fullName, "--template", templatePath, "--output", tmpPath],
-      { cwd: process.cwd(), timeout: 15000 }
-    );
-
-    const png = await fs.readFile(tmpPath);
+    const png = await generateCertificatePng(fullName, templatePath);
     const objectPath = certificateObjectPath(String(member.id), fullName);
 
     if (shouldDownload) {
@@ -146,7 +178,5 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Certificate generation failed:", error);
     return new NextResponse("Failed to generate certificate", { status: 500 });
-  } finally {
-    await fs.unlink(tmpPath).catch(() => undefined);
   }
 }
