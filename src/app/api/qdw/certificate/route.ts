@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { existsSync, readFileSync } from "fs";
+import { existsSync } from "fs";
+import * as fontkit from "fontkit";
 import path from "path";
 import sharp from "sharp";
 import { verifyCertificateToken } from "@/lib/qdwCertificateToken";
@@ -10,12 +11,14 @@ export const dynamic = "force-dynamic";
 
 const DEFAULT_CERTIFICATE_BUCKET = "QDW-Certificate";
 const NAME_TEXT_COLOR = "#d69756";
-const NAME_FONT_FAMILY = "GreatVibes, Georgia, 'Times New Roman', serif";
 const NAME_CENTER_X_RATIO = 0.5;
 const NAME_CENTER_Y_RATIO = 0.475;
 const NAME_MAX_WIDTH_RATIO = 0.55;
 const BASE_FONT_SIZE_RATIO = 0.075;
 const MIN_FONT_SIZE_RATIO = 0.035;
+const NAME_FONT_PATH = path.join(process.cwd(), "public", "fonts", "GreatVibes-Regular.ttf");
+
+let cachedNameFont: fontkit.Font | null = null;
 
 function escapedLikeEmail(email: string): string {
   return email.toLowerCase().replace(/%/g, "\\%").replace(/_/g, "\\_");
@@ -58,33 +61,53 @@ function certificateTemplatePath(): string {
   return path.join(process.cwd(), "example_certificate.png");
 }
 
-function escapeSvgText(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
+function nameFont(): fontkit.Font {
+  if (cachedNameFont) return cachedNameFont;
+
+  if (!existsSync(NAME_FONT_PATH)) {
+    throw new Error(`Certificate name font not found: ${NAME_FONT_PATH}`);
+  }
+
+  cachedNameFont = fontkit.openSync(NAME_FONT_PATH) as fontkit.Font;
+  return cachedNameFont;
 }
 
-function fittedFontSize(name: string, imageWidth: number): number {
+function fittedFontSize(name: string, imageWidth: number, font: fontkit.Font): number {
   const baseSize = imageWidth * BASE_FONT_SIZE_RATIO;
   const minSize = imageWidth * MIN_FONT_SIZE_RATIO;
   const maxWidth = imageWidth * NAME_MAX_WIDTH_RATIO;
-  const estimatedWidth = name.length * baseSize * 0.5;
 
-  if (estimatedWidth <= maxWidth) return baseSize;
+  for (let fontSize = baseSize; fontSize >= minSize; fontSize -= 4) {
+    const run = font.layout(name);
+    const width = run.advanceWidth * (fontSize / font.unitsPerEm);
+    if (width <= maxWidth) return fontSize;
+  }
 
-  return Math.max(minSize, Math.floor(maxWidth / Math.max(name.length * 0.5, 1)));
+  return minSize;
 }
 
-function loadFontBase64(): string | null {
-  try {
-    const fontPath = path.join(process.cwd(), "public", "fonts", "GreatVibes-Regular.ttf");
-    return readFileSync(fontPath).toString("base64");
-  } catch {
-    return null;
+function namePathData(name: string, imageWidth: number, imageHeight: number): string {
+  const font = nameFont();
+  const fontSize = fittedFontSize(name, imageWidth, font);
+  const scale = fontSize / font.unitsPerEm;
+  const run = font.layout(name);
+  const textWidth = run.advanceWidth * scale;
+  const textHeight = (run.bbox.maxY - run.bbox.minY) * scale;
+  const startX = imageWidth * NAME_CENTER_X_RATIO - textWidth / 2;
+  const baselineY = imageHeight * NAME_CENTER_Y_RATIO + textHeight / 2 + run.bbox.minY * scale;
+  let cursorX = startX;
+  const paths: string[] = [];
+
+  for (let index = 0; index < run.glyphs.length; index++) {
+    const glyph = run.glyphs[index];
+    const position = run.positions[index];
+    const glyphX = cursorX + position.xOffset * scale;
+    const glyphY = baselineY + position.yOffset * scale;
+    paths.push(glyph.path.scale(scale, -scale).translate(glyphX, glyphY).toSVG());
+    cursorX += position.xAdvance * scale;
   }
+
+  return paths.join("");
 }
 
 async function generateCertificatePng(name: string, templatePath: string): Promise<Buffer> {
@@ -95,29 +118,11 @@ async function generateCertificatePng(name: string, templatePath: string): Promi
     throw new Error("Certificate template dimensions could not be read");
   }
 
-  const fontSize = fittedFontSize(name, metadata.width);
-  const centerX = metadata.width * NAME_CENTER_X_RATIO;
-  const centerY = metadata.height * NAME_CENTER_Y_RATIO;
-
-  const fontBase64 = loadFontBase64();
-  const fontFaceBlock = fontBase64
-    ? `<defs><style>@font-face{font-family:'GreatVibes';src:url('data:font/truetype;base64,${fontBase64}')format('truetype');font-style:normal;font-weight:normal;}</style></defs>`
-    : "";
+  const pathData = namePathData(name, metadata.width, metadata.height);
 
   const svg = `
     <svg width="${metadata.width}" height="${metadata.height}" xmlns="http://www.w3.org/2000/svg">
-      ${fontFaceBlock}
-      <text
-        x="${centerX}"
-        y="${centerY}"
-        fill="${NAME_TEXT_COLOR}"
-        font-family="${NAME_FONT_FAMILY}"
-        font-size="${fontSize}"
-        font-style="normal"
-        font-weight="normal"
-        text-anchor="middle"
-        dominant-baseline="middle"
-      >${escapeSvgText(name)}</text>
+      <path d="${pathData}" fill="${NAME_TEXT_COLOR}" />
     </svg>
   `;
 
