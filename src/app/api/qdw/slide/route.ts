@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const BUCKET = "QDW-SLIDES";
-const SIGNED_URL_TTL = 60;
 const ALLOWED_PREFIXES = ["Training/", "Advanced/"];
 
 function isAllowedPdfPath(path: string): boolean {
@@ -13,6 +13,11 @@ function isAllowedPdfPath(path: string): boolean {
 
 function safeFilename(path: string): string {
   return (path.split("/").pop() || "slides.pdf").replace(/[\r\n"]/g, "");
+}
+
+function storageObjectUrl(supabaseUrl: string, path: string): string {
+  const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+  return `${supabaseUrl.replace(/\/$/, "")}/storage/v1/object/${encodeURIComponent(BUCKET)}/${encodedPath}`;
 }
 
 export async function GET(request: NextRequest) {
@@ -49,21 +54,20 @@ export async function GET(request: NextRequest) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const { data: signed, error: signError } = await supabase.storage
-      .from(BUCKET)
-      .createSignedUrl(path, SIGNED_URL_TTL);
+    const rangeHeader = request.headers.get("range");
+    const fetchHeaders: Record<string, string> = {
+      apikey: supabaseKey,
+      Authorization: `Bearer ${supabaseKey}`,
+    };
+    if (rangeHeader) fetchHeaders.Range = rangeHeader;
 
-    if (signError || !signed?.signedUrl) {
+    const upstream = await fetch(storageObjectUrl(supabaseUrl, path), { headers: fetchHeaders });
+
+    if (upstream.status === 404) {
       return new NextResponse("Slide not found", { status: 404 });
     }
 
-    const rangeHeader = request.headers.get("range");
-    const fetchHeaders: Record<string, string> = {};
-    if (rangeHeader) fetchHeaders.Range = rangeHeader;
-
-    const upstream = await fetch(signed.signedUrl, { headers: fetchHeaders });
-
-    if (!upstream.ok && upstream.status !== 206) {
+    if (!upstream.ok && upstream.status !== 206 && upstream.status !== 416) {
       return new NextResponse("Failed to fetch slide", { status: 502 });
     }
 
