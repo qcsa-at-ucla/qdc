@@ -1687,7 +1687,15 @@ function VideoLink({ link }: { link: RecordingLink }) {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [tokenLoading, setTokenLoading] = useState(false);
   const [tokenError, setTokenError] = useState("");
+  const [hasRetriedPlayback, setHasRetriedPlayback] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const fetchVideoUrl = async () => {
+    const res = await fetch(link.href, { cache: "no-store" });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to load video");
+    setVideoSrc(data.url);
+  };
 
   const handleOpen = async () => {
     if (open) {
@@ -1696,11 +1704,9 @@ function VideoLink({ link }: { link: RecordingLink }) {
     }
     setTokenLoading(true);
     setTokenError("");
+    setHasRetriedPlayback(false);
     try {
-      const res = await fetch(link.href, { cache: "no-store" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to load video");
-      setVideoSrc(data.url);
+      await fetchVideoUrl();
       setOpen(true);
     } catch (err: any) {
       setTokenError(err.message || "Failed to load video");
@@ -1713,6 +1719,25 @@ function VideoLink({ link }: { link: RecordingLink }) {
     const el = videoRef.current;
     if (!el) return;
     if (el.requestFullscreen) el.requestFullscreen();
+  };
+
+  const handlePlaybackError = async () => {
+    if (hasRetriedPlayback || tokenLoading) {
+      setTokenError("Video playback failed. Please refresh the recording link and try again.");
+      return;
+    }
+
+    setHasRetriedPlayback(true);
+    setTokenLoading(true);
+    setTokenError("");
+    try {
+      await fetchVideoUrl();
+      setTimeout(() => videoRef.current?.load(), 0);
+    } catch (err: any) {
+      setTokenError(err.message || "Failed to refresh video access");
+    } finally {
+      setTokenLoading(false);
+    }
   };
 
   return (
@@ -1757,6 +1782,7 @@ function VideoLink({ link }: { link: RecordingLink }) {
             playsInline
             controlsList="nodownload"
             onContextMenu={(e) => e.preventDefault()}
+            onError={handlePlaybackError}
             className="w-full max-h-[480px]"
           >
             <source src={videoSrc} type="video/mp4" />

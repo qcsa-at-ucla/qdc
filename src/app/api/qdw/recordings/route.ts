@@ -220,16 +220,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Recordings are only available to paid attendees" }, { status: 401 });
     }
 
-    const csvUrl = process.env.QDW_RECORDINGS_CSV_URL || DEFAULT_RECORDINGS_CSV_URL;
-    const sheetResponse = await fetch(csvUrl, { cache: "no-store" });
+    const videoSections = await listBucketVideos(supabase, email);
+    let csvSections: RecordingSection[] = [];
 
-    if (!sheetResponse.ok) {
-      return NextResponse.json({ error: "Failed to load recordings sheet" }, { status: 502 });
+    try {
+      const csvUrl = process.env.QDW_RECORDINGS_CSV_URL || DEFAULT_RECORDINGS_CSV_URL;
+      const sheetResponse = await fetch(csvUrl, { cache: "no-store" });
+
+      if (sheetResponse.ok) {
+        const csv = await sheetResponse.text();
+        csvSections = recordingsFromCsv(csv);
+      } else {
+        console.error("Failed to load recordings sheet:", sheetResponse.status, sheetResponse.statusText);
+      }
+    } catch (sheetError) {
+      console.error("Failed to load recordings sheet:", sheetError);
     }
 
-    const csv = await sheetResponse.text();
-    const csvSections = recordingsFromCsv(csv);
-    const videoSections = await listBucketVideos(supabase, email);
     const sections = [...videoSections, ...csvSections];
 
     return NextResponse.json({
