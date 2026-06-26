@@ -1690,11 +1690,9 @@ function VideoLink({ link }: { link: RecordingLink }) {
   const [hasRetriedPlayback, setHasRetriedPlayback] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const fetchVideoUrl = async () => {
-    const res = await fetch(link.href, { cache: "no-store" });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Failed to load video");
-    setVideoSrc(data.url);
+  const refreshVideoUrl = () => {
+    const separator = link.href.includes("?") ? "&" : "?";
+    setVideoSrc(`${link.href}${separator}t=${Date.now()}`);
   };
 
   const handleOpen = async () => {
@@ -1706,7 +1704,7 @@ function VideoLink({ link }: { link: RecordingLink }) {
     setTokenError("");
     setHasRetriedPlayback(false);
     try {
-      await fetchVideoUrl();
+      refreshVideoUrl();
       setOpen(true);
     } catch (err: any) {
       setTokenError(err.message || "Failed to load video");
@@ -1731,7 +1729,7 @@ function VideoLink({ link }: { link: RecordingLink }) {
     setTokenLoading(true);
     setTokenError("");
     try {
-      await fetchVideoUrl();
+      refreshVideoUrl();
       setTimeout(() => videoRef.current?.load(), 0);
     } catch (err: any) {
       setTokenError(err.message || "Failed to refresh video access");
