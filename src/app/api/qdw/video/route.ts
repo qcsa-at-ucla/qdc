@@ -5,9 +5,15 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const BUCKET = "QDW-Videos";
+const ALLOWED_VIDEO_EXTENSIONS = [".mp4", ".mov"];
 
 function isAllowedVideoPath(path: string): boolean {
-  return path.toLowerCase().endsWith(".mp4") && !path.includes("..") && !path.startsWith("/");
+  const lowerPath = path.toLowerCase();
+  return ALLOWED_VIDEO_EXTENSIONS.some((extension) => lowerPath.endsWith(extension)) && !path.includes("..") && !path.startsWith("/");
+}
+
+function defaultContentType(path: string): string {
+  return path.toLowerCase().endsWith(".mov") ? "video/quicktime" : "video/mp4";
 }
 
 function safeFilename(path: string): string {
@@ -78,7 +84,7 @@ export async function GET(request: NextRequest) {
       if (value) headers.set(header, value);
     }
 
-    headers.set("Content-Type", upstream.headers.get("content-type") || "video/mp4");
+    headers.set("Content-Type", upstream.headers.get("content-type") || defaultContentType(path));
     headers.set("Content-Disposition", `inline; filename="${safeFilename(path)}"`);
     headers.set("Cache-Control", "private, no-store");
     headers.set("X-Content-Type-Options", "nosniff");

@@ -131,6 +131,11 @@ function formatStorageName(name: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+function isVideoFile(name: string): boolean {
+  const lowerName = name.toLowerCase();
+  return lowerName.endsWith('.mp4') || lowerName.endsWith('.mov');
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function listBucketVideos(supabase: any, email: string): Promise<RecordingSection[]> {
   const BUCKET = 'QDW-Videos';
@@ -148,7 +153,7 @@ async function listBucketVideos(supabase: any, email: string): Promise<Recording
   for (const item of rootItems) {
     if (item.id === null) {
       folders.push(item.name);
-    } else if (item.name.toLowerCase().endsWith('.mp4')) {
+    } else if (isVideoFile(item.name)) {
       files.push({ path: item.name, folder: '', filename: item.name });
     }
   }
@@ -159,7 +164,7 @@ async function listBucketVideos(supabase: any, email: string): Promise<Recording
       .list(folder, { limit: 1000, sortBy: { column: 'name', order: 'asc' } });
     if (!folderItems) continue;
     for (const item of folderItems) {
-      if (item.id !== null && item.name.toLowerCase().endsWith('.mp4')) {
+      if (item.id !== null && isVideoFile(item.name)) {
         files.push({ path: `${folder}/${item.name}`, folder, filename: item.name });
       }
     }

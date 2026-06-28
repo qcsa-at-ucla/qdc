@@ -1783,7 +1783,7 @@ function VideoLink({ link }: { link: RecordingLink }) {
             onError={handlePlaybackError}
             className="w-full max-h-[480px]"
           >
-            <source src={videoSrc} type="video/mp4" />
+            <source src={videoSrc} />
             Your browser does not support video playback.
           </video>
         </div>
