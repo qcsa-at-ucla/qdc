@@ -16,6 +16,7 @@ interface PosterRecord {
   poster_url: string | null;
   approved_at: string | null;
   created_at: string;
+  updated_at: string | null;
 }
 
 export async function GET() {
@@ -32,7 +33,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from("qdw_registrations")
       .select(
-        "id, first_name, last_name, designation, location, registration_type, project_title, project_description, poster_url, approved_at, created_at"
+        "id, first_name, last_name, designation, location, registration_type, project_title, project_description, poster_url, approved_at, created_at, updated_at"
       )
       .in("registration_type", ["student_in_person", "student_online", "professional_in_person", "professional_online"])
       .eq("payment_status", "paid")
@@ -57,14 +58,22 @@ export async function GET() {
         hasPoster: Boolean(entry.poster_url),
         approvedAt: entry.approved_at,
         createdAt: entry.created_at,
+        updatedAt: entry.updated_at || entry.created_at,
       }))
       .filter((entry) => entry.hasPoster);
 
-    return NextResponse.json({
-      success: true,
-      count: posters.length,
-      posters,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        count: posters.length,
+        posters,
+      },
+      {
+        headers: {
+          "Cache-Control": "public, max-age=300, s-maxage=300, stale-while-revalidate=3600",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error in posters API:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

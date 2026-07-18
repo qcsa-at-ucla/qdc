@@ -69,9 +69,7 @@ export async function GET(request: NextRequest) {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `inline; filename="cv.pdf"`,
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        "Pragma": "no-cache",
-        "Expires": "0",
+        "Cache-Control": "private, max-age=3600, stale-while-revalidate=86400",
       },
     });
   } catch (error) {

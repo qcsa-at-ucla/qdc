@@ -15,6 +15,7 @@ interface PosterEntry {
   hasPoster?: boolean;
   approvedAt: string | null;
   createdAt: string;
+  updatedAt: string;
 }
 
 function formatRegistrationType(type: string): string {
@@ -41,7 +42,6 @@ export default function QDW2026PostersPage() {
       try {
         const response = await fetch('/api/qdw/posters', {
           method: 'GET',
-          cache: 'no-store',
         });
 
         const data = await response.json();
@@ -170,12 +170,11 @@ export default function QDW2026PostersPage() {
                   </div>
                   <div className="w-32 h-20 shrink-0 rounded-lg border border-white/15 bg-black/40 overflow-hidden">
                     {entry.hasPoster && !['abhishek rakshit', 'richard ho', 'varun ramaprasad'].includes(entry.name.toLowerCase()) && (
-                      <iframe
-                        title={`${entry.projectTitle} poster preview`}
-                        src={`/api/qdw/view-poster?id=${encodeURIComponent(entry.id)}#page=1&view=FitH`}
-                        className="w-full h-full pointer-events-none"
-                        loading="lazy"
-                      />
+                      <div className="flex h-full items-center justify-center text-purple-200">
+                        <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M7 3h7l5 5v13H7V3zm7 0v6h5M9 14h6M9 17h6M9 11h2" />
+                        </svg>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -183,7 +182,7 @@ export default function QDW2026PostersPage() {
                 <div className="mt-5 flex items-center justify-between">
                   {!['abhishek rakshit', 'richard ho', 'varun ramaprasad'].includes(entry.name.toLowerCase()) && (
                     <Link
-                      href={`/api/qdw/view-poster?id=${encodeURIComponent(entry.id)}&t=${Date.now()}`}
+                      href={`/api/qdw/view-poster?id=${encodeURIComponent(entry.id)}&v=${encodeURIComponent(entry.updatedAt)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center rounded-full bg-purple-500 hover:bg-purple-600 transition-colors px-4 py-2 text-sm font-semibold text-white"

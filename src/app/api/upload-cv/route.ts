@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
           apikey: supabaseKey,
           'Content-Type': 'application/pdf',
           'x-upsert': 'true',
+          'cache-control': 'private, max-age=31536000, immutable',
         },
         body: bytes,
       }

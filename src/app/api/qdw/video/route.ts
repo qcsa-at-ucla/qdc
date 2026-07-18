@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
 
     headers.set("Content-Type", upstream.headers.get("content-type") || defaultContentType(path));
     headers.set("Content-Disposition", `inline; filename="${safeFilename(path)}"`);
-    headers.set("Cache-Control", "private, no-store");
+  headers.set("Cache-Control", "private, max-age=86400, stale-while-revalidate=604800");
     headers.set("X-Content-Type-Options", "nosniff");
 
     return new NextResponse(upstream.body, {

@@ -904,7 +904,7 @@ export default function AdminDashboard() {
                         <a
                           href={`/api/qdw/view-cv?email=${encodeURIComponent(
                             applicant.email
-                          )}&t=${Date.now()}`}
+                          )}&v=${encodeURIComponent(applicant.cvUrl)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block text-purple-600 hover:text-purple-700 text-sm font-medium"
@@ -916,7 +916,7 @@ export default function AdminDashboard() {
                         <a
                           href={`/api/qdw/view-poster?email=${encodeURIComponent(
                             applicant.email
-                          )}&t=${Date.now()}`}
+                          )}&v=${encodeURIComponent(applicant.posterUrl)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block text-purple-600 hover:text-purple-700 text-sm font-medium"
@@ -928,7 +928,7 @@ export default function AdminDashboard() {
                         <a
                           href={`/api/qdw/view-student-id?email=${encodeURIComponent(
                             applicant.email
-                          )}&t=${Date.now()}`}
+                          )}&v=${encodeURIComponent(applicant.studentIdPhotoUrl)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block text-purple-600 hover:text-purple-700 text-sm font-medium"
@@ -1468,7 +1468,7 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3 text-center">
                           {app.cvUrl ? (
                             <a
-                              href={`/api/qdw/view-cv?email=${encodeURIComponent(app.email)}&t=${Date.now()}`}
+                              href={`/api/qdw/view-cv?email=${encodeURIComponent(app.email)}&v=${encodeURIComponent(app.cvUrl)}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 text-xs font-semibold text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-2.5 py-1.5 rounded-full transition-colors whitespace-nowrap"
@@ -1482,7 +1482,7 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3 text-center">
                           {app.posterUrl ? (
                             <a
-                              href={`/api/qdw/view-poster?email=${encodeURIComponent(app.email)}&t=${Date.now()}`}
+                              href={`/api/qdw/view-poster?email=${encodeURIComponent(app.email)}&v=${encodeURIComponent(app.posterUrl)}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1.5 rounded-full transition-colors whitespace-nowrap"

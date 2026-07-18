@@ -18,6 +18,7 @@ type RegistrationRow = {
   cv_url: string | null;
   poster_url: string | null;
   created_at: string | null;
+  updated_at: string | null;
 };
 
 export async function POST(request: NextRequest) {
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
       .from("qdw_registrations")
       .select(
-        "id, first_name, last_name, email, registration_type, designation, location, dietary_restriction, project_title, project_description, cv_url, poster_url, created_at"
+        "id, first_name, last_name, email, registration_type, designation, location, dietary_restriction, project_title, project_description, cv_url, poster_url, created_at, updated_at"
       )
       .eq("payment_status", "paid")
       .order("created_at", { ascending: false });
@@ -65,6 +66,7 @@ export async function POST(request: NextRequest) {
       hasCv: Boolean(attendee.cv_url),
       hasPoster: Boolean(attendee.poster_url),
       createdAt: attendee.created_at || "",
+      updatedAt: attendee.updated_at || attendee.created_at || "",
     }));
 
     return NextResponse.json({ success: true, attendees });

@@ -63,15 +63,16 @@ export async function GET(request: NextRequest) {
 
     // Convert blob to array buffer
     const fileBuffer = await fileData.arrayBuffer();
+    const cacheControl = id
+      ? "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800"
+      : "private, max-age=3600, stale-while-revalidate=86400";
 
-    // Return the PDF with appropriate headers (no cache to always show latest version)
+    // The caller supplies a content version when a poster is replaced.
     return new NextResponse(fileBuffer, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `inline; filename="poster.pdf"`,
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        "Pragma": "no-cache",
-        "Expires": "0",
+        "Cache-Control": cacheControl,
       },
     });
   } catch (error) {

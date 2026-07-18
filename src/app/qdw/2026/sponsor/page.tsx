@@ -17,6 +17,7 @@ type SponsorAttendee = {
   hasCv: boolean;
   hasPoster: boolean;
   createdAt: string;
+  updatedAt: string;
 };
 
 function registrationLabel(type: string): string {
@@ -260,7 +261,7 @@ export default function QDW2026SponsorPage() {
                         <td className="px-4 py-3 text-center">
                           {attendee.hasCv ? (
                             <a
-                              href={`/api/qdw/view-cv?email=${encodeURIComponent(attendee.email)}&t=${Date.now()}`}
+                              href={`/api/qdw/view-cv?email=${encodeURIComponent(attendee.email)}&v=${encodeURIComponent(attendee.updatedAt)}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex rounded-full bg-purple-500/15 px-3 py-1.5 text-xs font-bold text-purple-100 transition hover:bg-purple-500/25"
@@ -274,7 +275,7 @@ export default function QDW2026SponsorPage() {
                         <td className="px-4 py-3 text-center">
                           {attendee.hasPoster ? (
                             <a
-                              href={`/api/qdw/view-poster?email=${encodeURIComponent(attendee.email)}&t=${Date.now()}`}
+                              href={`/api/qdw/view-poster?email=${encodeURIComponent(attendee.email)}&v=${encodeURIComponent(attendee.updatedAt)}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex rounded-full bg-indigo-500/15 px-3 py-1.5 text-xs font-bold text-indigo-100 transition hover:bg-indigo-500/25"
