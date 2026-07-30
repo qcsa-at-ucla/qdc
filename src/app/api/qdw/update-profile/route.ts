@@ -21,6 +21,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    // Block edits to the shared sponsor/guest preview account
+    const checkResponse = await fetch(
+      `${supabaseUrl}/rest/v1/qdw_registrations?email=eq.${encodeURIComponent(email)}&select=registration_type`,
+      { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+    );
+    const checkData = checkResponse.ok ? await checkResponse.json() : [];
+    if (checkData?.[0]?.registration_type === "sponsor_guest") {
+      return NextResponse.json(
+        { error: "This is a shared preview account and cannot be edited" },
+        { status: 403 }
+      );
+    }
+
     // Update the user's profile in Supabase
     const response = await fetch(
       `${supabaseUrl}/rest/v1/qdw_registrations?email=eq.${encodeURIComponent(email)}`,

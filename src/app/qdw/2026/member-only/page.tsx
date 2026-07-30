@@ -850,6 +850,8 @@ export default function MemberOnlyPage() {
   }
 
   // Authenticated member area
+  const isSponsor = user?.registration_type === "sponsor_guest";
+
   return (
     <div className="min-h-screen bg-[#07071a] pt-16">
       {/* Sticky top header + tab bar */}
@@ -857,8 +859,12 @@ export default function MemberOnlyPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-5">
             <div>
-              <p className="text-purple-400 text-xs font-semibold tracking-widest uppercase mb-1">QDW 2026 · Member Portal</p>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white">Welcome, {user?.first_name}!</h1>
+              <p className="text-purple-400 text-xs font-semibold tracking-widest uppercase mb-1">
+                QDW 2026 · {isSponsor ? "Sponsor Preview" : "Member Portal"}
+              </p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                Welcome, {isSponsor ? "Guest" : user?.first_name}!
+              </h1>
             </div>
             <button
               onClick={() => {
@@ -881,7 +887,9 @@ export default function MemberOnlyPage() {
               { id: 'slides',   label: 'Slides',           icon: '📄' },
               { id: 'certificate', label: 'Certificate',    icon: '🏅' },
               { id: 'hfss',     label: 'HFSS Install',     icon: '💿' },
-            ] as { id: MemberTab; label: string; icon: string }[]).map(tab => (
+            ] as { id: MemberTab; label: string; icon: string }[])
+              .filter(tab => !isSponsor || tab.id !== 'certificate')
+              .map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -933,17 +941,26 @@ export default function MemberOnlyPage() {
                 {user?.registration_type?.replace(/_/g, " ")}
               </span>
             </div>
-            <div>
-              <span className="text-gray-500">Payment Status:</span>{" "}
-              <span className="text-green-400 font-semibold">✓ Paid</span>
-            </div>
-            <div>
-              <span className="text-gray-500">Registered:</span>{" "}
-              <span className="font-medium">
-                {user?.created_at ? new Date(user.created_at).toLocaleDateString() : "N/A"}
-              </span>
-            </div>
+            {!isSponsor && (
+              <div>
+                <span className="text-gray-500">Payment Status:</span>{" "}
+                <span className="text-green-400 font-semibold">✓ Paid</span>
+              </div>
+            )}
+            {!isSponsor && (
+              <div>
+                <span className="text-gray-500">Registered:</span>{" "}
+                <span className="font-medium">
+                  {user?.created_at ? new Date(user.created_at).toLocaleDateString() : "N/A"}
+                </span>
+              </div>
+            )}
           </div>
+          {isSponsor && (
+            <p className="mt-4 text-sm text-gray-400">
+              You're viewing a shared sponsor/guest preview of the QDW 2026 member portal. Editing profile, poster, CV and billing details is disabled for this account.
+            </p>
+          )}
         </div>
 
         {/* Upgrade to In-Person */}
@@ -997,7 +1014,7 @@ export default function MemberOnlyPage() {
         <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 sm:p-8">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-white">Profile Information</h2>
-            {!editingProfile && (
+            {!editingProfile && !isSponsor && (
               <button
                 onClick={() => setEditingProfile(true)}
                 className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-full transition-all font-medium"
@@ -1239,7 +1256,7 @@ export default function MemberOnlyPage() {
         <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 sm:p-8">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-white">Project & Poster</h2>
-            {!editingPoster && (
+            {!editingPoster && !isSponsor && (
               <button
                 onClick={() => {
                   setEditingPoster(true);
@@ -1419,7 +1436,7 @@ export default function MemberOnlyPage() {
         <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 sm:p-8">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-white">CV</h2>
-            {!editingCv && (
+            {!editingCv && !isSponsor && (
               <button
                 onClick={() => {
                   setEditingCv(true);
@@ -1576,7 +1593,7 @@ export default function MemberOnlyPage() {
       )}
 
       {/* ── CERTIFICATE TAB ──────────────────────────────────────────── */}
-      {activeTab === 'certificate' && (
+      {activeTab === 'certificate' && !isSponsor && (
         <CertificatePanel user={user} />
       )}
 

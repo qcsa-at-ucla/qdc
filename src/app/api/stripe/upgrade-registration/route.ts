@@ -76,6 +76,7 @@ export async function POST(req: Request) {
         },
         quantity: 1,
       }],
+      customer_creation: "always",
       customer_email: registration.email,
       allow_promotion_codes: true,
       automatic_tax: { enabled: true },

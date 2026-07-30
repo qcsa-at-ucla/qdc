@@ -31,6 +31,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Block edits to the shared sponsor/guest preview account
+    const { data: existing, error: lookupError } = await supabase
+      .from('qdw_registrations')
+      .select('registration_type')
+      .eq('email', email.toLowerCase())
+      .maybeSingle();
+
+    if (lookupError) {
+      console.error('Error checking registration type:', lookupError);
+      return NextResponse.json({ error: 'Failed to verify account' }, { status: 500 });
+    }
+
+    if (existing?.registration_type === 'sponsor_guest') {
+      return NextResponse.json(
+        { error: 'This is a shared preview account and cannot be edited' },
+        { status: 403 }
+      );
+    }
+
     // Build update object
     const updateFields: Record<string, any> = {};
     if (studentIdPhotoUrl) {
