@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sendRsvpEmail } from "./emails";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -82,6 +83,13 @@ export async function POST(req: Request) {
     }
 
     console.log(`✅ QC RSVP ${row.rsvp_status}: ${email}`);
+
+    await sendRsvpEmail({
+      status: row.rsvp_status,
+      fullName,
+      email,
+      attendance,
+    });
 
     return NextResponse.json({ status: row.rsvp_status, id: row.rsvp_id });
   } catch (err) {
