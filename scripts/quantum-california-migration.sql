@@ -30,11 +30,13 @@ CREATE INDEX IF NOT EXISTS idx_qc_rsvps_status
 
 ALTER TABLE quantum_california_rsvps ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Service role has full access to QC rsvps" ON quantum_california_rsvps;
 CREATE POLICY "Service role has full access to QC rsvps"
   ON quantum_california_rsvps
   FOR ALL
   USING (auth.role() = 'service_role');
 
+DROP TRIGGER IF EXISTS update_qc_rsvps_updated_at ON quantum_california_rsvps;
 CREATE TRIGGER update_qc_rsvps_updated_at
   BEFORE UPDATE ON quantum_california_rsvps
   FOR EACH ROW

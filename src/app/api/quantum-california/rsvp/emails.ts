@@ -53,7 +53,7 @@ export async function sendRsvpEmail(params: {
   attendance: string;
 }): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM_EMAIL;
+  const from = process.env.RESEND_QC_FROM_EMAIL || "Quantum California <quantum-california@qdc-qcsa.org>";
 
   if (!apiKey || !from) {
     console.warn("Resend not configured — skipping Quantum California RSVP email");

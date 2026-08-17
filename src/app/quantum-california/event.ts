@@ -19,7 +19,6 @@ export const QC_EVENT = {
   venue: "",
   address: "",
   overview: "",
-  registrationOpen: true,
   contactEmail: "innovate@gobiz.ca.gov",
   logo: "/images/quantum-california/quantum-california-logo.png",
   // Empty arrays render nothing at all — see page.tsx

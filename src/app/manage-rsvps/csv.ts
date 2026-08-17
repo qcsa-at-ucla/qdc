@@ -27,16 +27,26 @@ const COLUMNS: { header: string; get: (r: Rsvp) => string }[] = [
   { header: "Registered At", get: (r) => new Date(r.created_at).toLocaleString() },
 ];
 
-/** RFC 4180: wrap in quotes when the value contains a comma, quote, or newline; double any inner quotes. */
+/**
+ * Neutralizes spreadsheet formula injection and applies RFC 4180 quoting.
+ * Excel/Sheets treat a leading = + - @ (or tab/CR) as the start of a
+ * formula, so such values are prefixed with an apostrophe to force them to
+ * be read as literal text. Then, per RFC 4180, the value is wrapped in
+ * quotes when it contains a comma, quote, or newline, with any inner
+ * quotes doubled.
+ */
 function escapeCell(value: string): string {
-  if (/[",\n\r]/.test(value)) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-  return value;
+  // Neutralize spreadsheet formula injection: Excel/Sheets treat a leading
+  // = + - @ (or tab/CR) as the start of a formula. Prefixing with an
+  // apostrophe forces the cell to be read as literal text.
+  const v = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+  // RFC 4180: quote when the value contains a comma, quote, or newline;
+  // double any inner quotes.
+  return /[",\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
 }
 
 export function toCsv(rows: Rsvp[]): string {
   const header = COLUMNS.map((c) => escapeCell(c.header)).join(",");
   const body = rows.map((r) => COLUMNS.map((c) => escapeCell(c.get(r))).join(","));
-  return [header, ...body].join("\r\n");
+  return "﻿" + [header, ...body].join("\r\n");
 }
