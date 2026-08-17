@@ -12,6 +12,15 @@ const DAY_LABELS: Record<string, string> = {
   other: "Other (see your note)",
 };
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function shell(heading: string, subheading: string, inner: string): string {
   return `
     <!DOCTYPE html>
@@ -63,14 +72,14 @@ export async function sendRsvpEmail(params: {
   const inner =
     status === "confirmed"
       ? `
-        <p style="margin: 0 0 20px;">Hi ${firstName},</p>
+        <p style="margin: 0 0 20px;">Hi ${escapeHtml(firstName)},</p>
         <p style="margin: 0 0 20px;">
           Your RSVP for <strong>Quantum California</strong> is confirmed. We're glad you'll be joining us.
         </p>
         <div style="background: white; border-left: 4px solid ${NAVY}; padding: 15px; margin: 20px 0; border-radius: 4px;">
           <p style="margin: 0 0 10px;"><strong>Your RSVP</strong></p>
-          <p style="margin: 5px 0;"><strong>Name:</strong> ${fullName}</p>
-          <p style="margin: 5px 0;"><strong>Email:</strong> ${email}</p>
+          <p style="margin: 5px 0;"><strong>Name:</strong> ${escapeHtml(fullName)}</p>
+          <p style="margin: 5px 0;"><strong>Email:</strong> ${escapeHtml(email)}</p>
           <p style="margin: 5px 0;"><strong>Attending:</strong> ${dayLabel}</p>
         </div>
         <p style="margin: 20px 0;">
@@ -80,15 +89,15 @@ export async function sendRsvpEmail(params: {
         <p style="margin: 0;">See you in October,<br><strong>The Quantum California Team</strong></p>
       `
       : `
-        <p style="margin: 0 0 20px;">Hi ${firstName},</p>
+        <p style="margin: 0 0 20px;">Hi ${escapeHtml(firstName)},</p>
         <p style="margin: 0 0 20px;">
           Thanks for your interest in <strong>Quantum California</strong>. We've reached our venue
           capacity, so you've been added to the <strong>waitlist</strong>.
         </p>
         <div style="background: white; border-left: 4px solid ${NAVY}; padding: 15px; margin: 20px 0; border-radius: 4px;">
           <p style="margin: 0 0 10px;"><strong>Your RSVP</strong></p>
-          <p style="margin: 5px 0;"><strong>Name:</strong> ${fullName}</p>
-          <p style="margin: 5px 0;"><strong>Email:</strong> ${email}</p>
+          <p style="margin: 5px 0;"><strong>Name:</strong> ${escapeHtml(fullName)}</p>
+          <p style="margin: 5px 0;"><strong>Email:</strong> ${escapeHtml(email)}</p>
           <p style="margin: 5px 0;"><strong>Requested:</strong> ${dayLabel}</p>
         </div>
         <p style="margin: 20px 0;">
