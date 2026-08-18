@@ -146,6 +146,12 @@ export default function Navbar() {
             >
               Home
             </Link>
+            <Link
+              href="/quantum-california"
+              className="text-white/80 hover:text-white transition-colors duration-200 text-sm font-medium"
+            >
+              Quantum California
+            </Link>
 
             {/* QDW Dropdown with nested sub-menus */}
             <div className="relative" ref={qdwDropdownRef}>
@@ -578,6 +584,13 @@ export default function Navbar() {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Home
+                </Link>
+                <Link
+                  href="/quantum-california"
+                  className="text-white/80 hover:text-white hover:bg-white/10 transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Quantum California
                 </Link>
 
                 {/* Mobile QDW Section */}
