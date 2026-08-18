@@ -21,6 +21,8 @@ export const QC_EVENT = {
   overview: "",
   contactEmail: "innovate@gobiz.ca.gov",
   logo: "/images/quantum-california/quantum-california-logo.png",
+  // Official UCLA wordmark (UCLA Blue #2774AE), used as the co-host lockup in the hero
+  uclaLogo: "/images/quantum-california/ucla-logo.png",
   // Empty arrays render nothing at all — see page.tsx
   speakers: [] as Speaker[],
   partners: [] as Partner[],

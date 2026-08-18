@@ -16,14 +16,27 @@ export default function QuantumCaliforniaPage() {
       {/* Hero */}
       <section className="bg-white px-4 pt-32 pb-16">
         <div className="max-w-4xl mx-auto text-center">
-          <Image
-            src={QC_EVENT.logo}
-            alt="Quantum California"
-            width={444}
-            height={313}
-            priority
-            className="mx-auto w-auto h-auto max-w-[320px] sm:max-w-[420px]"
-          />
+          {/* Co-host lockup: event mark alongside the UCLA wordmark.
+              Stacks on mobile; the divider only appears once they sit side by side. */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-10">
+            <Image
+              src={QC_EVENT.logo}
+              alt="Quantum California"
+              width={444}
+              height={313}
+              priority
+              className="w-auto h-auto max-w-[260px] sm:max-w-[360px]"
+            />
+            <div className="hidden sm:block w-px h-28 bg-[#002F7B]/20" aria-hidden="true" />
+            <Image
+              src={QC_EVENT.uclaLogo}
+              alt="UCLA"
+              width={526}
+              height={172}
+              priority
+              className="w-auto h-auto max-w-[150px] sm:max-w-[190px]"
+            />
+          </div>
           <p className="mt-8 text-xl sm:text-2xl font-semibold text-[#002F7B]">
             {QC_EVENT.dates}
           </p>
