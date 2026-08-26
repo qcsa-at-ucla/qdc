@@ -61,7 +61,7 @@ export default function QuantumCaliforniaRegisterPage() {
   };
 
   return (
-    <main className="min-h-screen bg-white px-4 pt-32 pb-20">
+    <main className="min-h-screen bg-white px-4 pt-16 pb-20">
       <div className="mx-auto max-w-2xl">
         <Link href="/quantum-california" className="text-sm font-semibold text-[#002F7B]">
           ← Back to event

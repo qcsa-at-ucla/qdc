@@ -34,7 +34,7 @@ export default function QuantumCaliforniaPage() {
   return (
     <main className="min-h-screen bg-white">
       {/* Hero */}
-      <section className="bg-white px-4 pt-32 pb-16">
+      <section className="bg-white px-4 pt-16 pb-16">
         <div className="max-w-4xl mx-auto text-center">
           <Image
             src={QC_EVENT.logo}
