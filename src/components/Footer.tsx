@@ -1,8 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  // Quantum California pages are standalone — no site chrome, so visitors stay on the event page
+  if (pathname?.startsWith('/quantum-california')) {
+    return null;
+  }
+
   return (
     <footer id="qdc-footer" className="bg-[#090714] text-neutral-300 py-6 px-8">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
