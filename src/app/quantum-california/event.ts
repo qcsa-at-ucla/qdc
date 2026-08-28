@@ -30,7 +30,7 @@ export const QC_EVENT = {
   address: "",
   overview: [
     "Quantum California is a partnership between the California Governor's Office, Governor's Office of Business and Economic Development (GO-Biz), and the University of California Office of the President (UCOP). The initiative was launched in November 2025 to align academia, researchers, national labs, industry, investors and government partners around a shared ecosystem for quantum innovation and job creation.",
-    "During this 2-day convening hosted at UCLA, partners will explore the industry opportunities that quantum technology presents and will discuss efforts that are underway to strengthen California's quantum ecosystem.",
+    "During this two-day convening hosted at UCLA, partners will explore the industry opportunities that quantum technology presents and will discuss efforts that are underway to strengthen California's quantum ecosystem.",
     "Join us as we discuss the future of quantum technologies in California.",
   ].join("\n\n"),
   // Shown above the day-by-day breakdown — the detailed agenda isn't public yet

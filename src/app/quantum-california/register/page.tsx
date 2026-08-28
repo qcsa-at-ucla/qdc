@@ -9,7 +9,6 @@ const ATTENDANCE_OPTIONS = [
   { value: "day1", label: "Day 1 only (Oct 22)" },
   { value: "day2", label: "Day 2 only (Oct 23)" },
   { value: "both", label: "Both days (Oct 22–23)" },
-  { value: "other", label: "Other" },
 ];
 
 const inputClass =
@@ -25,7 +24,6 @@ export default function QuantumCaliforniaRegisterPage() {
     organization: "",
     jobTitle: "",
     attendance: "",
-    attendanceOther: "",
     dietaryRestrictions: "",
     accessibilityNeeds: "",
     mediaConsent: false,
@@ -143,16 +141,6 @@ export default function QuantumCaliforniaRegisterPage() {
                 </label>
               ))}
             </div>
-            {form.attendance === "other" && (
-              <input
-                aria-label="Please describe your attendance plans"
-                placeholder="Please describe"
-                required
-                value={form.attendanceOther}
-                onChange={(e) => set("attendanceOther", e.target.value)}
-                className={inputClass}
-              />
-            )}
           </fieldset>
 
           <div>
