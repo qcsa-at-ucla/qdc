@@ -679,8 +679,8 @@ For questions about the website or QDC:
 QDC is supported by the Quantum Computing Student Association (QCSA) at UCLA and USC, with collaborators from:
 
 - Google Quantum AI (Zlatko Minev, Murat Can Sarihan)
-- USC (Eli Levenson-Falk, Shanto)
-- Chapman University (Abhishek)
+- USC (Eli Levenson-Falk, Sadman Ahmed Shanto)
+- Rigetti (Abhishek Chakraborty)
 - Northwestern University (Jens Koch)
 - University of Oregon (Nik Zhelev)
 - Niels Bohr Institute

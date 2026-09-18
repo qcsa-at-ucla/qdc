@@ -60,7 +60,7 @@ const teamMembers: TeamMember[] = [
   {
     id: 4,
     name: "Nicolas Dirnegger",
-    role: "Quantum Devices",
+    role: "QDW Organizer",
     major: "Electrical Engineering",
     year: "PhD Student",
     bio: "Nicolas received a Bachelor of Science in Electrical Engineering at ETH Zurich, Switzerland in 2022 and a Master of Science in Physics at the University of California, Los Angeles in 2023. He is currently pursuing a PhD in Electrical Engineering in the NarangLab. Currently, his main research focus is on quantum sensing and quantum networks. He also has research interests in quantum error correction and quantum computation. Feel free to reach out if you want to go surfing!",
@@ -70,12 +70,22 @@ const teamMembers: TeamMember[] = [
   {
     id: 5,
     name: "Cody Fan",
-    role: "Quantum Devices",
+    role: "QDW Organizer",
     major: "EE & Physics",
     year: "PhD Student",
     bio: "Cody received a double Bachelor of Science in Electrical Engineering and Physics from UCLA and a Masters of Science in Electrical Engineering from UCLA with a Distinguished Masters Thesis Award. He is currently pursuing a PhD at the Mesoscopic Optics and Quantum Electronics Lab as an NSF Graduate Research Fellow. Currently, his main research focus is on superconducting bosonic qubits and silicon color centers. Before starting graduate school, he interned at Stanford Research Institute as a Quantum Machine Learning Intern. In his free time, he enjoys producing music, cooking, fashion, and raving.",
     image: "/images/Cody Fan.png",
     linkedIn: "https://www.linkedin.com/in/cody-fan-09717a167/",
+  },
+  {
+    id: 23,
+    name: "Sadman Ahmed Shanto",
+    role: "QDW Organizer",
+    major: "Physics",
+    year: "PhD Candidate",
+    bio: "Sadman Ahmed Shanto is a PhD candidate at USC working on superconducting quantum hardware and is the founder and president of the QCSA at USC chapter.",
+    image: "/images/Sadman_Shanto.jpeg",
+    linkedIn: "https://www.linkedin.com/in/sshanto/",
   },
   // {
   //   id: 6,

@@ -50,8 +50,8 @@ export default function AboutUs() {
               science with a focus on superconducting systems. Supported by the Quantum Computing 
               Student Association (QCSA) at UCLA and USC, our work brings together researchers and 
               mentors from both academia and industry, including collaborators from Google Quantum 
-              AI (Zlatko Minev and Murat Can Sarihan), USC (Eli Levenson-Falk and Shanto), Chapman 
-              University (Abhishek), Northwestern University (Jens Koch), the University of Oregon (Nik 
+              AI (Zlatko Minev and Murat Can Sarihan), USC (Eli Levenson-Falk and Sadman Ahmed Shanto), Rigetti
+              (Abhishek Chakraborty), Northwestern University (Jens Koch), the University of Oregon (Nik
               Zhelev), and the Niels Bohr Institute, among others. United by a shared commitment to 
               innovation and discovery, we strive to deepen the understanding of quantum phenomena 
               and advance the future of superconducting quantum technologies.
