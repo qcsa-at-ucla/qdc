@@ -90,14 +90,28 @@ export default function QuantumCaliforniaPage() {
                 <p className="mt-1 text-sm font-semibold uppercase tracking-wide text-gray-500">
                   {day.time}
                 </p>
-                <ul className="mt-4 space-y-2 text-gray-700">
-                  {day.items.map((item) => (
-                    <li key={item} className="flex gap-3">
-                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#002F7B]" aria-hidden="true" />
-                      <span>{item}</span>
-                    </li>
+                <div className="mt-6 space-y-5">
+                  {day.sections.map((section, index) => (
+                    <section
+                      key={section.title}
+                      className={`border-t border-gray-100 pt-5 ${index === 0 ? "first:border-0 first:pt-0" : ""}`}
+                    >
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#006B5E]">
+                        {section.title}
+                      </h4>
+                      {section.items.length > 0 && (
+                        <ul className="mt-3 space-y-3 text-sm leading-relaxed text-gray-700">
+                          {section.items.map((item) => (
+                            <li key={item} className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#002F7B]" aria-hidden="true" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </section>
                   ))}
-                </ul>
+                </div>
               </div>
             ))}
           </div>

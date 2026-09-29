@@ -16,10 +16,15 @@ export interface Partner {
   className: string;
 }
 
+export interface AgendaSection {
+  title: string;
+  items: string[];
+}
+
 export interface AgendaDay {
   label: string; // "Day 1: Thursday, October 22"
   time: string; // "8:00 AM – 6:00 PM"
-  items: string[];
+  sections: AgendaSection[];
 }
 
 export const QC_EVENT = {
@@ -33,23 +38,76 @@ export const QC_EVENT = {
     "During this two-day convening hosted at UCLA, partners will explore the industry opportunities that quantum technology presents and will discuss efforts that are underway to strengthen California's quantum ecosystem.",
     "Join us as we discuss the future of quantum technologies in California.",
   ].join("\n\n"),
-  // Shown above the day-by-day breakdown — the detailed agenda isn't public yet
-  agendaNote:
-    "Attendees are welcome to join for a single day or both. A full agenda will be published soon and sent to registered attendees. Please check this webpage for updates.",
+  agendaNote: "",
   agenda: [
     {
-      label: "Day 1: Thursday, October 22",
-      time: "8:00 AM – 6:00 PM",
-      items: [
-        "Morning: Registration, welcome and keynote remarks",
-        "Afternoon: Panels / breakout sessions",
-        "Evening: Reception",
+      label: "Day 1: Thursday, October 22, 2026",
+      time: "Times to be announced",
+      sections: [
+        {
+          title: "Morning",
+          items: [
+            "Registration & Networking",
+            "Welcome Remarks",
+            "UCLA’s Quantum Ecosystem: A history of UCLA’s work in quantum, the transformational UCLA Research Park now under construction with $200M in state funding, and investment through California Jobs First.",
+            "State of the Quantum Industry: A market overview of where quantum investment, revenue, and hiring are headed nationally and globally, and how California compares.",
+            "Fireside Chat with a Quantum Company: Industry leaders discuss major recent developments and what it means for the future of California’s quantum ecosystem.",
+            "Fireside Chat with a Quantum Startup: Founders of an emerging quantum computing company share their journey and future growth in California.",
+            "CIQC Panel: Realizing the Quantum Ecosystem & Building Future Talent: Academic and research leaders discuss how federal investment in quantum research strengthens industry, advances R&D, and builds tomorrow’s quantum workforce.",
+          ],
+        },
+        {
+          title: "Lunch",
+          items: [
+            "Panel: State Strategy & Investment in Motion: State leaders share how California is investing in and supporting the growth of the quantum industry.",
+          ],
+        },
+        {
+          title: "Afternoon",
+          items: [
+            "Breakout Sessions I (Attendees choose one of three concurrent sessions)",
+            "1A: Investment and Acceleration: How capital is accelerating growth of California’s quantum companies.",
+            "1B: Testbeds and Proving Grounds: A conversation focused on quantum testing infrastructure.",
+            "1C: Ecosystems and Regional Strategies: Regional partnerships that make California a hub for quantum manufacturing, supply chain, and testing.",
+            "Breakout Sessions II (Attendees choose one of three concurrent sessions)",
+            "2A: Quantum Industry - Applications and Algorithms: Future of applications and commercial use cases.",
+            "2B: Manufacturing and Production: Scaling from prototypes to commercial production.",
+            "2C: Connecting the Workforce and Talent Pipeline: California’s talent pipeline for quantum careers.",
+            "Panel: Quantum Advantage Through Shared Opportunity: International partnerships shaping California’s quantum future.",
+          ],
+        },
+        { title: "Reception", items: [] },
       ],
     },
     {
-      label: "Day 2: Friday, October 23",
-      time: "8:00 AM – 2:00 PM",
-      items: ["Morning: Programming", "Afternoon: Closing session"],
+      label: "Day 2: Friday, October 23, 2026",
+      time: "Times to be announced",
+      sections: [
+        {
+          title: "Morning",
+          items: [
+            "Breakfast & Networking",
+            "Welcoming Remarks",
+            "Expanding in the Golden State: Leaders of quantum companies discuss what drew them to California and how the state’s unique advantages continue to accelerate their growth.",
+            "Building the California Ecosystem: Research and education institutions discuss how a connected regional ecosystem strengthens California as a whole.",
+            "Panel: Opportunities in Aerospace, Maritime & Defense: A look at how quantum technologies are opening new opportunities across aerospace, defense, and maritime applications.",
+          ],
+        },
+        {
+          title: "Lunch",
+          items: [
+            "Lunch & Presentation: What’s Next for Quantum California: GO-Biz shares the next phase of the state’s quantum strategy and opportunities for engagement going forward.",
+          ],
+        },
+        {
+          title: "Afternoon",
+          items: [
+            "Closing Remarks",
+            "Optional Site Tours & Visits",
+            "Guided tours of UCLA’s quantum research facilities.",
+          ],
+        },
+      ],
     },
   ] as AgendaDay[],
   contactEmail: "innovate@gobiz.ca.gov",
