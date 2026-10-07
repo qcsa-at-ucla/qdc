@@ -102,9 +102,12 @@ export default function QuantumCaliforniaPage() {
                       {section.items.length > 0 && (
                         <ul className="mt-3 space-y-3 text-sm leading-relaxed text-gray-700">
                           {section.items.map((item) => (
-                            <li key={item} className="flex gap-3">
+                            <li key={item.title} className="flex gap-3">
                               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#002F7B]" aria-hidden="true" />
-                              <span>{item}</span>
+                              <span>
+                                <strong className="font-bold text-gray-900">{item.title}</strong>
+                                {item.description && <span className="block">{item.description}</span>}
+                              </span>
                             </li>
                           ))}
                         </ul>

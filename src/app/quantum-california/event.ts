@@ -16,9 +16,14 @@ export interface Partner {
   className: string;
 }
 
+export interface AgendaItem {
+  title: string; // rendered bold
+  description?: string;
+}
+
 export interface AgendaSection {
   title: string;
-  items: string[];
+  items: AgendaItem[];
 }
 
 export interface AgendaDay {
@@ -47,33 +52,33 @@ export const QC_EVENT = {
         {
           title: "Morning",
           items: [
-            "Registration & Networking",
-            "Welcome Remarks",
-            "UCLA’s Quantum Ecosystem: A history of UCLA’s work in quantum, the transformational UCLA Research Park now under construction with $200M in state funding, and investment through California Jobs First.",
-            "State of the Quantum Industry: A market overview of where quantum investment, revenue, and hiring are headed nationally and globally, and how California compares.",
-            "Fireside Chat with a Quantum Company: Industry leaders discuss major recent developments and what it means for the future of California’s quantum ecosystem.",
-            "Fireside Chat with a Quantum Startup: Founders of an emerging quantum computing company share their journey and future growth in California.",
-            "CIQC Panel: Realizing the Quantum Ecosystem & Building Future Talent: Academic and research leaders discuss how federal investment in quantum research strengthens industry, advances R&D, and builds tomorrow’s quantum workforce.",
+            { title: "Registration & Networking" },
+            { title: "Welcome Remarks" },
+            { title: "UCLA’s Quantum Ecosystem", description: "A history of UCLA’s work in quantum, the transformational UCLA Research Park now under construction with $200M in state funding, and investment through California Jobs First." },
+            { title: "State of the Quantum Industry", description: "A market overview of where quantum investment, revenue, and hiring are headed nationally and globally, and how California compares." },
+            { title: "Fireside Chat with a Quantum Company", description: "Industry leaders discuss major recent developments and what it means for the future of California’s quantum ecosystem." },
+            { title: "Fireside Chat with a Quantum Startup", description: "Founders of an emerging quantum computing company share their journey and future growth in California." },
+            { title: "CIQC Panel: Realizing the Quantum Ecosystem & Building Future Talent", description: "Academic and research leaders discuss how federal investment in quantum research strengthens industry, advances R&D, and builds tomorrow’s quantum workforce." },
           ],
         },
         {
           title: "Lunch",
           items: [
-            "Panel: State Strategy & Investment in Motion: State leaders share how California is investing in and supporting the growth of the quantum industry.",
+            { title: "Panel: State Strategy & Investment in Motion", description: "State leaders share how California is investing in and supporting the growth of the quantum industry." },
           ],
         },
         {
           title: "Afternoon",
           items: [
-            "Breakout Sessions I (Attendees choose one of three concurrent sessions)",
-            "1A: Investment and Acceleration: How capital is accelerating growth of California’s quantum companies.",
-            "1B: Testbeds and Proving Grounds: A conversation focused on quantum testing infrastructure.",
-            "1C: Ecosystems and Regional Strategies: Regional partnerships that make California a hub for quantum manufacturing, supply chain, and testing.",
-            "Breakout Sessions II (Attendees choose one of three concurrent sessions)",
-            "2A: Quantum Industry - Applications and Algorithms: Future of applications and commercial use cases.",
-            "2B: Manufacturing and Production: Scaling from prototypes to commercial production.",
-            "2C: Connecting the Workforce and Talent Pipeline: California’s talent pipeline for quantum careers.",
-            "Panel: Quantum Advantage Through Shared Opportunity: International partnerships shaping California’s quantum future.",
+            { title: "Breakout Sessions I (Attendees choose one of three concurrent sessions)" },
+            { title: "1A: Investment and Acceleration", description: "How capital is accelerating growth of California’s quantum companies." },
+            { title: "1B: Testbeds and Proving Grounds", description: "A conversation focused on quantum testing infrastructure." },
+            { title: "1C Local to Global Quantum Ecosystems – Crafting Regional Strategies and Partnerships", description: "How international and regional partnerships and investments are turning California’s regions into industry clusters for manufacturing, supply chain, testing, and more." },
+            { title: "Breakout Sessions II (Attendees choose one of three concurrent sessions)" },
+            { title: "2A: Quantum Industry - Applications and Algorithms", description: "Future of applications and commercial use cases." },
+            { title: "2B: Manufacturing and Production", description: "Scaling from prototypes to commercial production." },
+            { title: "2C: Connecting the Workforce and Talent Pipeline", description: "California’s talent pipeline for quantum careers." },
+            { title: "Panel: Quantum Advantage Through Shared Opportunity", description: "International partnerships shaping California’s quantum future." },
           ],
         },
         { title: "Reception", items: [] },
@@ -86,25 +91,24 @@ export const QC_EVENT = {
         {
           title: "Morning",
           items: [
-            "Breakfast & Networking",
-            "Welcoming Remarks",
-            "Expanding in the Golden State: Leaders of quantum companies discuss what drew them to California and how the state’s unique advantages continue to accelerate their growth.",
-            "Building the California Ecosystem: Research and education institutions discuss how a connected regional ecosystem strengthens California as a whole.",
-            "Panel: Opportunities in Aerospace, Maritime & Defense: A look at how quantum technologies are opening new opportunities across aerospace, defense, and maritime applications.",
+            { title: "Breakfast & Networking" },
+            { title: "Welcoming Remarks" },
+            { title: "Expanding in the Golden State", description: "Leaders of quantum companies discuss what drew them to California and how the state’s unique advantages continue to accelerate their growth." },
+            { title: "Building the California Ecosystem", description: "Research and education institutions discuss how a connected regional ecosystem strengthens California as a whole." },
+            { title: "Panel: Opportunities in Aerospace, Maritime & Defense", description: "A look at how quantum technologies are opening new opportunities across aerospace, defense, and maritime applications." },
           ],
         },
         {
           title: "Lunch",
           items: [
-            "Lunch & Presentation: What’s Next for Quantum California: GO-Biz shares the next phase of the state’s quantum strategy and opportunities for engagement going forward.",
+            { title: "Lunch & Presentation: What’s Next for Quantum California", description: "GO-Biz shares the next phase of the state’s quantum strategy and opportunities for engagement going forward." },
           ],
         },
         {
           title: "Afternoon",
           items: [
-            "Closing Remarks",
-            "Optional Site Tours & Visits",
-            "Guided tours of UCLA’s quantum research facilities.",
+            { title: "Closing Remarks" },
+            { title: "Optional Site Tours & Visits", description: "Guided tours of UCLA’s quantum research facilities." },
           ],
         },
       ],
