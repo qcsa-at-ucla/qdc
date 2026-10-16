@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { QC_EVENT } from "./event";
+import { QC_EVENT, type AgendaSession, type AgendaSpeaker } from "./event";
 
 const description =
   "Quantum California Convening — October 22–23, 2026 at UCLA Covel Commons. A statewide convening on quantum innovation and job creation.";
@@ -78,46 +78,34 @@ export default function QuantumCaliforniaPage() {
         </section>
       )}
 
-      {/* Agenda At-a-Glance */}
-      <section className="px-4 py-16">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-[#002F7B]">Agenda At-a-Glance</h2>
+      {/* Agenda */}
+      <section id="agenda" className="px-4 py-16">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold text-[#002F7B]">Agenda</h2>
           {agendaNote && <p className="mt-6 text-lg leading-relaxed text-gray-700">{agendaNote}</p>}
-          <div className="mt-10 grid gap-8 sm:grid-cols-2">
+          <nav aria-label="Agenda days" className="mt-6 flex flex-wrap gap-3">
             {agenda.map((day) => (
-              <div key={day.label} className="rounded-xl border border-gray-200 bg-white p-6">
-                <h3 className="text-xl font-bold text-gray-900">{day.label}</h3>
-                <p className="mt-1 text-sm font-semibold uppercase tracking-wide text-gray-500">
-                  {day.time}
-                </p>
-                <div className="mt-6 space-y-5">
-                  {day.sections.map((section, index) => (
-                    <section
-                      key={section.title}
-                      className={`border-t border-gray-100 pt-5 ${index === 0 ? "first:border-0 first:pt-0" : ""}`}
-                    >
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#006B5E]">
-                        {section.title}
-                      </h4>
-                      {section.items.length > 0 && (
-                        <ul className="mt-3 space-y-3 text-sm leading-relaxed text-gray-700">
-                          {section.items.map((item) => (
-                            <li key={item.title} className="flex gap-3">
-                              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#002F7B]" aria-hidden="true" />
-                              <span>
-                                <strong className="font-bold text-gray-900">{item.title}</strong>
-                                {item.description && <span className="block">{item.description}</span>}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </section>
-                  ))}
-                </div>
-              </div>
+              <a
+                key={day.id}
+                href={`#${day.id}`}
+                className="rounded-full border border-[#002F7B] px-5 py-2 text-sm font-semibold text-[#002F7B] transition hover:bg-[#002F7B] hover:text-white"
+              >
+                {day.label} · {day.date}
+              </a>
             ))}
-          </div>
+          </nav>
+          {agenda.map((day) => (
+            <div key={day.id} id={day.id} className="mt-14 scroll-mt-8">
+              <h3 className="border-b-2 border-[#002F7B] pb-3 text-2xl font-bold text-gray-900">
+                {day.label}: <span className="font-semibold text-gray-700">{day.date}</span>
+              </h3>
+              <ol>
+                {day.sessions.map((session) => (
+                  <AgendaSessionRow key={`${session.time}-${session.title}`} session={session} />
+                ))}
+              </ol>
+            </div>
+          ))}
           {address && (
             <p className="mt-10 whitespace-pre-line text-gray-600">
               <span className="font-semibold text-gray-900">{venue}</span>
@@ -205,5 +193,60 @@ export default function QuantumCaliforniaPage() {
         </section>
       )}
     </main>
+  );
+}
+
+function SpeakerList({ speakers }: { speakers: AgendaSpeaker[] }) {
+  return (
+    <ul className="mt-4 space-y-2">
+      {speakers.map((s) => (
+        <li key={`${s.label ?? ""}${s.name}`} className="text-gray-700">
+          {s.label && (
+            <span className="text-sm font-semibold uppercase tracking-wide text-[#002F7B]">
+              {s.label}:{" "}
+            </span>
+          )}
+          <span className="font-semibold text-gray-900">{s.name}</span>
+          {s.role && <span className="text-gray-600">, {s.role}</span>}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function AgendaSessionRow({ session }: { session: AgendaSession }) {
+  const { time, title, description, speakers, tracks } = session;
+  // Registration, breaks, lunch and the reception carry no detail — keep them quiet
+  const isBreak = !description && !speakers?.length && !tracks?.length;
+
+  return (
+    <li className="flex flex-col gap-1 border-b border-gray-200 py-6 sm:flex-row sm:gap-8">
+      <p className="shrink-0 text-sm font-bold uppercase tracking-wide text-[#002F7B] sm:w-24 sm:pt-1">
+        {time}
+      </p>
+      <div className="min-w-0 flex-1">
+        <h4 className={isBreak ? "text-lg font-semibold text-gray-500" : "text-xl font-bold text-gray-900"}>
+          {title}
+        </h4>
+        {description && <p className="mt-2 leading-relaxed text-gray-700">{description}</p>}
+        {speakers && speakers.length > 0 && <SpeakerList speakers={speakers} />}
+        {tracks && tracks.length > 0 && (
+          <div className="mt-6 space-y-4">
+            {tracks.map((track) => (
+              <div key={track.code} className="rounded-xl border border-gray-200 bg-gray-50 p-5">
+                <h5 className="text-lg font-bold text-gray-900">
+                  <span className="mr-2 inline-block rounded-md bg-[#002F7B] px-2 py-0.5 text-sm text-white">
+                    {track.code}
+                  </span>
+                  {track.title}
+                </h5>
+                <p className="mt-2 leading-relaxed text-gray-700">{track.description}</p>
+                <SpeakerList speakers={track.speakers} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </li>
   );
 }
