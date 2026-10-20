@@ -20,6 +20,8 @@ export default function ManageRsvpsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [dayFilter, setDayFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [promoting, setPromoting] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const load = useCallback(async (key: string, email: string) => {
     setLoading(true);
@@ -58,6 +60,40 @@ export default function ManageRsvpsPage() {
       load(key, email);
     }
   }, [load]);
+
+  // Without ids, the API promotes every waitlisted RSVP.
+  const promote = async (ids?: string[]) => {
+    const message = ids
+      ? "Move this person to registered and send them the welcome email?"
+      : `Move all ${waitlisted} waitlisted people to registered and send each of them the welcome email?`;
+    if (!confirm(message)) return;
+
+    setPromoting(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const res = await fetch("/api/quantum-california/admin/promote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey, adminEmail, ids }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data?.error || "Failed to promote RSVPs");
+        return;
+      }
+      const failed: string[] = data.failed || [];
+      setNotice(
+        `Registered ${data.promoted}, welcome email sent to ${data.emailed}.` +
+          (failed.length ? ` Email FAILED for: ${failed.join(", ")}` : "")
+      );
+      await load(apiKey, adminEmail);
+    } catch {
+      setError("Failed to promote RSVPs");
+    } finally {
+      setPromoting(false);
+    }
+  };
 
   const download = () => {
     const csv = toCsv(filtered);
@@ -121,13 +157,27 @@ export default function ManageRsvpsPage() {
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-3xl font-bold text-[#002F7B]">Quantum California RSVPs</h1>
-          <button onClick={download} className="rounded-full bg-[#002F7B] px-6 py-3 font-bold text-white">
-            Download CSV
-          </button>
+          <div className="flex flex-wrap gap-3">
+            {waitlisted > 0 && (
+              <button
+                onClick={() => promote()}
+                disabled={promoting}
+                className="rounded-full bg-amber-600 px-6 py-3 font-bold text-white disabled:opacity-60"
+              >
+                {promoting ? "Registering…" : `Register all waitlisted (${waitlisted})`}
+              </button>
+            )}
+            <button onClick={download} className="rounded-full bg-[#002F7B] px-6 py-3 font-bold text-white">
+              Download CSV
+            </button>
+          </div>
         </div>
 
+        {notice && <p className="mt-4 rounded-lg bg-green-50 px-4 py-3 text-green-800">{notice}</p>}
+        {error && <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-red-700">{error}</p>}
+
         <div className="mt-6 flex flex-wrap gap-6 text-lg">
-          <span className="font-semibold text-green-700">Confirmed: {confirmed} / 300</span>
+          <span className="font-semibold text-green-700">Confirmed: {confirmed}</span>
           <span className="font-semibold text-amber-700">Waitlisted: {waitlisted}</span>
           <span className="text-gray-600">Total: {rsvps.length}</span>
         </div>
@@ -190,6 +240,15 @@ export default function ManageRsvpsPage() {
                     >
                       {r.status.toUpperCase()}
                     </span>
+                    {r.status === "waitlisted" && (
+                      <button
+                        onClick={() => promote([r.id])}
+                        disabled={promoting}
+                        className="ml-2 text-xs font-semibold text-[#002F7B] underline disabled:opacity-60"
+                      >
+                        Register
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

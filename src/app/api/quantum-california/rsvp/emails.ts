@@ -46,35 +46,39 @@ function shell(heading: string, subheading: string, inner: string): string {
   `;
 }
 
-export async function sendRsvpEmail(params: {
-  status: Status;
+// "promoted" is a waitlisted RSVP moved to confirmed by an admin: same
+// registered email, with an intro that acknowledges the earlier waitlist notice.
+type EmailKind = Status | "promoted";
+
+const SUBHEADING = "Quantum California · October 22–23, 2026";
+
+function buildEmail(params: {
+  kind: EmailKind;
   fullName: string;
   email: string;
   attendance: string;
-}): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_QC_FROM_EMAIL || "Quantum California <quantum-california@qdc-qcsa.org>";
-
-  if (!apiKey || !from) {
-    console.warn("Resend not configured — skipping Quantum California RSVP email");
-    return;
-  }
-
-  const { status, fullName, email, attendance } = params;
+}): { subject: string; html: string } {
+  const { kind, fullName, email, attendance } = params;
   const firstName = fullName.split(" ")[0] || fullName;
   const dayLabel = DAY_LABELS[attendance] || attendance;
+  const registered = kind !== "waitlisted";
 
-  const subject =
-    status === "confirmed"
-      ? "You're registered for Quantum California"
-      : "You're on the waitlist for Quantum California";
+  const subject = registered
+    ? "You're registered for Quantum California"
+    : "You're on the waitlist for Quantum California";
+
+  const intro =
+    kind === "promoted"
+      ? `Good news: a spot has opened up, and you're now <strong>registered</strong> for
+          <strong>Quantum California</strong>. Welcome! We're glad you'll be joining us.`
+      : `Your RSVP for <strong>Quantum California</strong> is confirmed. We're glad you'll be joining us.`;
 
   const inner =
-    status === "confirmed"
+    registered
       ? `
         <p style="margin: 0 0 20px;">Hi ${escapeHtml(firstName)},</p>
         <p style="margin: 0 0 20px;">
-          Your RSVP for <strong>Quantum California</strong> is confirmed. We're glad you'll be joining us.
+          ${intro}
         </p>
         <div style="background: white; border-left: 4px solid ${NAVY}; padding: 15px; margin: 20px 0; border-radius: 4px;">
           <p style="margin: 0 0 10px;"><strong>Your RSVP</strong></p>
@@ -106,16 +110,40 @@ export async function sendRsvpEmail(params: {
         <p style="margin: 0;">Thank you,<br><strong>The Quantum California Team</strong></p>
       `;
 
-  const heading = status === "confirmed" ? "You're registered!" : "You're on the waitlist";
+  const heading = registered ? "You're registered!" : "You're on the waitlist";
+
+  return { subject, html: shell(heading, SUBHEADING, inner) };
+}
+
+function resendConfig(): { apiKey: string; from: string } | null {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_QC_FROM_EMAIL || "Quantum California <quantum-california@qdc-qcsa.org>";
+  return apiKey && from ? { apiKey, from } : null;
+}
+
+export async function sendRsvpEmail(params: {
+  status: Status;
+  fullName: string;
+  email: string;
+  attendance: string;
+}): Promise<void> {
+  const config = resendConfig();
+  if (!config) {
+    console.warn("Resend not configured — skipping Quantum California RSVP email");
+    return;
+  }
+
+  const { status, email } = params;
+  const { subject, html } = buildEmail({ ...params, kind: status });
 
   try {
-    const resend = new Resend(apiKey);
+    const resend = new Resend(config.apiKey);
     await resend.emails.send({
-      from,
+      from: config.from,
       to: email,
       replyTo: REPLY_TO,
       subject,
-      html: shell(heading, "Quantum California · October 22–23, 2026", inner),
+      html,
     });
     console.log(`✅ QC ${status} email sent to ${email}`);
   } catch (err) {
@@ -123,4 +151,55 @@ export async function sendRsvpEmail(params: {
     // because the mail provider had a bad day.
     console.error("Failed to send Quantum California RSVP email:", err);
   }
+}
+
+// Resend caps a batch at 100 messages and the account at ~2 requests/second.
+const BATCH_SIZE = 100;
+const BATCH_PAUSE_MS = 600;
+
+// Sends the "you're registered" email to RSVPs promoted off the waitlist.
+// Returns the addresses that did not go out so the admin can follow up by hand.
+export async function sendPromotionEmails(
+  rows: { full_name: string; email: string; attendance: string }[]
+): Promise<{ sent: string[]; failed: string[] }> {
+  const sent: string[] = [];
+  const failed: string[] = [];
+
+  const config = resendConfig();
+  if (!config) {
+    console.warn("Resend not configured — skipping Quantum California promotion emails");
+    return { sent, failed: rows.map((r) => r.email) };
+  }
+
+  const resend = new Resend(config.apiKey);
+
+  for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+    if (i > 0) await new Promise((resolve) => setTimeout(resolve, BATCH_PAUSE_MS));
+
+    const chunk = rows.slice(i, i + BATCH_SIZE);
+    const emails = chunk.map((r) => ({
+      from: config.from,
+      to: r.email,
+      replyTo: REPLY_TO,
+      ...buildEmail({ kind: "promoted", fullName: r.full_name, email: r.email, attendance: r.attendance }),
+    }));
+    const addresses = chunk.map((r) => r.email);
+
+    try {
+      // The SDK reports API failures in `error` rather than throwing.
+      const { error } = await resend.batch.send(emails);
+      if (error) {
+        console.error("❌ QC promotion batch failed:", error);
+        failed.push(...addresses);
+      } else {
+        console.log(`✅ QC promotion emails sent: ${addresses.length}`);
+        sent.push(...addresses);
+      }
+    } catch (err) {
+      console.error("❌ QC promotion batch threw:", err);
+      failed.push(...addresses);
+    }
+  }
+
+  return { sent, failed };
 }
