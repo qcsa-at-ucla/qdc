@@ -304,7 +304,7 @@ export const QC_EVENT = {
                   name: "Robert Visser",
                   role: "Vice President, Engineering Technology, Office of the CTO, Applied Materials",
                 },
-                { name: "Speaker TBA" },
+                { name: "Mike Piech", role: "Vice President, Business Development, Rigetti" },
                 {
                   label: "Moderator",
                   name: "Chee Wei Wong",

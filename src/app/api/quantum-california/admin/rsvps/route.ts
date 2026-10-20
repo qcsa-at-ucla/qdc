@@ -5,8 +5,6 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const CAPACITY = 300;
-
 export async function POST(req: Request) {
   try {
     const supabaseUrl = process.env.SUPABASE_URL;
@@ -49,7 +47,7 @@ export async function POST(req: Request) {
       const waitlisted = rows.filter((r) => r.status === "waitlisted").length;
       return NextResponse.json({
         success: true,
-        stats: { confirmed, waitlisted, total: rows.length, capacity: CAPACITY },
+        stats: { confirmed, waitlisted, total: rows.length },
       });
     }
 
