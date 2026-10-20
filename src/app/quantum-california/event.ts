@@ -25,6 +25,7 @@ export interface AgendaSpeaker {
 export interface AgendaTrack {
   code: string; // "1A"
   title: string;
+  room?: string; // "3rd floor, North Ridge Room"
   description: string;
   speakers: AgendaSpeaker[];
 }
@@ -55,7 +56,7 @@ export const QC_EVENT = {
   // TBD — awaiting GO-Biz
   address: "",
   overview: [
-    "Quantum California is a partnership between the California Governor's Office, Governor's Office of Business and Economic Development (GO-Biz), and the University of California Office of the President (UCOP). The initiative was launched in November 2025 to align academia, researchers, national labs, industry, investors and government partners around a shared ecosystem for quantum innovation and job creation.",
+    "Quantum California was launched by the California Governor's Office of Business and Economic Development (GO-Biz) in November 2025 to align academia, researchers, national labs, industry, investors and government partners around a shared ecosystem for quantum innovation and job creation.",
     "During this two-day convening hosted at UCLA, partners will explore the industry opportunities that quantum technology presents and will discuss efforts that are underway to strengthen California's quantum ecosystem.",
     "Join us as we discuss the future of quantum technologies in California.",
   ].join("\n\n"),
@@ -87,11 +88,11 @@ export const QC_EVENT = {
           speakers: [
             {
               name: "Assemblymember Buffy Wicks",
-              role: "Chair, Assembly Appropriations Committee, California State Assembly",
+              role: "Chair, Assembly Appropriations Committee, California State Assembly (14th District)",
             },
             {
               name: "Assemblymember Jesse Gabriel",
-              role: "Chair, Assembly Budget Committee, California State Assembly",
+              role: "Chair, Assembly Budget Committee, California State Assembly (46th District)",
             },
           ],
         },
@@ -100,7 +101,12 @@ export const QC_EVENT = {
           title: "UCLA's Quantum Ecosystem and the UCLA Research Park",
           description:
             "A brief history of UCLA's work in quantum, the transformational UCLA Research Park now under construction with $200M in state funding, and state investment through California Jobs First.",
-          speakers: [{ name: "Eric Hudson", role: `Director, ${CQSE_UCLA}` }],
+          speakers: [
+            {
+              name: "Eric Hudson",
+              role: `Davis Saxon Presidential Chair and Professor of Physics and Astronomy; Director, ${CQSE_UCLA}`,
+            },
+          ],
         },
         {
           time: "10:00 AM",
@@ -119,7 +125,7 @@ export const QC_EVENT = {
             {
               label: "Moderator",
               name: "Jamie Garcia",
-              role: "Director, Strategic Growth & Quantum Partnerships; Senior Research Executive, IBM Research",
+              role: "Director, Strategic Growth and Quantum Partnerships; Senior Research Executive, IBM Research",
             },
           ],
         },
@@ -128,10 +134,13 @@ export const QC_EVENT = {
           time: "10:45 AM",
           title: "Fireside Chat with Oratomic: From Breakthrough to Buildout",
           description:
-            "Oratomic's founders discuss the result that put a 10,000-qubit neutral-atom architecture on the map, the $300M raise that followed, and what it takes to turn a breakthrough paper into a company building machines in California, from talent and facilities to the partners and customers it needs next.",
+            "Oratomic's founders discuss the result that put a 10,000-qubit neutral-atom architecture on the map, the $775M raise that followed, and what it takes to turn a breakthrough paper into a company building machines in California, from talent and facilities to the partners and customers it needs next.",
           speakers: [
             { label: "Moderator", name: "Ray Jayawardhana", role: "President, Caltech" },
-            { name: "Dolev Bluvstein", role: "CEO, Oratomic; Visiting Associate Professor, Caltech" },
+            {
+              name: "Dolev Bluvstein",
+              role: "Co-Founder and CEO, Oratomic; Visiting Associate Professor, Caltech",
+            },
           ],
         },
         {
@@ -140,18 +149,25 @@ export const QC_EVENT = {
           description:
             "Academic and research partners behind the recently renewed $37.5M NSF Quantum Leap Challenge Institute discuss how federal investment in California's quantum research apparatus continues to strengthen industry architectures, advance R&D, and cultivate future generations of workforce talent.",
           speakers: [
-            { label: "Introduction", name: "Miguel García-Garibay", role: "Dean of Physical Sciences, UCLA" },
-            { name: "Eric Hudson", role: `Director, ${CQSE_UCLA}` },
-            { name: "Ania Bleszynski Jayich", role: "Professor of Physics, UC Santa Barbara" },
+            {
+              label: "Introduction",
+              name: "Miguel García-Garibay",
+              role: "Dean of Physical Sciences; Senior Dean of the College of Letters and Sciences, UCLA",
+            },
+            { name: "Wes Campbell", role: "Professor of Physics, UCLA" },
+            {
+              name: "Ania Bleszynski Jayich",
+              role: "Professor of Physics; Co-Director, NSF Quantum Foundry, UC Santa Barbara",
+            },
             {
               name: "John Preskill",
               role: "Richard P. Feynman Professor of Theoretical Physics; Director, Institute for Quantum Information and Matter; Caltech",
             },
-            { name: "Justin Perron", role: "Professor, Department of Physics, CSU San Marcos" },
+            { name: "Justin Perron", role: "Associate Professor, CSTEM Physics, CSU San Marcos" },
             {
               label: "Moderator",
               name: "Shimon Kolkowitz",
-              role: "Herst Chair Associate Professor, UC Berkeley; Director, NSF Challenge Institute for Quantum Computation (CIQC)",
+              role: "Roger Herst Chair Associate Professor of Physics, UC Berkeley; Director, NSF Challenge Institute for Quantum Computation (CIQC)",
             },
           ],
         },
@@ -170,12 +186,10 @@ export const QC_EVENT = {
           title: "Google Quantum AI",
           description:
             "Google Quantum AI shares the latest from its Santa Barbara lab, from the Willow processor and the Quantum Echoes verifiable-advantage result to the path toward a useful quantum computer.",
-          speakers: [
-            { name: "Sergio Boixo", role: "Director, Quantum Computing, Google Quantum AI Lab" },
-          ],
+          speakers: [{ name: "Sergio Boixo", role: "Director, Quantum Computing, Google Quantum AI" }],
         },
         {
-          time: "1:45 PM",
+          time: "1:40 PM",
           title: "Panel: Quantum California, State Strategy and Investment in Motion",
           description:
             "Members of the Governor's Cabinet and legislative leaders share the State's investments, what they have learned, and what is on the horizon, including how programs such as Jobs First work in tandem with industry to encourage commercialization, workforce development, and the integration of quantum technology.",
@@ -183,13 +197,16 @@ export const QC_EVENT = {
             {
               label: "Introduction",
               name: "Ah-Hyung “Alissa” Park",
-              role: "Dean, UCLA Samueli School of Engineering",
+              role: "Ronald and Valerie Sugar Dean; Professor, Chemical and Biomolecular Engineering, UCLA Samueli School of Engineering",
             },
-            { name: "Tim Grayson", role: "California State Senator" },
+            {
+              name: "Senator Tim Grayson",
+              role: "Chair, Senate Banking and Financial Institutions Committee; Senate Majority Whip, California State Senate (9th District)",
+            },
             { name: "Dee Dee Myers", role: `Senior Advisor to the Governor and Director, ${GOBIZ}` },
             {
-              name: "Nick Maduros",
-              role: "Secretary, California Government Operations Agency (GovOps)",
+              name: "Theresa A. Maldonado",
+              role: "Vice President for Research and Innovation, University of California Office of the President (UCOP)",
             },
             {
               label: "Moderator",
@@ -206,13 +223,17 @@ export const QC_EVENT = {
             {
               code: "1A",
               title: "Investment and Acceleration",
+              room: "3rd floor, North Ridge Room",
               description:
                 "How venture and institutional capital are accelerating the growth of California's quantum companies.",
               speakers: [
                 { name: "Alan Ho", role: "Co-Founder and CEO, Qolab" },
                 { name: "Carmen Palacios-Berraquero", role: "Founder and CEO, Nu Quantum" },
                 { name: "Tim Day", role: "Chairman and CEO, Monarch Quantum" },
-                { name: "Dolev Bluvstein", role: "Co-Founder and CEO, Oratomic" },
+                {
+                  name: "Dolev Bluvstein",
+                  role: "Co-Founder and CEO, Oratomic; Visiting Associate Professor, Caltech",
+                },
                 {
                   label: "Moderator",
                   name: "Barak Bussel",
@@ -223,6 +244,7 @@ export const QC_EVENT = {
             {
               code: "1B",
               title: "Testbeds and Proving Grounds",
+              room: "3rd floor, West Coast Room",
               description:
                 "The latest on how California's national laboratory, university, and space-focused testbeds are expanding access to the facilities where quantum technology is developed and proven.",
               speakers: [
@@ -252,17 +274,28 @@ export const QC_EVENT = {
             {
               code: "1C",
               title: "Local to Global Quantum Ecosystems, Crafting Regional Strategies and Partnerships",
+              room: "3rd floor, South Bay Room",
               description:
                 "How international and regional partnerships and investments are turning California's regions into industry clusters for manufacturing, supply chain, testing, and more.",
               speakers: [
-                { name: "Tanya Bennett", role: "Australian Consul-General, Los Angeles" },
-                { name: "Josh Boswell", role: "Vice President of Strategy + Policy, REACH Central Coast" },
+                {
+                  name: "Tanya Bennett",
+                  role: "Australian Consul-General, Los Angeles, Australian Department of Foreign Affairs and Trade",
+                },
+                { name: "Josh Boswell", role: "Vice President of Strategy and Policy, REACH Central Coast" },
                 {
                   name: "Jermaine Hampton",
-                  role: "Vice President, Workforce Development and Special Projects, Los Angeles County Economic Development Corporation (LAEDC)",
+                  role: "Vice President, Workforce Development and Strategic Initiatives, Los Angeles County Economic Development Corporation (LAEDC)",
                 },
-                { name: "Speaker TBA" },
-                { label: "Moderator", name: "David Steuerman", role: `Executive Director, ${CQSE_UCLA}` },
+                {
+                  name: "Stefano Spagna",
+                  role: "Senior Vice President of Strategic Initiatives, Quantum Design",
+                },
+                {
+                  label: "Moderator",
+                  name: "David Steuerman",
+                  role: "Executive Director, Center for Quantum Science and Engineering (CQSE), UCLA",
+                },
               ],
             },
           ],
@@ -276,12 +309,14 @@ export const QC_EVENT = {
             {
               code: "2A",
               title: "Quantum Industry, Applications and Algorithms",
+              room: "3rd floor, North Ridge Room",
               description:
                 "Where quantum applications are headed and which use cases are closest to delivering commercial value.",
               speakers: [
                 { name: "Russell Stutz", role: "Senior Director, Product Technologies, Quantinuum" },
                 { name: "Martin Roetteler", role: "Vice President, Quantum Applications R&D, IonQ" },
                 { name: "Khadijeh Sona Najafi", role: "Quantum Solution Manager, IQM Quantum Computers" },
+                { name: "Elica Kyoseva", role: "Director, Quantum Applications, NVIDIA" },
                 {
                   label: "Moderator",
                   name: "Kristi Beck",
@@ -292,19 +327,20 @@ export const QC_EVENT = {
             {
               code: "2B",
               title: "Manufacturing and Production",
+              room: "3rd floor, West Coast Room",
               description:
                 "What it takes to move quantum hardware from lab-built prototypes to commercial-scale manufacturing, and how to clear the bottlenecks in enabling technologies.",
               speakers: [
                 {
                   name: "Lawrence Lee",
-                  role: "Senior Director, Commercialization Group, and Program Director, NIST Quantum Manufacturing Engineering Center, SRI International",
+                  role: "Senior Director, Commercialization Group; Program Director, NIST Quantum Manufacturing Engineering Center, SRI International",
                 },
                 { name: "Robert Larisch", role: "Senior Vice President, Global Supply Chain, PsiQuantum" },
                 {
                   name: "Robert Visser",
                   role: "Vice President, Engineering Technology, Office of the CTO, Applied Materials",
                 },
-                { name: "Mike Piech", role: "Vice President, Business Development, Rigetti" },
+                { name: "Saeed Seyed", role: "Senior Vice President, System Hardware Engineering, Rigetti" },
                 {
                   label: "Moderator",
                   name: "Chee Wei Wong",
@@ -315,6 +351,7 @@ export const QC_EVENT = {
             {
               code: "2C",
               title: "Connecting the Workforce and Talent Pipeline",
+              room: "3rd floor, South Bay Room",
               description:
                 "How California's education and workforce systems are preparing the talent pipeline for careers in quantum.",
               speakers: [
@@ -322,15 +359,18 @@ export const QC_EVENT = {
                   name: "Brian Monacelli",
                   role: "Professor and Director of Laser Technology, Pasadena City College",
                 },
-                { name: "Ania Bleszynski Jayich", role: "Professor of Physics, UC Santa Barbara" },
+                {
+                  name: "Ania Bleszynski Jayich",
+                  role: "Professor of Physics; Co-Director, NSF Quantum Foundry, UC Santa Barbara",
+                },
                 {
                   name: "Javier Sanchez-Yamagishi",
-                  role: "Associate Professor of Physics and Astronomy and Assistant Director, Eddleman Quantum Institute, UC Irvine",
+                  role: "Associate Professor of Physics and Astronomy; Assistant Director, Eddleman Quantum Institute, UC Irvine",
                 },
                 {
                   label: "Moderator",
                   name: "Richard Ross",
-                  role: "Program Director, Master of Quantum Science and Technology (MQST), UCLA",
+                  role: "Program Director, Master of Quantum Science and Technology (MQST), Department of Physics and Astronomy, UCLA",
                 },
               ],
             },
@@ -342,8 +382,12 @@ export const QC_EVENT = {
           description:
             "International partnerships shaping California's quantum future, with a focus on the growing collaboration between California and the United Kingdom.",
           speakers: [
-            { name: "Paul Rennie", role: "British Consul General, Los Angeles" },
-            { label: "Moderator", name: "TBA" },
+            { name: "Paul Rennie OBE", role: "British Consul General in Los Angeles" },
+            {
+              label: "Moderator",
+              name: "Tricia Utterback",
+              role: `International Trade and Investment Representative, ${GOBIZ}`,
+            },
           ],
         },
         {
@@ -386,7 +430,7 @@ export const QC_EVENT = {
             },
             { name: "Alex Shih", role: "Vice President of Product, Q-CTRL" },
             { name: "James Guilmart", role: "Lead Product Manager, Q-CTRL" },
-            { name: "Reza Nejabati", role: "Head of Quantum Research and Quantum Labs, Cisco" },
+            { name: "Reza Nejabati", role: "Head of Quantum Research and Labs, Cisco" },
             { name: "Stefanie Tardo", role: "Chief Operating Officer, Diraq" },
             { name: "Keith Wright", role: "Head of US Business Development, Quantum Machines" },
           ],
@@ -403,15 +447,15 @@ export const QC_EVENT = {
             },
             {
               name: "Hirosi Ooguri",
-              role: "Division Chair and Kent and Joyce Kresa Leadership Chair, Division of Physics, Mathematics and Astronomy, Caltech",
+              role: "Fred Kavli Professor of Theoretical Physics and Mathematics; Kent and Joyce Kresa Leadership Chair, Division of Physics, Mathematics and Astronomy, Caltech",
             },
             {
               name: "Michael Sailor",
-              role: "Distinguished Professor of Chemistry and Biochemistry and Director, NSF Materials Research Science and Engineering Center, UC San Diego",
+              role: "Distinguished Professor of Chemistry; Director, NSF Materials Research Science and Engineering Center; Co-Director, Institute for Materials Discovery and Design, UC San Diego",
             },
             {
               name: "Nathaniel Gabor",
-              role: "Professor of Physics and Astronomy and Director, Center for Quantum Vibronics in Energy and Time, UC Riverside",
+              role: "Professor of Physics and Astronomy; Principal Investigator, Center for Quantum Vibronics in Energy and Time (QuVET), UC Riverside; Technical Lead, Quantum Sciences, Apsidal",
             },
           ],
         },
@@ -422,10 +466,22 @@ export const QC_EVENT = {
           description:
             "How quantum materials, sensing, timing, and communications technologies are opening new opportunities in aerospace, defense, and maritime applications, and how California's defense economy strengths position the state to lead.",
           speakers: [
-            { name: "Karl Jacob", role: "Commercial Strategy Office, DARPA" },
+            {
+              name: "Jay Lowell",
+              role: "Principal Senior Technical Fellow and Quantum Technology Leader, Boeing Quantum Systems",
+            },
             {
               name: "Andrew Mollner",
               role: "Principal Director, Electronics and Photonics Laboratory, The Aerospace Corporation",
+            },
+            {
+              name: "Dr. Joanna Ptasinski",
+              role: "Branch Head, Cryogenic Electronics and Quantum Research, Naval Information Warfare Center (NIWC) Pacific",
+            },
+            {
+              label: "Moderator",
+              name: "Karl Jacob",
+              role: "Commercial Strategy Office, DARPA; Strategic Advisor, USC Information Sciences Institute",
             },
           ],
         },
