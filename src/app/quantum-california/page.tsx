@@ -240,6 +240,9 @@ function AgendaSessionRow({ session }: { session: AgendaSession }) {
                   </span>
                   {track.title}
                 </h5>
+                {track.room && (
+                  <p className="mt-1 text-sm font-semibold text-[#002F7B]">Room: {track.room}</p>
+                )}
                 <p className="mt-2 leading-relaxed text-gray-700">{track.description}</p>
                 <SpeakerList speakers={track.speakers} />
               </div>
