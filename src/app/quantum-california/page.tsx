@@ -29,7 +29,7 @@ export const metadata = {
 };
 
 export default function QuantumCaliforniaPage() {
-  const { overview, venue, address, agenda, agendaNote, speakers, partners } = QC_EVENT;
+  const { overview, venue, address, agenda, agendaNote, biographiesUrl, speakers, partners } = QC_EVENT;
 
   return (
     <main className="min-h-screen bg-white">
@@ -82,7 +82,24 @@ export default function QuantumCaliforniaPage() {
       <section id="agenda" className="px-4 py-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold text-[#002F7B]">Agenda</h2>
-          {agendaNote && <p className="mt-6 text-lg leading-relaxed text-gray-700">{agendaNote}</p>}
+          {(biographiesUrl || agendaNote) && (
+            <p className="mt-6 text-lg leading-relaxed text-gray-700">
+              {biographiesUrl && (
+                <>
+                  <a
+                    href={biographiesUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-[#002F7B] underline"
+                  >
+                    Speaker biographies
+                  </a>
+                  .{" "}
+                </>
+              )}
+              {agendaNote}
+            </p>
+          )}
           <nav aria-label="Agenda days" className="mt-6 flex flex-wrap gap-3">
             {agenda.map((day) => (
               <a
