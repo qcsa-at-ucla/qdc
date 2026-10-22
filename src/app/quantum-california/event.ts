@@ -60,8 +60,8 @@ export const QC_EVENT = {
     "During this two-day convening hosted at UCLA, partners will explore the industry opportunities that quantum technology presents and will discuss efforts that are underway to strengthen California's quantum ecosystem.",
     "Join us as we discuss the future of quantum technologies in California.",
   ].join("\n\n"),
-  agendaNote:
-    "Speakers and times are subject to change. Additional speakers will be announced as they are confirmed.",
+  agendaNote: "Speakers and times are subject to change.",
+  biographiesUrl: "/documents/quantum-california-speaker-biographies.pdf",
   agenda: [
     {
       id: "day-1",
@@ -104,7 +104,7 @@ export const QC_EVENT = {
           speakers: [
             {
               name: "Eric Hudson",
-              role: `Davis Saxon Presidential Chair and Professor of Physics and Astronomy; Director, ${CQSE_UCLA}`,
+              role: `David Saxon Presidential Chair and Professor of Physics and Astronomy; Director, ${CQSE_UCLA}`,
             },
           ],
         },
